@@ -120,6 +120,7 @@ fun LibraryExtension.sourceTask(
 ): TaskConfig = { target ->
   val taskName = xtrasTaskName(TASK_GROUP_SOURCE, name.name.lowercase(), this, target)
   project.tasks.register<Exec>(taskName) {
+    dependsOn(*dependencies.map { it.taskNamePackageExtract(target) }.toTypedArray())
     group = XTRAS_TASK_GROUP
     environment(xtras.buildEnvironment.getEnvironment(target))
     if (dependsOn != null)

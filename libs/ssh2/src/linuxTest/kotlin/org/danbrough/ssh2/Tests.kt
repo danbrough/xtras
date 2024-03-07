@@ -11,11 +11,11 @@ val log = run {
 
 class Tests {
 
-
   @Test
   fun test() {
     log.trace { "test() trace" }
     log.info { "test()" }
     log.error { "test() error" }
+
   }
 }
