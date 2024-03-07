@@ -40,6 +40,11 @@ abstract class LibraryExtension(
   @XtraDSL
   abstract val sourcesRequired: Property<Boolean>
 
+  /**
+   * Whether source and build tasks are enabled.
+   * By default this will be the value of the gradle property [name].buildRequired (true|false)
+   * otherwise it will be true if the [packageFile] doesn't exist.
+   */
   @XtraDSL
   abstract val buildRequired: Property<KonanTarget.() -> Boolean>
 
@@ -65,13 +70,11 @@ abstract class LibraryExtension(
       .resolve("xtras_${name}_${it.platformName}_${version}.tgz")
   }
 
+
   @XtraDSL
   var artifactName: (KonanTarget) -> String = {
     "package-${name.lowercase()}-${it.platformName.lowercase()}"
   }
-
-  @XtraDSL
-  var cinteropsTargetWriter: CInteropsTargetWriter = defaultCInteropsTargetWriter
 
   @XtraDSL
   var libsDir: (KonanTarget) -> File = {
@@ -80,19 +83,24 @@ abstract class LibraryExtension(
   }
 
   data class CInteropsConfig(
-    var interopsPackage: String,
     var defFile: File,
     var headers: String? = null,
     var headersFile: File? = null,
     var code: String? = null,
     var codeFile: File? = null,
+    var cinteropsTargetWriter: CInteropsTargetWriter = defaultCInteropsTargetWriter
   )
 
-  val cinteropsConfig = CInteropsConfig(
-    "${group}.${project.name}.interops",
+
+  internal val cinteropsConfig = CInteropsConfig(
     project.layout.buildDirectory.get().asFile.resolve("generated/cinterops")
       .resolve("${name}_${version}.def")
   )
+
+  @XtraDSL
+  fun cinterops(block: CInteropsConfig.() -> Unit) {
+    cinteropsConfig.block()
+  }
 
   override fun toString(): String =
     "${this::class.java.simpleName.substringBefore("_Decorated")}[$name:$version]"

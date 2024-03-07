@@ -3,7 +3,6 @@ package org.danbrough.xtras.openssl
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.logWarn
 import org.danbrough.xtras.projectProperty
-import org.danbrough.xtras.tasks.cinterops
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
 import org.danbrough.xtras.tasks.gitSource

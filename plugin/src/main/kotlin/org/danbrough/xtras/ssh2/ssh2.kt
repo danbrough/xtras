@@ -21,6 +21,14 @@ fun Project.ssh2(
 ) = registerGitLibrary<LibSSH2Library>("ssh2") {
   dependsOn(ssl)
 
+  cinterops {
+    headers = """
+      package = $group.interops
+      headers = libssh2.h  libssh2_publickey.h  libssh2_sftp.h
+      linkerOpts.linux = -lssh2
+      """.trimIndent()
+  }
+
   prepareSource { target ->
     val configureFile = sourceDir(target).resolve("configure")
     outputs.file(configureFile)

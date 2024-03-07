@@ -8,8 +8,11 @@ import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.platformName
+import org.danbrough.xtras.projectProperty
 import org.gradle.api.tasks.Exec
+import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.InputStreamReader
 import java.io.PipedInputStream
@@ -20,8 +23,13 @@ import java.io.Writer
 fun LibraryExtension.registerTasks() {
   project.logInfo("registerTasks(): $this sourceConfig: $sourceConfig")
 
+
+  val buildRequiredGlobal: Boolean? =
+    project.projectProperty("${this@registerTasks.name}.buildRequired") { null }
+
+
   buildRequired.convention {
-    !packageFile(this).exists()
+    buildRequiredGlobal ?: !packageFile(this).exists()
   }
 
   supportedTargets.convention(xtras.nativeTargets)

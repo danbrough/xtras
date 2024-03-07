@@ -1,7 +1,9 @@
 @file:Suppress("UnstableApiUsage")
 
 import org.danbrough.xtras.XTRAS_PACKAGE
+import org.danbrough.xtras.projectProperty
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform) apply false
@@ -20,5 +22,12 @@ allprojects {
 
   repositories {
     mavenCentral()
+  }
+}
+
+
+tasks.register("thang"){
+  doFirst {
+    println("EXTRA: ${project.projectProperty<Boolean?>("thang"){null}}")
   }
 }

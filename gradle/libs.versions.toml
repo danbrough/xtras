@@ -24,9 +24,11 @@ kotlinx-io = "0.3.1"
 slf4j-api = "2.0.12"
 slf4j-simple = "2.0.12"
 logback-classic = "1.5.3"
+kotlinx-coroutines = "1.8.0"
+
 
 [libraries]
-
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin" }
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }

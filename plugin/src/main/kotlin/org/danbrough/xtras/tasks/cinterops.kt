@@ -3,7 +3,6 @@ package org.danbrough.xtras.tasks
 import org.danbrough.xtras.CInteropsTargetWriter
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.XTRAS_TASK_GROUP
-import org.danbrough.xtras.XtraDSL
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.logWarn
 import org.gradle.api.tasks.TaskProvider
@@ -27,11 +26,6 @@ val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
   )
 }
 
-
-@XtraDSL
-fun LibraryExtension.cinterops(block: LibraryExtension.CInteropsConfig.() -> Unit) =
-  cinteropsConfig.block()
-
 internal fun LibraryExtension.taskNameCInterops(): String =
   xtrasTaskName("cinterops", "create", this)
 
@@ -43,7 +37,7 @@ internal fun LibraryExtension.writeInteropsFile(writer: PrintWriter) {
 
   supportedTargets.get().forEachIndexed { index, konanTarget ->
     if (index == 0) writer.println("\n### XTRAS: generated paths from the cinteropsTargetWriter\n")
-    cinteropsTargetWriter(konanTarget, writer)
+    cinteropsConfig.cinteropsTargetWriter.invoke(this, konanTarget, writer)
   }
 
 
@@ -98,7 +92,6 @@ fun LibraryExtension.registerCInteropsTasks() {
   (project.kotlinExtension as KotlinMultiplatformExtension).targets.withType<KotlinNativeTarget> {
     compilations["main"].cinterops.create(this@registerCInteropsTasks.name) {
       defFile = cinteropsConfig.defFile
-      packageName(cinteropsConfig.interopsPackage)
     }
   }
 

@@ -1,5 +1,6 @@
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.openssl.openssl
+import org.danbrough.xtras.platformName
 import org.danbrough.xtras.ssh2.ssh2
 import org.danbrough.xtras.xtrasTesting
 
@@ -20,10 +21,7 @@ xtras {
 
 
 val ssl = openssl {
-  /*
-  Will assume it's already built. We don't want this project building openssl
-   */
-  buildRequired.set { false }
+
 }
 
 
@@ -41,6 +39,7 @@ kotlin {
     val commonMain by getting {
       dependencies {
         implementation(libs.kotlin.logging)
+        implementation(libs.kotlinx.coroutines)
       }
     }
     val commonTest by getting {
