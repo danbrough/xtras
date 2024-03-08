@@ -3,14 +3,16 @@
 [plugins]
 
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 org-jetbrains-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-
+android-application = { id = "com.android.application", version.ref = "agp" }
 xtras = { id = "org.danbrough.xtras", version.ref = "xtras-version" }
 xtras-openssl = { id = "org.danbrough.xtras.openssl", version.ref = "xtras-openssl" }
 xtras-mqtt = { id = "org.danbrough.xtras.mqtt", version.ref = "xtras-mqtt" }
 
 [versions]
-
+agp = "8.3.0"
 kotlin = "2.0.0-Beta4"
 
 xtrasPackage = "org.danbrough.xtras"

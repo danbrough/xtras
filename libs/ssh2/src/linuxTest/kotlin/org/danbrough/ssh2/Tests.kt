@@ -1,24 +1,13 @@
 package org.danbrough.ssh2
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.cinterop.COpaquePointerVar
 import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.CPointerVarOf
-import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.IntVar
-import kotlinx.cinterop.StableRef
-import kotlinx.cinterop.alloc
 import kotlinx.cinterop.cValue
 import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.pointed
-import kotlinx.cinterop.ptr
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.sizeOf
 import kotlinx.cinterop.toKString
-import kotlinx.cinterop.usePinned
-import kotlinx.cinterop.value
-import kotlinx.cinterop.write
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -32,37 +21,28 @@ import org.danbrough.ssh2.cinterops.libssh2_exit
 import org.danbrough.ssh2.cinterops.libssh2_init
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_init
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_readfile
-import org.danbrough.ssh2.cinterops.libssh2_knownhost_writefile
 import org.danbrough.ssh2.cinterops.libssh2_session_disconnect_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_free
 import org.danbrough.ssh2.cinterops.libssh2_session_handshake
-import org.danbrough.ssh2.cinterops.libssh2_session_hostkey
 import org.danbrough.ssh2.cinterops.libssh2_session_init_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
-import org.danbrough.testing.initTesting
+import org.danbrough.xtras.support.supportLog
 import platform.linux.inet_addr
 import platform.posix.AF_INET
-import platform.posix.NULL
 import platform.posix.SOCK_STREAM
 import platform.posix.close
 import platform.posix.connect
-import platform.posix.err
-import platform.posix.getaddrinfo
 import platform.posix.htons
-import platform.posix.in_addr_t
 import platform.posix.shutdown
 import platform.posix.size_t
-import platform.posix.size_tVar
-import platform.posix.sockaddr
 import platform.posix.sockaddr_in
 import platform.posix.socket
-import platform.posix.socklen_t
 import platform.posix.strerror
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
 val log = run {
-  initTesting()
+  supportLog.trace {  }
   KotlinLogging.logger("TESTS")
 }
 

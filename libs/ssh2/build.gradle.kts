@@ -40,7 +40,7 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        implementation(libs.kotlin.logging)
+        implementation(project(":libs:support"))
         implementation(libs.kotlinx.coroutines)
       }
     }

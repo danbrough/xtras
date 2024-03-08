@@ -2,6 +2,7 @@ pluginManagement {
   repositories {
     maven("https://maven.danbrough.org")
     mavenCentral()
+    google()
     gradlePluginPortal()
   }
 }

@@ -8,6 +8,8 @@ import org.jetbrains.kotlin.gradle.plugin.extraProperties
 plugins {
   alias(libs.plugins.kotlin.multiplatform) apply false
   alias(libs.plugins.xtras) apply false
+  alias(libs.plugins.kotlin.android) apply false
+  alias(libs.plugins.android.application) apply false
   `maven-publish`
 }
 
@@ -22,6 +24,7 @@ allprojects {
 
   repositories {
     mavenCentral()
+    google()
   }
 }
 

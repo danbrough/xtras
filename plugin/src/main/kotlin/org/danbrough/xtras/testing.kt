@@ -10,6 +10,9 @@ import org.gradle.kotlin.dsl.withType
 
 fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit = {}) =
   tasks.withType<AbstractTestTask> {
+    if (this is Test){
+      useJUnitPlatform()
+    }
     testLogging {
       events = setOf(
         TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED

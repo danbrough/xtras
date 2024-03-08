@@ -1,11 +1,14 @@
-package org.danbrough.testing
+package org.danbrough.xtras.support
 
 import io.github.oshai.kotlinlogging.Formatter
+import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KLoggingEvent
 import io.github.oshai.kotlinlogging.KotlinLoggingConfiguration
 import io.github.oshai.kotlinlogging.Level
 
-fun initTesting() {
+internal actual fun initSupport(log: KLogger) {
+  log.info { "initSupport() nativeMain" }
+
   KotlinLoggingConfiguration.logLevel = Level.TRACE
   KotlinLoggingConfiguration.formatter = object : Formatter {
     val formatter = KotlinLoggingConfiguration.formatter
@@ -13,7 +16,6 @@ fun initTesting() {
       formatter.formatMessage(loggingEvent).colored(loggingEvent.level)
   }
 }
-
 
 object ANSIConstants {
   const val ESC_START = "\u001b["
