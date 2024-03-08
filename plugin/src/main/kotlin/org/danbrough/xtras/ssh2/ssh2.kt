@@ -25,7 +25,7 @@ fun Project.ssh2(
     headers = """
       package = $group.cinterops
       headers = libssh2.h  libssh2_publickey.h  libssh2_sftp.h
-      linkerOpts.linux = -lssh2
+      linkerOpts = -lssh2
       """.trimIndent()
   }
 

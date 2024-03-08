@@ -33,7 +33,7 @@ fun KotlinMultiplatformExtension.declareSupportedTargets() {
     //tvosX64()
     //watchosArm64()
 
-    //watchosX64()
+    watchosX64()
     // watchosX64()
   } else if (HostManager.hostIsMingw) {
     mingwX64()

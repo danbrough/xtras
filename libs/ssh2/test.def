@@ -1,0 +1,14 @@
+
+package = org.danbrough.nativetests
+
+---
+
+#include<stdio.h>
+
+static void message(){
+    printf("Hello world\n");
+}
+
+static void test1(int *n){
+    *n = *n * 2;
+}

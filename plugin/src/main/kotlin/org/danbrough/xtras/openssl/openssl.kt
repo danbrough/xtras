@@ -77,19 +77,21 @@ fun Project.openssl(
     }
 
     cinterops {
-      headers = """        
-          #staticLibraries =  libcrypto.a libssl.a
-          headerFilter = openssl/**
-          #headers = openssl/ssl.h openssl/err.h openssl/bio.h openssl/evp.h
-          excludeDependentModules = true
-          linkerOpts.linux = -ldl -lc -lm -lssl -lcrypto
-          linkerOpts.android = -ldl -lc -lm -lssl -lcrypto
-          linkerOpts.macos = -ldl -lc -lm -lssl -lcrypto
-          linkerOpts.mingw = -lm -lssl -lcrypto
-          compilerOpts.android = -D__ANDROID_API__=${xtras.buildEnvironment.androidNdkApiVersion} 
-          compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
-          #compilerOpts = -static
-          """.trimIndent()
+      headers = """
+        package = $group.cinterops
+
+        #staticLibraries =  libcrypto.a libssl.a
+        headerFilter = openssl/**
+        #headers = openssl/ssl.h openssl/err.h openssl/bio.h openssl/evp.h
+        excludeDependentModules = true
+        linkerOpts.linux = -ldl -lc -lm -lssl -lcrypto
+        linkerOpts.android = -ldl -lc -lm -lssl -lcrypto
+        linkerOpts.macos = -ldl -lc -lm -lssl -lcrypto
+        linkerOpts.mingw = -lm -lssl -lcrypto
+        compilerOpts.android = -D__ANDROID_API__=${xtras.buildEnvironment.androidNdkApiVersion} 
+        compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
+        #compilerOpts = -static
+        """.trimIndent()
     }
 
 
