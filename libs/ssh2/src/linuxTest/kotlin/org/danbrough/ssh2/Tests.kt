@@ -3,11 +3,16 @@ package org.danbrough.ssh2
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.IntVar
+import kotlinx.cinterop.alloc
 import kotlinx.cinterop.cValue
 import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.sizeOf
 import kotlinx.cinterop.toKString
+import kotlinx.cinterop.value
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -24,6 +29,7 @@ import org.danbrough.ssh2.cinterops.libssh2_knownhost_readfile
 import org.danbrough.ssh2.cinterops.libssh2_session_disconnect_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_free
 import org.danbrough.ssh2.cinterops.libssh2_session_handshake
+import org.danbrough.ssh2.cinterops.libssh2_session_hostkey
 import org.danbrough.ssh2.cinterops.libssh2_session_init_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
 import org.danbrough.xtras.support.supportLog
@@ -35,14 +41,17 @@ import platform.posix.connect
 import platform.posix.htons
 import platform.posix.shutdown
 import platform.posix.size_t
+import platform.posix.size_tVar
 import platform.posix.sockaddr_in
 import platform.posix.socket
 import platform.posix.strerror
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
 val log = run {
-  supportLog.trace {  }
+  supportLog.trace { }
   KotlinLogging.logger("TESTS")
 }
 
@@ -71,7 +80,6 @@ class Tests {
       var session: CPointer<LIBSSH2_SESSION>? = null
       var nh: CPointer<LIBSSH2_KNOWNHOSTS>? = null
       var rc = 0
-      var fingerprint: String? = null
       var type = 0
       var len: size_t = 0.toULong()
 
@@ -134,22 +142,32 @@ class Tests {
           log.trace { "libssh2_knownhost_init(session)" }
           nh = libssh2_knownhost_init(session) ?: error("libssh2_knownhost_init failed")
 
-          log.trace { "libssh2_knownhost_readfile" }
+          log.trace { "libssh2_knownhost_readFile" }
           libssh2_knownhost_readfile(
             nh, "/home/dan/.ssh/known_hosts",
             LIBSSH2_KNOWNHOST_FILE_OPENSSH
           )
-/*
 
-          val keyType = 0
-          val keyLength = 0
+          val keyType = alloc<IntVar>()
+          val keyLength = alloc<size_tVar>()
+          val fingerprint = libssh2_session_hostkey(session, keyLength.ptr, keyType.ptr)
+          log.info { "keyLength: ${keyLength.value} keyType: ${keyType.value}" }
+          fingerprint?.readBytes(keyLength.value.toInt())?.also { bytes ->
+            log.info { "FINGERPRINT: ${Base64.encode(bytes)}" }
+          }
 
 
-          CPointerVarOf<IntVar>()
-          fingerprint = libssh2_session_hostkey(session, keyLength.getPoi, keyType.ptr)?.toKString()
+          /*
 
-          log.warn { "fingerprint: $fingerprint length: ${keyLength.ptr.pointed.value}  type:${keyType.ptr.pointed.value}" }
-*/
+                    val keyType = 0
+                    val keyLength = 0
+
+
+                    CPointerVarOf<IntVar>()
+                    fingerprint = libssh2_session_hostkey(session, keyLength.getPoi, keyType.ptr)?.toKString()
+
+                    log.warn { "fingerprint: $fingerprint length: ${keyLength.ptr.pointed.value}  type:${keyType.ptr.pointed.value}" }
+          */
 
 
           delay(1.seconds)
