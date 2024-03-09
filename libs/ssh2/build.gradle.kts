@@ -36,8 +36,16 @@ kotlin {
   applyDefaultHierarchyTemplate()
   declareSupportedTargets()
 
-
   sourceSets {
+    all {
+      languageSettings {
+        listOf(
+          "kotlinx.cinterop.ExperimentalForeignApi",
+          "kotlin.io.encoding.ExperimentalEncodingApi",
+        ).forEach(::optIn)
+      }
+    }
+
     val commonMain by getting {
       dependencies {
         implementation(project(":libs:support"))

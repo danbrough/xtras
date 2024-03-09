@@ -3,7 +3,8 @@ package = org.danbrough.nativetests
 
 ---
 
-#include<stdio.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 static void message(){
     printf("Hello world\n");
@@ -11,4 +12,9 @@ static void message(){
 
 static void test1(int *n){
     *n = *n * 2;
+}
+
+static void test2(int **n){
+    *n = malloc(sizeof(int));
+    **n = 123456;
 }

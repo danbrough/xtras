@@ -2,16 +2,21 @@ package org.danbrough.ssh2
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.cValue
+import kotlinx.cinterop.cstr
+import kotlinx.cinterop.free
 import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.nativeHeap
+import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.sizeOf
+import kotlinx.cinterop.toCValues
 import kotlinx.cinterop.toKString
+import kotlinx.cinterop.useContents
 import kotlinx.cinterop.value
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -19,11 +24,19 @@ import kotlinx.coroutines.runBlocking
 import org.danbrough.ssh2.cinterops.LIBSSH2_ERROR_EAGAIN
 import org.danbrough.ssh2.cinterops.LIBSSH2_INVALID_SOCKET
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOSTS
+import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_CHECK_MISMATCH
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_FILE_OPENSSH
+import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_BASE64
+import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_RAW
+import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_PLAIN
+import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_SHA1
 import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION
 import org.danbrough.ssh2.cinterops.SSH_DISCONNECT_BY_APPLICATION
 import org.danbrough.ssh2.cinterops.libssh2_exit
 import org.danbrough.ssh2.cinterops.libssh2_init
+import org.danbrough.ssh2.cinterops.libssh2_knownhost
+import org.danbrough.ssh2.cinterops.libssh2_knownhost_checkp
+import org.danbrough.ssh2.cinterops.libssh2_knownhost_free
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_init
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_readfile
 import org.danbrough.ssh2.cinterops.libssh2_session_disconnect_ex
@@ -32,6 +45,7 @@ import org.danbrough.ssh2.cinterops.libssh2_session_handshake
 import org.danbrough.ssh2.cinterops.libssh2_session_hostkey
 import org.danbrough.ssh2.cinterops.libssh2_session_init_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
+import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
 import org.danbrough.xtras.support.supportLog
 import platform.linux.inet_addr
 import platform.posix.AF_INET
@@ -46,7 +60,6 @@ import platform.posix.sockaddr_in
 import platform.posix.socket
 import platform.posix.strerror
 import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
@@ -55,8 +68,7 @@ val log = run {
   KotlinLogging.logger("TESTS")
 }
 
-@OptIn(ExperimentalForeignApi::class)
-class Tests {
+class SSHTests {
 
   @Test
   fun test() {
@@ -73,6 +85,8 @@ class Tests {
       val user = "dan"
       val hostname = "192.168.1.4"
       val port = 22.toUShort()
+      val pubKey = "/home/dan/.ssh/id_ed25519.pub"
+      val privKey = "/home/dan/.ssh/id_ed25519"
     }
 
     runBlocking {
@@ -98,6 +112,8 @@ class Tests {
     LIBSSH2_KNOWNHOSTS *nh;
     int type;
        */
+
+
 
       launch {
         memScoped {
@@ -148,26 +164,70 @@ class Tests {
             LIBSSH2_KNOWNHOST_FILE_OPENSSH
           )
 
+
           val keyType = alloc<IntVar>()
           val keyLength = alloc<size_tVar>()
           val fingerprint = libssh2_session_hostkey(session, keyLength.ptr, keyType.ptr)
-          log.info { "keyLength: ${keyLength.value} keyType: ${keyType.value}" }
-          fingerprint?.readBytes(keyLength.value.toInt())?.also { bytes ->
-            log.info { "FINGERPRINT: ${Base64.encode(bytes)}" }
-          }
+            ?: error("Failed to get session fingerprint")
 
+          log.info { "keyLength: ${keyLength.value} keyType: ${keyType.value}" }
+          val fingerprintString = fingerprint.readBytes(keyLength.value.toInt())
+          log.info { "FINGERPRINT: ${Base64.encode(fingerprintString)}" }
+
+          val knownHost = cValue<libssh2_knownhost>()
+          val check = libssh2_knownhost_checkp(
+            nh,
+            config.hostname,
+            config.port.toInt(),
+            fingerprintString.toKString(),
+            keyLength.value,
+            LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_RAW,// or LIBSSH2_KNOWNHOST_TYPE_SHA1,
+            knownHost.ptr.reinterpret()
+          )
+
+          val ok = check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH
+          log.info { "Host check: $check" }
+          /*
+                 if(fingerprint) {
+          struct libssh2_knownhost *host;
+          int check = libssh2_knownhost_checkp(nh, hostname, 22,
+          fingerprint, len,
+          LIBSSH2_KNOWNHOST_TYPE_PLAIN|
+          LIBSSH2_KNOWNHOST_KEYENC_RAW,
+          &host);
+
+          fprintf(stderr, "Host check: %d, key: %s\n", check,
+          (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) ?
+          host->key : "<none>");
+           */
+
+          libssh2_knownhost_free(nh)
+
+          do {
+           rc =  libssh2_userauth_publickey_fromfile_ex(
+              session,
+              config.user,
+              config.user.length.toUInt(),
+              config.pubKey,
+              config.privKey,
+              "poiqwe"
+            )
+          } while (rc == LIBSSH2_ERROR_EAGAIN)
+
+          log.info { "libssh2_userauth_publickey_fromfile_ex returned $rc" }
 
           /*
 
-                    val keyType = 0
-                    val keyLength = 0
 
-
-                    CPointerVarOf<IntVar>()
-                    fingerprint = libssh2_session_hostkey(session, keyLength.getPoi, keyType.ptr)?.toKString()
-
-                    log.warn { "fingerprint: $fingerprint length: ${keyLength.ptr.pointed.value}  type:${keyType.ptr.pointed.value}" }
-          */
+        while((rc = libssh2_userauth_publickey_fromfile(session, username,
+                                                        pubkey, privkey,
+                                                        password)) ==
+              LIBSSH2_ERROR_EAGAIN);
+        if(rc) {
+            fprintf(stderr, "Authentication by public key failed.\n");
+            goto shutdown;
+        }
+           */
 
 
           delay(1.seconds)
