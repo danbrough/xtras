@@ -4,6 +4,8 @@ pluginManagement {
     mavenCentral()
     google()
     gradlePluginPortal()
+    maven("https://maven.xillio.com/artifactory/libs-release/")
+
   }
 }
 

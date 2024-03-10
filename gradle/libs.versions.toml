@@ -10,9 +10,24 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 xtras = { id = "org.danbrough.xtras", version.ref = "xtras-version" }
 xtras-openssl = { id = "org.danbrough.xtras.openssl", version.ref = "xtras-openssl" }
 xtras-mqtt = { id = "org.danbrough.xtras.mqtt", version.ref = "xtras-mqtt" }
+kotest-multiplatform = { id = "io.kotest.multiplatform",version ="5.8.0" }
 
 [versions]
+
 agp = "8.3.0"
+##⬆= "8.4.0-alpha01"
+##⬆= "8.4.0-alpha02"
+##⬆= "8.4.0-alpha03"
+##⬆= "8.4.0-alpha04"
+##⬆= "8.4.0-alpha05"
+##⬆= "8.4.0-alpha06"
+##⬆= "8.4.0-alpha07"
+##⬆= "8.4.0-alpha08"
+##⬆= "8.4.0-alpha09"
+##⬆= "8.4.0-alpha10"
+##⬆= "8.4.0-alpha11"
+##⬆= "8.4.0-alpha12"
+##⬆= "8.4.0-alpha13"
 kotlin = "2.0.0-Beta4"
 
 xtrasPackage = "org.danbrough.xtras"
@@ -27,11 +42,14 @@ slf4j-api = "2.0.12"
 ##     ⬆ = "2.1.0-alpha0"
 ##     ⬆ = "2.1.0-alpha1"
 slf4j-simple = "2.0.12"
+##        ⬆ = "2.1.0-alpha0"
+##        ⬆ = "2.1.0-alpha1"
 logback-classic = "1.5.3"
 kotlinx-coroutines = "1.8.0"
 
 [libraries]
 
+io-kotest-framework-engine = { module = "io.kotest:kotest-framework-engine" ,version ="5.8.0" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin" }

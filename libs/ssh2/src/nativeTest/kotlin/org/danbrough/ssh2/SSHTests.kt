@@ -9,6 +9,7 @@ import kotlinx.cinterop.cstr
 import kotlinx.cinterop.free
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
+import kotlinx.cinterop.objcPtr
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.readBytes
@@ -21,6 +22,9 @@ import kotlinx.cinterop.value
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL
+import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL_PACKET_DEFAULT
+import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL_WINDOW_DEFAULT
 import org.danbrough.ssh2.cinterops.LIBSSH2_ERROR_EAGAIN
 import org.danbrough.ssh2.cinterops.LIBSSH2_INVALID_SOCKET
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOSTS
@@ -31,7 +35,10 @@ import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_RAW
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_PLAIN
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_SHA1
 import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION
+import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION_BLOCK_INBOUND
+import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION_BLOCK_OUTBOUND
 import org.danbrough.ssh2.cinterops.SSH_DISCONNECT_BY_APPLICATION
+import org.danbrough.ssh2.cinterops.libssh2_channel_open_ex
 import org.danbrough.ssh2.cinterops.libssh2_exit
 import org.danbrough.ssh2.cinterops.libssh2_init
 import org.danbrough.ssh2.cinterops.libssh2_knownhost
@@ -39,12 +46,17 @@ import org.danbrough.ssh2.cinterops.libssh2_knownhost_checkp
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_free
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_init
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_readfile
+import org.danbrough.ssh2.cinterops.libssh2_session_block_directions
 import org.danbrough.ssh2.cinterops.libssh2_session_disconnect_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_free
 import org.danbrough.ssh2.cinterops.libssh2_session_handshake
 import org.danbrough.ssh2.cinterops.libssh2_session_hostkey
 import org.danbrough.ssh2.cinterops.libssh2_session_init_ex
+import org.danbrough.ssh2.cinterops.libssh2_session_last_error
 import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
+import org.danbrough.ssh2.cinterops.libssh2_socket_t
+import org.danbrough.ssh2.cinterops.waitsocket
+
 import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
 import org.danbrough.xtras.support.supportLog
 import platform.linux.inet_addr
@@ -52,13 +64,20 @@ import platform.posix.AF_INET
 import platform.posix.SOCK_STREAM
 import platform.posix.close
 import platform.posix.connect
+import platform.posix.fd_set
 import platform.posix.htons
+import platform.posix.posix_FD_SET
+import platform.posix.posix_FD_ZERO
+import platform.posix.select
 import platform.posix.shutdown
 import platform.posix.size_t
 import platform.posix.size_tVar
 import platform.posix.sockaddr_in
 import platform.posix.socket
 import platform.posix.strerror
+import platform.posix.time_tVar
+import platform.posix.timeval
+import platform.posix.write
 import kotlin.io.encoding.Base64
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
@@ -85,12 +104,13 @@ class SSHTests {
       val user = "dan"
       val hostname = "192.168.1.4"
       val port = 22.toUShort()
-      val pubKey = "/home/dan/.ssh/id_ed25519.pub"
-      val privKey = "/home/dan/.ssh/id_ed25519"
+      val pubKey = "/home/dan/.ssh/test.pub"
+      val privKey = "/home/dan/.ssh/test"
+      val password = "password"
     }
 
     runBlocking {
-      var sock = 0
+      var sock:libssh2_socket_t = 0
       var session: CPointer<LIBSSH2_SESSION>? = null
       var nh: CPointer<LIBSSH2_KNOWNHOSTS>? = null
       var rc = 0
@@ -204,17 +224,17 @@ class SSHTests {
           libssh2_knownhost_free(nh)
 
           do {
-           rc =  libssh2_userauth_publickey_fromfile_ex(
+            rc = libssh2_userauth_publickey_fromfile_ex(
               session,
               config.user,
               config.user.length.toUInt(),
               config.pubKey,
               config.privKey,
-              "poiqwe"
+              config.password
             )
           } while (rc == LIBSSH2_ERROR_EAGAIN)
 
-          log.info { "libssh2_userauth_publickey_fromfile_ex returned $rc" }
+          if (rc != 0) error("libssh2_userauth_publickey_fromfile_ex returned $rc")
 
           /*
 
@@ -229,7 +249,59 @@ class SSHTests {
         }
            */
 
+          val ss = "session".cstr.size
 
+          log.trace { "(\"session\".cstr.size - 1) == ${"session".cstr.size - 1}" }
+
+          var channel: CPointer<LIBSSH2_CHANNEL>? = null
+
+          while (true) {
+            channel = libssh2_channel_open_ex(
+              session,
+              "session",
+              ("session".cstr.size - 1).toUInt(),
+              LIBSSH2_CHANNEL_WINDOW_DEFAULT.toUInt(),
+              LIBSSH2_CHANNEL_PACKET_DEFAULT.toUInt(),
+              null,
+              0u
+            )
+            if (channel != null ||
+              libssh2_session_last_error(session, null, null, 0) != LIBSSH2_ERROR_EAGAIN
+            ) break
+            waitSocket(sock, session!!)
+          }
+
+          log.debug { "channel: $channel" }
+
+          /*
+
+          #define libssh2_channel_open_session(session) \
+    libssh2_channel_open_ex((session), "session", sizeof("session") - 1, \
+                            LIBSSH2_CHANNEL_WINDOW_DEFAULT, \
+                            LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0)
+
+             // Exec non-blocking on the remote host
+    do {
+        channel = libssh2_channel_open_session(session);
+        if(channel ||
+           libssh2_session_last_error(session, NULL, NULL, 0) !=
+           LIBSSH2_ERROR_EAGAIN)
+            break;
+        waitsocket(sock, session);
+    } while(1);
+    if(!channel) {
+        fprintf(stderr, "Error\n");
+        exit(1);
+    }
+    while((rc = libssh2_channel_exec(channel, commandline)) ==
+          LIBSSH2_ERROR_EAGAIN) {
+        waitsocket(sock, session);
+    }
+    if(rc) {
+        fprintf(stderr, "exec error\n");
+        exit(1);
+    }
+           */
           delay(1.seconds)
           log.debug { "exiting.." }
           libssh2_exit()
@@ -267,5 +339,62 @@ class SSHTests {
       }
     }
 
+  }
+
+  private fun waitSocket(socketFd: libssh2_socket_t, session: CPointer<LIBSSH2_SESSION>):Int {
+
+    memScoped {
+      val timeout = cValue<timeval> {
+        tv_sec = 10
+        tv_usec = 0
+      }
+      val fd = cValue<fd_set>()
+      var writeFD: CPointer<fd_set>? = null
+      var readFD: CPointer<fd_set>? = null
+      posix_FD_ZERO(fd)
+
+      posix_FD_SET(socketFd, fd)
+
+      log.trace { "libssh2_session_block_directions" }
+      val dir = libssh2_session_block_directions(session)
+      log.trace { "libssh2_session_block_directions done dir:$dir" }
+      if ((dir and LIBSSH2_SESSION_BLOCK_INBOUND) != 0)
+        readFD = fd.ptr
+
+      if ((dir and LIBSSH2_SESSION_BLOCK_OUTBOUND) != 0)
+        writeFD = fd.ptr
+
+      return select(socketFd + 1,readFD,writeFD,null,timeout.ptr).also {
+        log.trace { "select returned $it" }
+
+      }
+
+    }
+//    struct timeval timeout;
+//    int rc;
+//    fd_set fd;
+//    fd_set *writefd = NULL;
+//    fd_set *readfd = NULL;
+//    int dir;
+//
+//    timeout.tv_sec = 10;
+//    timeout.tv_usec = 0;
+//
+//    FD_ZERO(&fd);
+//
+//    FD_SET(socket_fd, &fd);
+//
+//    /* now make sure we wait in the correct direction */
+//    dir = libssh2_session_block_directions(session);
+//
+//    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+//    readfd = &fd;
+//
+//    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+//    writefd = &fd;
+//
+//    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
+//
+//    return rc;
   }
 }

@@ -64,7 +64,13 @@ kotlin {
   targets.withType<KotlinNativeTarget> {
     compilations["main"].cinterops {
       create("thang") {
-        definitionFile = file("test.def")
+        definitionFile = file("src/cinterops/thang.def")
+        compilerOpts("-I${project.file("src/cinterops")}")
+        afterEvaluate {
+          tasks.getByName(interopProcessingTaskName).apply {
+            inputs.file(project.file("src/cinterops/thang.h"))
+          }
+        }
       }
     }
   }

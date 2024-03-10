@@ -93,8 +93,7 @@ abstract class LibraryExtension(
 
 
   internal val cinteropsConfig = CInteropsConfig(
-    project.layout.buildDirectory.get().asFile.resolve("generated/cinterops")
-      .resolve("${name}_${version}.def")
+    project.file("src/cinterops/${name}_${version}.def")
   )
 
   @XtraDSL

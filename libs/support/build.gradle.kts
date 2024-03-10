@@ -1,8 +1,6 @@
-import org.danbrough.xtras.XTRAS_PACKAGE
-import org.danbrough.xtras.declareHostTarget
-import org.danbrough.xtras.declareSupportedTargets
-import org.danbrough.xtras.runningInIDE
-import org.danbrough.xtras.xtrasTesting
+import org.danbrough.xtras.*
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -19,9 +17,21 @@ xtras {
 }
 
 
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+
 kotlin {
   withSourcesJar(publish = true)
   applyDefaultHierarchyTemplate()
+  @OptIn(ExperimentalKotlinGradlePluginApi::class) compilerOptions {
+    languageVersion.set(KotlinVersion.KOTLIN_1_8)
+
+  }
+
+
   if (runningInIDE) {
     declareHostTarget()
   } else {
@@ -32,6 +42,14 @@ kotlin {
 
 
   sourceSets {
+    jvm {
+      compilations.all {
+        // kotlin compiler compatibility options
+        kotlinOptions {
+          jvmTarget = "1.8"
+        }
+      }
+    }
 
     val commonMain by getting {
       dependencies {
@@ -45,8 +63,7 @@ kotlin {
       }
     }
 
-    val nativeMain by getting {
-    }
+    val nativeMain by getting {}
 
     jvmMain {
       dependencies {
@@ -73,9 +90,17 @@ android {
   }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility =  JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+  }
+
+}
+/*
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+  kotlinOptions {
+    jvmTarget = "1.8"
   }
 }
+*/
 
 xtrasTesting()
 
