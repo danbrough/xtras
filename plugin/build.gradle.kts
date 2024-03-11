@@ -67,8 +67,8 @@ publishing {
       maven("https://s01.oss.sonatype.org/service/local/staging/deployByRepositoryId/$sonatypeRepoId") {
         name = "Sonatype"
         credentials {
-          username = extraProperty("sonatypeUsername")
-          password = extraProperty("sonatypePassword")
+          username = extraProperty("sonatype.username")
+          password = extraProperty("sonatype.password")
         }
       }
     }

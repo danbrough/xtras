@@ -77,7 +77,7 @@ internal fun Project.createOpenRepoTask(extn: SonatypeExtension) {
       """.trimMargin()
     group = XTRAS_TASK_GROUP
     doLast {
-      if (extn.profileID.get().isBlank()) throw Error("sonatype.stagingProfileId not set")
+      if (extn.profileID.get().isBlank()) throw Error("${SonatypeExtension.PROFILE_ID} not set")
 
       val response = sonatypeOpenRepository(
         extn.profileID.get(),
