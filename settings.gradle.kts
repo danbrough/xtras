@@ -1,6 +1,6 @@
 pluginManagement {
   repositories {
-    maven("https://maven.danbrough.org")
+    //maven("https://maven.danbrough.org")
     mavenCentral()
     google()
     gradlePluginPortal()
@@ -19,7 +19,7 @@ rootProject.name = "xtras"
 includeBuild("plugin")
 
 listOf(
-  "support",
+  //"support",
   "openssl",
   "ssh2",
 ).forEach {

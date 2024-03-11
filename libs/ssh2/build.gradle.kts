@@ -47,7 +47,7 @@ kotlin {
 
     val commonMain by getting {
       dependencies {
-        implementation(project(":libs:support"))
+        //implementation(project(":libs:support"))
         implementation(libs.kotlinx.coroutines)
       }
     }

@@ -31,7 +31,7 @@ agp = "8.3.0"
 kotlin = "2.0.0-Beta4"
 
 xtrasPackage = "org.danbrough.xtras"
-xtras-version = "0.0.1-alpha01"
+xtras-version = "0.0.1-alpha02"
 xtras-openssl = "0.0.1-alpha01"
 xtras-mqtt = "0.0.1-alpha01"
 kotlin-logging = "6.0.3"
