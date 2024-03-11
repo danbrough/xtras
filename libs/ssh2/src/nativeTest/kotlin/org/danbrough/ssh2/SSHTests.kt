@@ -6,18 +6,12 @@ import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.cValue
 import kotlinx.cinterop.cstr
-import kotlinx.cinterop.free
 import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.nativeHeap
-import kotlinx.cinterop.objcPtr
-import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.sizeOf
-import kotlinx.cinterop.toCValues
 import kotlinx.cinterop.toKString
-import kotlinx.cinterop.useContents
 import kotlinx.cinterop.value
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,10 +24,8 @@ import org.danbrough.ssh2.cinterops.LIBSSH2_INVALID_SOCKET
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOSTS
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_CHECK_MISMATCH
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_FILE_OPENSSH
-import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_BASE64
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_RAW
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_PLAIN
-import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_SHA1
 import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION
 import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION_BLOCK_INBOUND
 import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION_BLOCK_OUTBOUND
@@ -55,7 +47,6 @@ import org.danbrough.ssh2.cinterops.libssh2_session_init_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_last_error
 import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
 import org.danbrough.ssh2.cinterops.libssh2_socket_t
-import org.danbrough.ssh2.cinterops.waitsocket
 
 import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
 import org.danbrough.xtras.support.supportLog
@@ -75,9 +66,7 @@ import platform.posix.size_tVar
 import platform.posix.sockaddr_in
 import platform.posix.socket
 import platform.posix.strerror
-import platform.posix.time_tVar
 import platform.posix.timeval
-import platform.posix.write
 import kotlin.io.encoding.Base64
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
@@ -86,6 +75,18 @@ val log = run {
   supportLog.trace { }
   KotlinLogging.logger("TESTS")
 }
+
+object TestConfig {
+  fun property(name: String, default: String): String = platform.posix.getenv(name)?.toKString() ?: default
+
+  val user = "dan"
+  val hostname = "192.168.1.4"
+  val port = 22.toUShort()
+  val pubKey = "/home/dan/.ssh/test.pub"
+  val privKey = "/home/dan/.ssh/test"
+  val password = "password"
+}
+
 
 class SSHTests {
 
@@ -100,17 +101,9 @@ class SSHTests {
   fun testExec() {
     log.info { "testExec()" }
 
-    val config = object {
-      val user = "dan"
-      val hostname = "192.168.1.4"
-      val port = 22.toUShort()
-      val pubKey = "/home/dan/.ssh/test.pub"
-      val privKey = "/home/dan/.ssh/test"
-      val password = "password"
-    }
 
     runBlocking {
-      var sock:libssh2_socket_t = 0
+      var sock: libssh2_socket_t = 0
       var session: CPointer<LIBSSH2_SESSION>? = null
       var nh: CPointer<LIBSSH2_KNOWNHOSTS>? = null
       var rc = 0
@@ -138,22 +131,22 @@ class SSHTests {
       launch {
         memScoped {
 
-          rc = libssh2_init(0);
+          rc = libssh2_init(0)
           log.debug { "got rc: $rc" }
           if (rc != 0) {
             error("libssh2 initialization failed ($rc)")
           }
 
-          val hostaddr = inet_addr(config.hostname)
+          val hostaddr = inet_addr(TestConfig.hostname)
 
           sock = socket(AF_INET, SOCK_STREAM, 0)
           if (sock == LIBSSH2_INVALID_SOCKET) {
             error("failed to create socket!")
           }
 
-          val sin = cValue<sockaddr_in>() {
+          val sin = cValue<sockaddr_in> {
             sin_family = AF_INET.toUShort()
-            sin_port = htons(config.port)
+            sin_port = htons(TestConfig.port)
             sin_addr.s_addr = hostaddr
           }
 
@@ -197,8 +190,8 @@ class SSHTests {
           val knownHost = cValue<libssh2_knownhost>()
           val check = libssh2_knownhost_checkp(
             nh,
-            config.hostname,
-            config.port.toInt(),
+            TestConfig.hostname,
+            TestConfig.port.toInt(),
             fingerprintString.toKString(),
             keyLength.value,
             LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_RAW,// or LIBSSH2_KNOWNHOST_TYPE_SHA1,
@@ -226,11 +219,11 @@ class SSHTests {
           do {
             rc = libssh2_userauth_publickey_fromfile_ex(
               session,
-              config.user,
-              config.user.length.toUInt(),
-              config.pubKey,
-              config.privKey,
-              config.password
+              TestConfig.user,
+              TestConfig.user.length.toUInt(),
+              TestConfig.pubKey,
+              TestConfig.privKey,
+              TestConfig.password
             )
           } while (rc == LIBSSH2_ERROR_EAGAIN)
 
@@ -341,7 +334,7 @@ class SSHTests {
 
   }
 
-  private fun waitSocket(socketFd: libssh2_socket_t, session: CPointer<LIBSSH2_SESSION>):Int {
+  private fun waitSocket(socketFd: libssh2_socket_t, session: CPointer<LIBSSH2_SESSION>): Int {
 
     memScoped {
       val timeout = cValue<timeval> {
@@ -364,7 +357,7 @@ class SSHTests {
       if ((dir and LIBSSH2_SESSION_BLOCK_OUTBOUND) != 0)
         writeFD = fd.ptr
 
-      return select(socketFd + 1,readFD,writeFD,null,timeout.ptr).also {
+      return select(socketFd + 1, readFD, writeFD, null, timeout.ptr).also {
         log.trace { "select returned $it" }
 
       }

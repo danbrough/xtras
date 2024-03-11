@@ -1,4 +1,8 @@
-import org.danbrough.xtras.*
+import org.danbrough.xtras.XTRAS_PACKAGE
+import org.danbrough.xtras.declareHostTarget
+import org.danbrough.xtras.declareSupportedTargets
+import org.danbrough.xtras.runningInIDE
+import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
@@ -26,9 +30,10 @@ java {
 kotlin {
   withSourcesJar(publish = true)
   applyDefaultHierarchyTemplate()
-  @OptIn(ExperimentalKotlinGradlePluginApi::class) compilerOptions {
-    languageVersion.set(KotlinVersion.KOTLIN_1_8)
-
+  @OptIn(ExperimentalKotlinGradlePluginApi::class)
+  compilerOptions {
+    languageVersion.set(KotlinVersion.KOTLIN_2_0)
+    apiVersion.set(KotlinVersion.DEFAULT)
   }
 
 
@@ -94,16 +99,12 @@ android {
   }
 
 }
-/*
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-  kotlinOptions {
-    jvmTarget = "1.8"
-  }
-}
-*/
+
 
 xtrasTesting()
 
 sonatype {
 
 }
+
+

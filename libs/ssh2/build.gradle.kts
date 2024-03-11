@@ -1,11 +1,10 @@
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.declareSupportedTargets
 import org.danbrough.xtras.openssl.openssl
-import org.danbrough.xtras.platformName
-import org.danbrough.xtras.runningInIDE
 import org.danbrough.xtras.ssh2.ssh2
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 
 
 plugins {
@@ -52,11 +51,13 @@ kotlin {
         implementation(libs.kotlinx.coroutines)
       }
     }
+
     val commonTest by getting {
       dependencies {
         implementation(kotlin("test"))
       }
     }
+
     val nativeMain by getting {
     }
   }
@@ -74,10 +75,18 @@ kotlin {
       }
     }
   }
+
+
 }
 
 xtrasTesting()
 
 sonatype {
+}
 
+afterEvaluate {
+  tasks.withType<KotlinNativeHostTest> {
+
+
+  }
 }
