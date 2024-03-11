@@ -25,15 +25,15 @@ fun KotlinMultiplatformExtension.declareSupportedTargets() {
   } else if (HostManager.hostIsMac) {
     macosX64()
     macosArm64()
-   // iosArm64()
-  //  iosX64()
+    //iosArm64()
+    //  iosX64()
 //    iosSimulatorArm64()
 
     //tvosArm64()
     //tvosX64()
     //watchosArm64()
 
-    watchosX64()
+    //watchosX64()
     // watchosX64()
   } else if (HostManager.hostIsMingw) {
     mingwX64()
