@@ -31,7 +31,6 @@ val KonanTarget.hostTriplet: String
     KonanTarget.ANDROID_X64 -> "x86_64-linux-android"
     KonanTarget.ANDROID_X86 -> "i686-linux-android"
     KonanTarget.MACOS_X64 -> "x86_64-apple-darwin"
-
     KonanTarget.MACOS_ARM64 -> "aarch64-apple-darwin"
     KonanTarget.MINGW_X64 -> "x86_64-w64-mingw32"
     KonanTarget.MINGW_X86 -> "x86-w64-mingw32"

@@ -85,7 +85,6 @@ fun Project.ssh2(
     val args = mutableListOf(
       "./configure",
       "--with-libssl-prefix=${ssl.libsDir(target).absolutePath}",
-      "--enable-examples-build",
       "--host=${target.hostTriplet}",
       "--prefix=${buildDir(target).absolutePath.replace('\\', '/')}"
     )
