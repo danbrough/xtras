@@ -14,7 +14,7 @@ const val XTRAS_EXTENSION_NAME = "xtras"
 class XtrasPlugin : Plugin<Project> {
   override fun apply(target: Project) =
     target.run {
-      logInfo("XtrasPlugin.apply()")
+      logInfo("XtrasPlugin.apply() project:${target.path}")
       apply<SonatypePlugin>()
 
       val xtras = extensions.create(XTRAS_EXTENSION_NAME, XtrasExtension::class.java)
@@ -22,6 +22,8 @@ class XtrasPlugin : Plugin<Project> {
 
 
       afterEvaluate {
+        registerMiscTasks()
+
         val kotlin = target.extensions.findByName("kotlin")
         if (kotlin is KotlinMultiplatformExtension) {
           xtras.nativeTargets.convention(
@@ -32,3 +34,16 @@ class XtrasPlugin : Plugin<Project> {
 
 }
 
+internal fun Project.registerMiscTasks() {
+
+  val kotlin = extensions.findByName("kotlin")
+  if (kotlin is KotlinMultiplatformExtension) {
+    tasks.register("xtrasTargets") {
+      doFirst {
+        kotlin.targets.all {
+          logInfo("target: $this")
+        }
+      }
+    }
+  }
+}

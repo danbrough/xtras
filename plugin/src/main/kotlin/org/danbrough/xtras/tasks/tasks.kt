@@ -10,9 +10,7 @@ import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.platformName
 import org.danbrough.xtras.projectProperty
 import org.gradle.api.tasks.Exec
-import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.register
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.InputStreamReader
 import java.io.PipedInputStream
@@ -54,9 +52,8 @@ fun LibraryExtension.registerTasks() {
   taskCompileSource?.run()
 
   registerPackageTasks()
-
-
   registerCInteropsTasks()
+
 }
 
 
