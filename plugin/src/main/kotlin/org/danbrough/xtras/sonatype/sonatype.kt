@@ -5,6 +5,7 @@ import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.xtrasMavenDir
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
@@ -15,7 +16,6 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.maven
-import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
@@ -59,25 +59,35 @@ internal fun Project.configurePublishing() {
       extensions.findByType<KotlinMultiplatformExtension>()?.run {
 
 
-        val emptyFileTask = tasks.register("emptyFileForJavadoc") {
-          val outputFile = File(System.getProperty("java.io.tmpdir"), "emptyFileForJavadoc")
-          actions.add {
-            outputFile.writeText("Empty file for javadocs")
-          }
-          outputs.file(outputFile)
-        }
+        val emptyFileForJavadocTaskName = "emptyFileForJavadoc"
 
-        val emptyJarTask = tasks.register<Jar>("emptyJavadocs") {
-          archiveClassifier.set("javadoc")
-          from(emptyFileTask)
-        }
+        val emptyFileTask: Task =
+          project.tasks.findByName(emptyFileForJavadocTaskName) ?: project.tasks.create(
+            emptyFileForJavadocTaskName
+          ) {
+            val outputFile =
+              File(System.getProperty("java.io.tmpdir"), "emptyFileForJavadoc_${project.path}")
+            actions.add {
+              outputFile.writeText("Empty file for javadocs")
+            }
+            outputs.file(outputFile)
+          }
+
+        val emptyJavadocsTask = "emptyJavadocs"
+        val emptyJarTask: Task =
+          project.tasks.findByName(emptyJavadocsTask)
+            ?: project.tasks.create<Jar>(emptyJavadocsTask) {
+              archiveClassifier.set("javadoc")
+              from(emptyFileTask)
+              dependsOn(emptyFileForJavadocTaskName)
+            }
 
 
         publications.withType<MavenPublication> {
           //logTrace("PUBLICATION: project: ${project.name} name:$name type:${this::class.java}")
           if (!setOf("kotlinMultiplatform", "jvm").contains(name)) {
             //logWarn("ADDING EMPTY JAVADOC to MAVEN PUBLICATION $name")
-            artifact(emptyJarTask.get().outputs.files.first()).builtBy(emptyJarTask)
+            artifact(emptyJarTask.outputs.files.first()).builtBy(emptyJarTask)
           }
         }
         val signTasks = tasks.withType<Sign>()
