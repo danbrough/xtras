@@ -25,9 +25,6 @@ xtras {
 
 
 val ssl = openssl {
-  buildRequired = {
-    false
-  }
 }
 
 
