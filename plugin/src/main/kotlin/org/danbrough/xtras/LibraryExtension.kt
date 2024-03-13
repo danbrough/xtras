@@ -26,6 +26,8 @@ abstract class LibraryExtension(
 
   var sourceConfig: SourceConfig? = null
 
+  var publishing: Boolean = false
+
   internal var taskPrepareSource: TaskConfig? = null
   internal var taskConfigureSource: TaskConfig? = null
   internal var taskCompileSource: TaskConfig? = null

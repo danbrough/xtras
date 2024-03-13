@@ -10,6 +10,8 @@ import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.xtras)
+  id("org.danbrough.xtras.sonatype")
+
 }
 
 group = "$XTRAS_PACKAGE.libssh2"
@@ -23,7 +25,9 @@ xtras {
 
 
 val ssl = openssl {
-
+  buildRequired = {
+    false
+  }
 }
 
 
