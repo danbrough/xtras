@@ -42,10 +42,9 @@ slf4j-api = "2.0.12"
 ##     ⬆ = "2.1.0-alpha0"
 ##     ⬆ = "2.1.0-alpha1"
 slf4j-simple = "2.0.12"
-##        ⬆ = "2.1.0-alpha0"
-##        ⬆ = "2.1.0-alpha1"
 logback-classic = "1.5.3"
 kotlinx-coroutines = "1.8.0"
+##              ⬆ = "1.8.1-Beta"
 
 [libraries]
 
