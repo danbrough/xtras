@@ -25,8 +25,8 @@ fun KotlinMultiplatformExtension.declareSupportedTargets() {
   } else if (HostManager.hostIsMac) {
     macosX64()
     macosArm64()
-    //iosArm64()
-    //  iosX64()
+    iosArm64()
+      iosX64()
 //    iosSimulatorArm64()
 
     //tvosArm64()
