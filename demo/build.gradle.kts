@@ -24,7 +24,7 @@ kotlin {
   val commonMain by sourceSets.getting {
 
     dependencies {
-      //implementation("org.danbrough.xtras.mqtt:mqtt:0.0.1-alpha01")
+      implementation("org.danbrough.openssl:openssl:0.0.1-alpha02")
     }
   }
 
