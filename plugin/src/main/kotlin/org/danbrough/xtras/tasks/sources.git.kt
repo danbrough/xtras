@@ -25,7 +25,7 @@ fun LibraryExtension.gitSource(url: String, commit: String) {
 private fun LibraryExtension.registerGitTagsTask(){
   val config = sourceConfig as GitSource
 
-  project.tasks.register<Exec>(xtrasTaskName("tags",name)) {
+  project.tasks.register<Exec>(xtrasTaskName("tags",this@registerGitTagsTask.name)) {
     commandLine(
       xtras.buildEnvironment.binaries.git,
       "ls-remote",

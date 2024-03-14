@@ -5,7 +5,6 @@ pluginManagement {
     google()
     gradlePluginPortal()
     maven("https://maven.xillio.com/artifactory/libs-release/")
-
   }
 }
 
@@ -20,7 +19,8 @@ includeBuild("plugin")
 
 listOf(
   //"support",
-  "ssh2",
+  "openssl",
+  //"ssh2",
 ).forEach {
   include(":libs:$it")
 }

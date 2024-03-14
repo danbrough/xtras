@@ -3,6 +3,7 @@ package org.danbrough.xtras.openssl
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.logWarn
 import org.danbrough.xtras.projectProperty
+import org.danbrough.xtras.registerGitLibrary
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
 import org.danbrough.xtras.tasks.gitSource
@@ -13,71 +14,55 @@ import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
-const val OPENSSL_EXTN_NAME = "openssl"
-const val PROPERTY_OPENSSL_GROUP = "openssl.group"
-const val PROPERTY_OPENSSL_VERSION = "openssl.version"
-const val PROPERTY_OPENSSL_COMMIT = "openssl.commit"
-const val PROPERTY_OPENSSL_URL = "openssl.url"
 
-
-abstract class OpenSSLLibrary(group: String, name: String, version: String, project: Project) :
-  LibraryExtension(group, name, version, project)
 
 
 fun Project.openssl(
-  group: String = projectProperty<String>(PROPERTY_OPENSSL_GROUP),
-  version: String = projectProperty<String>(PROPERTY_OPENSSL_VERSION),
-  url: String = projectProperty<String>(PROPERTY_OPENSSL_URL),
-  commit: String = projectProperty<String>(PROPERTY_OPENSSL_COMMIT),
-  block: OpenSSLLibrary.() -> Unit
-): OpenSSLLibrary =
-  extensions.findByType<OpenSSLLibrary>()?.also {
-    project.extensions.configure<OpenSSLLibrary>(block)
-  } ?: xtrasRegisterLibrary<OpenSSLLibrary>(group, OPENSSL_EXTN_NAME, version) {
+	block: LibraryExtension.() -> Unit
+): LibraryExtension =
+	registerGitLibrary("openssl") {
 
-    gitSource(url, commit)
+		configureSource { target ->
+			val makeFile = workingDir.resolve("Makefile")
+			outputs.file(makeFile)
 
-    configureSource { target ->
-      val makeFile = workingDir.resolve("Makefile")
-      outputs.file(makeFile)
+			environment("CFLAGS", "-Wno-macro-redefined")
+			doFirst {
+				project.logWarn("RUNNING CONFIGURE WITH ${commandLine.joinToString(" ")} CFLAGS: ${environment["CFLAGS"]}")
+			}
+			onlyIf {
+				!makeFile.exists() && buildRequired.get().invoke(target)
+			}
 
-      environment("CFLAGS", "-Wno-macro-redefined")
-      doFirst {
-        project.logWarn("RUNNING CONFIGURE WITH ${commandLine.joinToString(" ")} CFLAGS: ${environment["CFLAGS"]}")
-      }
-      onlyIf {
-        !makeFile.exists() && buildRequired.get().invoke(target)
-      }
+			val args = mutableListOf(
+				"./Configure",
+				target.opensslPlatform,
+				"no-tests",
+				"threads",
+				"--prefix=${buildDir(target).absolutePath.replace('\\', '/')}",
+				"--libdir=lib",
+			)
 
-      val args = mutableListOf(
-        "./Configure",
-        target.opensslPlatform,
-        "no-tests",
-        "threads",
-        "--prefix=${buildDir(target).absolutePath.replace('\\', '/')}",
-        "--libdir=lib",
-      )
+			if (target.family == Family.ANDROID) {
+				args += "-D__ANDROID_API__=${xtras.buildEnvironment.androidNdkApiVersion}"
+			}
 
-      if (target.family == Family.ANDROID) {
-        args += "-D__ANDROID_API__=${xtras.buildEnvironment.androidNdkApiVersion}"
-      }
+			commandLine(args)
+		}
 
-      commandLine(args)
-    }
+		compileSource { target ->
+			val buildDir = buildDir(target)
+			outputs.dir(buildDir)
+			doFirst {
+				environment.keys.sorted().forEach {
+					project.logWarn("ENV: $it: ${environment[it]}")
+				}
+			}
+			commandLine("make", "install_sw")
+		}
 
-    compileSource { target ->
-      val buildDir = buildDir(target)
-      outputs.dir(buildDir)
-      doFirst {
-        environment.keys.sorted().forEach {
-          project.logWarn("ENV: $it: ${environment[it]}")
-        }
-      }
-      commandLine("make", "install_sw")
-    }
-
-    cinterops {
-      headers = """
+		cinterops {
+			headers = """
         package = $group.cinterops
 
         #staticLibraries =  libcrypto.a libssl.a
@@ -92,12 +77,12 @@ fun Project.openssl(
         compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
         #compilerOpts = -static
         """.trimIndent()
-    }
+		}
 
 
 
-    block()
-  }
+		block()
+	}
 
 
 /*
@@ -186,30 +171,30 @@ internal fun XtrasLibrary.configureOpenSSLTasks(target: KonanTarget) {
  */
 
 val KonanTarget.opensslPlatform: String
-  get() = when (this) {
-    KonanTarget.LINUX_X64 -> "linux-x86_64"
-    KonanTarget.LINUX_ARM64 -> "linux-aarch64"
-    //  KonanTarget.LINUX_ARM32_HFP -> "linux-armv4"
+	get() = when (this) {
+		KonanTarget.LINUX_X64 -> "linux-x86_64"
+		KonanTarget.LINUX_ARM64 -> "linux-aarch64"
+		//  KonanTarget.LINUX_ARM32_HFP -> "linux-armv4"
 //    KonanTarget.LINUX_MIPS32 -> TODO()
 //    KonanTarget.LINUX_MIPSEL32 -> TODO()
-    KonanTarget.ANDROID_ARM32 -> "android-arm"
-    KonanTarget.ANDROID_ARM64 -> "android-arm64"
-    KonanTarget.ANDROID_X86 -> "android-x86"
-    KonanTarget.ANDROID_X64 -> "android-x86_64"
-    KonanTarget.MINGW_X64 -> "mingw64"
-    //KonanTarget.MINGW_X86 -> "mingw"
+		KonanTarget.ANDROID_ARM32 -> "android-arm"
+		KonanTarget.ANDROID_ARM64 -> "android-arm64"
+		KonanTarget.ANDROID_X86 -> "android-x86"
+		KonanTarget.ANDROID_X64 -> "android-x86_64"
+		KonanTarget.MINGW_X64 -> "mingw64"
+		//KonanTarget.MINGW_X86 -> "mingw"
 
 
-    KonanTarget.MACOS_X64 -> "darwin64-x86_64-cc"
-    KonanTarget.MACOS_ARM64 -> "darwin64-arm64-cc"
-    //KonanTarget.IOS_ARM32 -> "ios-cross" //ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun iphoneos-cross
+		KonanTarget.MACOS_X64 -> "darwin64-x86_64-cc"
+		KonanTarget.MACOS_ARM64 -> "darwin64-arm64-cc"
+		//KonanTarget.IOS_ARM32 -> "ios-cross" //ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun iphoneos-cross
 
-    KonanTarget.IOS_ARM64 -> "ios64-cross" //ios-cross ios-xcrun
-    //KonanTarget.IOS_SIMULATOR_ARM64 -> "iossimulator-xcrun"
-    KonanTarget.IOS_X64 -> "ios64-cross"
+		KonanTarget.IOS_ARM64 -> "ios64-cross" //ios-cross ios-xcrun
+		//KonanTarget.IOS_SIMULATOR_ARM64 -> "iossimulator-xcrun"
+		KonanTarget.IOS_X64 -> "ios64-cross"
 
-    else -> throw Error("$this not supported for openssl")
-  }
+		else -> throw Error("$this not supported for openssl")
+	}
 
 /*
 pick os/compiler from:
@@ -250,3 +235,36 @@ vms-x86_64-cross-ia64 vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
 vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
 vxworks-simlinux
     */
+
+
+/*
+For OpenSSL 1.1.0 , a 64-bit iOS cross-compiles uses the ios64-cross target, and --prefix=/usr/local/openssl-ios64. ios64-cross. There is no built-in 64-bit iOS support for OpenSSL 1.0.2 or below.
+
+$ export CC=clang;
+$ export CROSS_TOP=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer
+$ export CROSS_SDK=iPhoneOS.sdk
+$ export PATH="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:$PATH"
+
+$ ./Configure ios64-cross no-shared no-dso no-hw no-engine --prefix=/usr/local/openssl-ios64
+
+Configuring OpenSSL version 1.1.1-dev (0x10101000L)
+    no-afalgeng     [forced]   OPENSSL_NO_AFALGENG
+    no-asan         [default]  OPENSSL_NO_ASAN
+    no-dso          [option]
+    no-dynamic-engine [forced]
+    ...
+    no-weak-ssl-ciphers [default]  OPENSSL_NO_WEAK_SSL_CIPHERS
+    no-zlib         [default]
+    no-zlib-dynamic [default]
+Configuring for ios64-cross
+
+PERL          =perl
+PERLVERSION   =5.16.2 for darwin-thread-multi-2level
+HASHBANGPERL  =/usr/bin/env perl
+CC            =clang
+CFLAG         =-O3 -D_REENTRANT -arch arm64 -mios-version-min=7.0.0 -isysroot $(CROSS_TOP)/SDKs/$(CROSS_SDK) -fno-common
+CXX           =c++
+CXXFLAG       =-O3 -D_REENTRANT -arch arm64 -mios-version-min=7.0.0 -isysroot $(CROSS_TOP)/SDKs/$(CROSS_SDK) -fno-common
+DEFINES       =NDEBUG OPENSSL_THREADS OPENSSL_NO_DYNAMIC_ENGINE OPENSSL_PIC OPENSSL_BN_ASM_MONT SHA1_ASM SHA256_ASM SHA512_ASM VPAES_ASM ECP_NISTZ256_ASM POLY1305_ASM
+...
+ */

@@ -14,11 +14,7 @@ compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompat
 
 ### XTRAS: generated paths from the cinteropsTargetWriter
 
-compilerOpts.macos_arm64 =  -I/Users/dan/workspace/xtras/xtras/libs/openssl/macosArm64/3.2.1/include
-linkerOpts.macos_arm64 = -L/Users/dan/workspace/xtras/xtras/libs/openssl/macosArm64/3.2.1/lib
-libraryPaths.macos_arm64 =  /Users/dan/workspace/xtras/xtras/libs/openssl/macosArm64/3.2.1/lib
-
-compilerOpts.macos_x64 =  -I/Users/dan/workspace/xtras/xtras/libs/openssl/macosX64/3.2.1/include
-linkerOpts.macos_x64 = -L/Users/dan/workspace/xtras/xtras/libs/openssl/macosX64/3.2.1/lib
-libraryPaths.macos_x64 =  /Users/dan/workspace/xtras/xtras/libs/openssl/macosX64/3.2.1/lib
+compilerOpts.linux_x64 =  -I/home/dan/workspace/xtras/xtras/libs/openssl/linuxX64/3.2.1/include
+linkerOpts.linux_x64 = -L/home/dan/workspace/xtras/xtras/libs/openssl/linuxX64/3.2.1/lib
+libraryPaths.linux_x64 =  /home/dan/workspace/xtras/xtras/libs/openssl/linuxX64/3.2.1/lib
 

@@ -34,10 +34,10 @@ val KonanTarget.hostTriplet: String
     KonanTarget.MACOS_ARM64 -> "aarch64-apple-darwin"
     KonanTarget.MINGW_X64 -> "x86_64-w64-mingw32"
     KonanTarget.MINGW_X86 -> "x86-w64-mingw32"
-    KonanTarget.IOS_ARM32 -> "arm32-apple-darwin"
-    KonanTarget.IOS_ARM64 -> "aarch64-ios-darwin"
-    KonanTarget.IOS_SIMULATOR_ARM64 -> "aarch64-iossimulator-darwin"
-    KonanTarget.IOS_X64 -> "x86_64-ios-darwin"
+    //KonanTarget.IOS_ARM32 -> "arm32-apple-darwin"
+    KonanTarget.IOS_ARM64 -> "aarch64-apple-ios" //"aarch64-ios-darwin"
+    //KonanTarget.IOS_SIMULATOR_ARM64 -> "aarch64-iossimulator-darwin"
+    KonanTarget.IOS_X64 -> "x86_64-apple-ios-simulator" //"x86_64-ios-darwin"
 
 
     KonanTarget.TVOS_ARM64 -> "aarch64-tvos-darwin"

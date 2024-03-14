@@ -8,8 +8,8 @@ org-jetbrains-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 sonatype = { id = "org.danbrough.xtras.sonatype", version.ref = "xtras-version" }
 
 xtras = { id = "org.danbrough.xtras", version.ref = "xtras-version" }
-xtras-openssl = { id = "org.danbrough.xtras.openssl", version.ref = "xtras-openssl" }
-xtras-mqtt = { id = "org.danbrough.xtras.mqtt", version.ref = "xtras-mqtt" }
+#xtras-openssl = { id = "org.danbrough.xtras.openssl", version.ref = "xtras-openssl" }
+#xtras-mqtt = { id = "org.danbrough.xtras.mqtt", version.ref = "xtras-mqtt" }
 
 [versions]
 

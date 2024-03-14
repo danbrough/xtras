@@ -10,10 +10,11 @@ plugins {
   id("org.danbrough.xtras.sonatype")
 }
 
-group = "$XTRAS_PACKAGE.openssl"
+group = "org.danbrough.openssl"
 
 val ssl = openssl {
 }
+
 
 
 /*

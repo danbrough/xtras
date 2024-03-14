@@ -14,7 +14,27 @@ compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompat
 
 ### XTRAS: generated paths from the cinteropsTargetWriter
 
+compilerOpts.android_arm64 =  -I/home/dan/workspace/xtras/xtras/libs/openssl/androidNativeArm64/3.2.1/include
+linkerOpts.android_arm64 = -L/home/dan/workspace/xtras/xtras/libs/openssl/androidNativeArm64/3.2.1/lib
+libraryPaths.android_arm64 =  /home/dan/workspace/xtras/xtras/libs/openssl/androidNativeArm64/3.2.1/lib
+
+compilerOpts.android_x64 =  -I/home/dan/workspace/xtras/xtras/libs/openssl/androidNativeX64/3.2.1/include
+linkerOpts.android_x64 = -L/home/dan/workspace/xtras/xtras/libs/openssl/androidNativeX64/3.2.1/lib
+libraryPaths.android_x64 =  /home/dan/workspace/xtras/xtras/libs/openssl/androidNativeX64/3.2.1/lib
+
+compilerOpts.android_x86 =  -I/home/dan/workspace/xtras/xtras/libs/openssl/androidNativeX86/3.2.1/include
+linkerOpts.android_x86 = -L/home/dan/workspace/xtras/xtras/libs/openssl/androidNativeX86/3.2.1/lib
+libraryPaths.android_x86 =  /home/dan/workspace/xtras/xtras/libs/openssl/androidNativeX86/3.2.1/lib
+
+compilerOpts.linux_arm64 =  -I/home/dan/workspace/xtras/xtras/libs/openssl/linuxArm64/3.2.1/include
+linkerOpts.linux_arm64 = -L/home/dan/workspace/xtras/xtras/libs/openssl/linuxArm64/3.2.1/lib
+libraryPaths.linux_arm64 =  /home/dan/workspace/xtras/xtras/libs/openssl/linuxArm64/3.2.1/lib
+
 compilerOpts.linux_x64 =  -I/home/dan/workspace/xtras/xtras/libs/openssl/linuxX64/3.2.1/include
 linkerOpts.linux_x64 = -L/home/dan/workspace/xtras/xtras/libs/openssl/linuxX64/3.2.1/lib
 libraryPaths.linux_x64 =  /home/dan/workspace/xtras/xtras/libs/openssl/linuxX64/3.2.1/lib
+
+compilerOpts.mingw_x64 =  -I/home/dan/workspace/xtras/xtras/libs/openssl/mingwX64/3.2.1/include
+linkerOpts.mingw_x64 = -L/home/dan/workspace/xtras/xtras/libs/openssl/mingwX64/3.2.1/lib
+libraryPaths.mingw_x64 =  /home/dan/workspace/xtras/xtras/libs/openssl/mingwX64/3.2.1/lib
 

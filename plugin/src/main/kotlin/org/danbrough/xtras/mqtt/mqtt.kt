@@ -2,21 +2,10 @@ package org.danbrough.xtras.mqtt
 
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.logInfo
-import org.danbrough.xtras.openssl.OPENSSL_EXTN_NAME
-import org.danbrough.xtras.openssl.OpenSSLLibrary
-import org.danbrough.xtras.openssl.PROPERTY_OPENSSL_COMMIT
-import org.danbrough.xtras.openssl.PROPERTY_OPENSSL_GROUP
-import org.danbrough.xtras.openssl.PROPERTY_OPENSSL_URL
-import org.danbrough.xtras.openssl.PROPERTY_OPENSSL_VERSION
-import org.danbrough.xtras.projectProperty
+import org.danbrough.xtras.registerGitLibrary
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
-import org.danbrough.xtras.tasks.gitSource
-import org.danbrough.xtras.tasks.taskNamePackageExtract
-import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.findByType
 
 const val MQTT_EXTN_NAME = "mqtt"
 const val PROPERTY_MQTT_GROUP = "mqtt.group"
@@ -24,66 +13,54 @@ const val PROPERTY_MQTT_VERSION = "mqtt.version"
 const val PROPERTY_MQTT_COMMIT = "mqtt.commit"
 const val PROPERTY_MQTT_URL = "mqtt.url"
 
-abstract class MQTTLLibrary(group:String,name: String, version: String, project: Project) :
-  LibraryExtension(group,name, version, project)
-
 fun Project.mqtt(
-  group: String = projectProperty<String>(PROPERTY_MQTT_GROUP),
-  version: String = projectProperty<String>(PROPERTY_MQTT_VERSION),
-  url: String = projectProperty<String>(PROPERTY_MQTT_URL),
-  commit: String = projectProperty<String>(PROPERTY_MQTT_COMMIT),
-  block: MQTTLLibrary.() -> Unit
-): MQTTLLibrary =
-  extensions.findByType<MQTTLLibrary>()?.also {
-    project.extensions.configure<MQTTLLibrary>(block)
-  } ?: xtrasRegisterLibrary<MQTTLLibrary>(group, MQTT_EXTN_NAME, version) {
+	ssl: LibraryExtension,
+	block: LibraryExtension.() -> Unit
+) = registerGitLibrary<LibraryExtension>("mqtt") {
+	dependsOn(ssl)
 
-    gitSource(url, commit)
+	configureSource { target ->
+		val sourceDir = sourceDir(target)
+		val installDir = buildDir(target)
+		val compileDir = buildDir(target).resolve("build")
+		val buildEnv = xtras.buildEnvironment
 
-    configureSource {target->
-      dependsOn(*dependencies.map { it.taskNamePackageExtract(target) }.toTypedArray())
-      val sourceDir = sourceDir(target)
-      val installDir = buildDir(target)
-      val compileDir = buildDir(target).resolve("build")
-      val ssl = if (dependencies.isEmpty()) error("SSL dependency not set") else dependencies.first()
-      val buildEnv = xtras.buildEnvironment
+		workingDir(compileDir)
+		outputs.file(compileDir.resolve("Makefile"))
 
-      workingDir(compileDir)
-      outputs.file(compileDir.resolve("Makefile"))
+		doFirst {
+			if (compileDir.exists()) {
+				compileDir.deleteRecursively()
+			}
+			compileDir.mkdirs()
+			project.logInfo("Using cmake: ${buildEnv.binaries.cmake}")
+		}
 
-      doFirst {
-        if (compileDir.exists()) {
-          compileDir.deleteRecursively()
-        }
-        compileDir.mkdirs()
-        project.logInfo("Using cmake: ${buildEnv.binaries.cmake}")
-      }
+		val cmakeArgs = mutableListOf(
+			buildEnv.binaries.cmake,
+			"-G", "Unix Makefiles",
+			"-DCMAKE_INSTALL_PREFIX=${installDir.absolutePath}",
+			"-DPAHO_WITH_SSL=TRUE",
+			"-DPAHO_BUILD_STATIC=TRUE",
+			"-DPAHO_BUILD_SHARED=TRUE",
+			"-DPAHO_ENABLE_TESTING=FALSE",
+			"-DPAHO_BUILD_SAMPLES=TRUE",
+			"-DPAHO_BUILD_DOCUMENTATION=FALSE",
+			"-DOPENSSL_ROOT_DIR=${ssl.libsDir(target).absolutePath}",
+		)
 
-      val cmakeArgs = mutableListOf(
-        buildEnv.binaries.cmake,
-        "-G", "Unix Makefiles",
-        "-DCMAKE_INSTALL_PREFIX=${installDir.absolutePath}",
-        "-DPAHO_WITH_SSL=TRUE",
-        "-DPAHO_BUILD_STATIC=TRUE",
-        "-DPAHO_BUILD_SHARED=TRUE",
-        "-DPAHO_ENABLE_TESTING=FALSE",
-        "-DPAHO_BUILD_SAMPLES=TRUE",
-        "-DPAHO_BUILD_DOCUMENTATION=FALSE",
-        "-DOPENSSL_ROOT_DIR=${ssl.libsDir(target).absolutePath}",
-      )
+		cmakeArgs += sourceDir.absolutePath
 
-      cmakeArgs += sourceDir.absolutePath
+		commandLine(cmakeArgs)
+	}
 
-      commandLine(cmakeArgs)
-    }
+	compileSource { target ->
+		outputs.dir(buildDir(target))
+		commandLine(xtras.buildEnvironment.binaries.make, "install")
+	}
 
-    compileSource {target->
-      outputs.dir(buildDir(target))
-      commandLine(xtras.buildEnvironment.binaries.make,"install")
-    }
-
-    block()
-  }
+	block()
+}
 
 /*
 

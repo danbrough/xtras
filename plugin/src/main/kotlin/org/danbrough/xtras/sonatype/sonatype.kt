@@ -49,11 +49,8 @@ internal fun Project.configurePublishing() {
 
   afterEvaluate {
 
-
     createOpenRepoTask(sonatype)
     createCloseRepoTask(sonatype)
-
-
 
     extensions.findByType<PublishingExtension>()!!.run {
       extensions.findByType<KotlinMultiplatformExtension>()?.run {

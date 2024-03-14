@@ -11,24 +11,20 @@ import org.danbrough.xtras.tasks.prepareSource
 import org.gradle.api.Project
 
 
-abstract class LibSSH2Library(group: String, name: String, version: String, project: Project) :
-  LibraryExtension(group, name, version, project)
-
-
 fun Project.ssh2(
-  ssl: LibraryExtension,
-  block: LibSSH2Library.() -> Unit
-) = registerGitLibrary<LibSSH2Library>("ssh2") {
-  dependsOn(ssl)
+	ssl: LibraryExtension,
+	block: LibraryExtension.() -> Unit
+) = registerGitLibrary<LibraryExtension>("ssh2") {
+	dependsOn(ssl)
 
-  cinterops {
-    headers = """
+	cinterops {
+		headers = """
       package = $group.cinterops
       headers = libssh2.h  libssh2_publickey.h  libssh2_sftp.h
       linkerOpts = -lssh2
       """.trimIndent()
 
-    code = """
+		code = """
        #include<libssh2.h>
    
      static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
@@ -61,47 +57,47 @@ fun Project.ssh2(
          return rc;
      }
     """.trimIndent()
-  }
+	}
 
-  prepareSource { target ->
-    val configureFile = sourceDir(target).resolve("configure")
-    outputs.file(configureFile)
-    commandLine("autoreconf", "-fi")
-    onlyIf {
-      !configureFile.exists() && buildRequired.get().invoke(target)
-    }
-  }
+	prepareSource { target ->
+		val configureFile = sourceDir(target).resolve("configure")
+		outputs.file(configureFile)
+		commandLine("autoreconf", "-fi")
+		onlyIf {
+			!configureFile.exists() && buildRequired.get().invoke(target)
+		}
+	}
 
-  configureSource(dependsOn = SourceTaskName.PREPARE) { target ->
-    val makeFile = workingDir.resolve("Makefile")
-    outputs.file(makeFile)
+	configureSource(dependsOn = SourceTaskName.PREPARE) { target ->
+		val makeFile = workingDir.resolve("Makefile")
+		outputs.file(makeFile)
 
-    doFirst {
-      project.logWarn("RUNNING CONFIGURE WITH ${commandLine.joinToString(" ")}")
-    }
-    onlyIf {
-      !makeFile.exists() && buildRequired.get().invoke(target)
-    }
-    val args = mutableListOf(
-      "./configure",
-      "--with-libssl-prefix=${ssl.libsDir(target).absolutePath}",
-      "--host=${target.hostTriplet}",
-      "--prefix=${buildDir(target).absolutePath.replace('\\', '/')}"
-    )
+		doFirst {
+			project.logWarn("RUNNING CONFIGURE WITH ${commandLine.joinToString(" ")}")
+		}
+		onlyIf {
+			!makeFile.exists() && buildRequired.get().invoke(target)
+		}
+		val args = mutableListOf(
+			"./configure",
+			"--with-libssl-prefix=${ssl.libsDir(target).absolutePath}",
+			"--host=${target.hostTriplet}",
+			"--prefix=${buildDir(target).absolutePath.replace('\\', '/')}"
+		)
 
-    commandLine(args)
-  }
+		commandLine(args)
+	}
 
-  compileSource { target ->
-    val buildDir = buildDir(target)
-    outputs.dir(buildDir)
-    doFirst {
-      environment.keys.sorted().forEach {
-        project.logWarn("ENV: $it: ${environment[it]}")
-      }
-    }
-    commandLine("make", "install")
-  }
+	compileSource { target ->
+		val buildDir = buildDir(target)
+		outputs.dir(buildDir)
+		doFirst {
+			environment.keys.sorted().forEach {
+				project.logWarn("ENV: $it: ${environment[it]}")
+			}
+		}
+		commandLine("make", "install")
+	}
 
-  block()
+	block()
 }

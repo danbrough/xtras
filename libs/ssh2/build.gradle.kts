@@ -28,13 +28,14 @@ val ssl = openssl {
 }
 
 
-val ssh2 = ssh2(ssl) {
-}
+
+
 
 kotlin {
   withSourcesJar(publish = true)
   applyDefaultHierarchyTemplate()
   declareSupportedTargets()
+
 
   sourceSets {
     all {

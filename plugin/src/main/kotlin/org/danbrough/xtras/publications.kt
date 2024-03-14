@@ -10,7 +10,7 @@ fun LibraryExtension.registerPublications() {
   project.logInfo("registerPublications()")
   project.extensions.findByType<PublishingExtension>()!!.run {
     supportedTargets.get().forEach { target ->
-      val publicationName = "$name${target.platformName.capitalized()}"
+      val publicationName = "${this@registerPublications.name}${target.platformName.capitalized()}"
 
       publications.create<MavenPublication>(publicationName) {
         artifactId = artifactName(target)
@@ -18,6 +18,7 @@ fun LibraryExtension.registerPublications() {
         groupId = this@registerPublications.group
         val artifactTask = project.tasks.getByName(taskNamePackageCreate(target))
         artifact(artifactTask.outputs.files.first()).builtBy(artifactTask)
+        //println("PUBLICATION: artifactID:$artifactId group:$groupId version:$version")
       }
     }
   }

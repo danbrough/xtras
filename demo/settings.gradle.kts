@@ -1,7 +1,7 @@
 
 pluginManagement {
   repositories {
-    //maven("/home/dan/workspace/xtras/xtras/maven")
+    maven("/home/dan/workspace/xtras/xtras/maven")
 maven("https://s01.oss.sonatype.org/content/groups/staging")
     mavenCentral()
     gradlePluginPortal()
