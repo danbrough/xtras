@@ -17,130 +17,137 @@ typealias CInteropsTargetWriter = LibraryExtension.(KonanTarget, PrintWriter) ->
 //val thang: ()->List<KonanTarget> = { listOf(KonanTarget.LINUX_ARM64,KonanTarget.LINUX_X64) }
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class LibraryExtension(
-  val group: String,
-  val name: String,
-  val version: String,
-  val project: Project
+	val group: String,
+	val name: String,
+	val version: String,
+	val project: Project
 ) {
-  interface SourceConfig
+	interface SourceConfig
 
-  var sourceConfig: SourceConfig? = null
+	var sourceConfig: SourceConfig? = null
 
-  var publishing: Boolean = false
+	var publishing: Boolean = false
 
-  internal var taskPrepareSource: TaskConfig? = null
-  internal var taskConfigureSource: TaskConfig? = null
-  internal var taskCompileSource: TaskConfig? = null
+	internal var taskPrepareSource: TaskConfig? = null
+	internal var taskConfigureSource: TaskConfig? = null
+	internal var taskCompileSource: TaskConfig? = null
 
-  internal var dependencies = mutableListOf<LibraryExtension>()
+	internal var dependencies = mutableListOf<LibraryExtension>()
 
-  @XtraDSL
-  fun dependsOn(vararg libs: LibraryExtension) {
-    dependencies.addAll(libs)
-  }
+	@XtraDSL
+	fun dependsOn(vararg libs: LibraryExtension) {
+		dependencies.addAll(libs)
+	}
 
-  @XtraDSL
-  abstract val sourcesRequired: Property<Boolean>
+	@XtraDSL
+	abstract val sourcesRequired: Property<Boolean>
 
-  /**
-   * Whether source and build tasks are enabled.
-   * By default this will be the value of the gradle property [name].buildRequired (true|false)
-   * otherwise it will be true if the [packageFile] doesn't exist.
-   */
-  @XtraDSL
-  abstract val buildRequired: Property<KonanTarget.() -> Boolean>
+	/**
+	 * Whether source and build tasks are enabled.
+	 * By default this will be the value of the gradle property [name].buildRequired (true|false)
+	 * otherwise it will be true if the [packageFile] doesn't exist.
+	 */
+	@XtraDSL
+	abstract val buildRequired: Property<KonanTarget.() -> Boolean>
 
-  @XtraDSL
-  abstract val supportedTargets: ListProperty<KonanTarget>
+	@XtraDSL
+	abstract val supportedTargets: ListProperty<KonanTarget>
 
-  @XtraDSL
-  var sourceDir: (KonanTarget) -> File = {
-    project.xtrasSourceDir
-      .resolve(name).resolve(it.platformName).resolve(version)
-  }
+	@XtraDSL
+	var sourceDir: (KonanTarget) -> File = {
+		project.xtrasSourceDir
+			.resolve(name).resolve(it.platformName).resolve(version)
+	}
 
-  @XtraDSL
-  var buildDir: (KonanTarget) -> File = {
-    project.xtrasBuildDir
-      .resolve(name).resolve(it.platformName).resolve(version)
-  }
+	@XtraDSL
+	var buildDir: (KonanTarget) -> File = {
+		project.xtrasBuildDir
+			.resolve(name).resolve(it.platformName).resolve(version)
+	}
 
-  @XtraDSL
-  var packageFile: (KonanTarget) -> File = {
-    project.xtrasPackagesDir.resolve(group.toString().replace('.', File.separatorChar))
-      .resolve(name)
-      .resolve("xtras_${name}_${it.platformName}_${version}.tgz")
-  }
-
-
-  @XtraDSL
-  var artifactName: (KonanTarget) -> String = {
-    "package-${name.lowercase()}-${it.platformName.lowercase()}"
-  }
-
-  @XtraDSL
-  var libsDir: (KonanTarget) -> File = {
-    project.xtrasLibsDir
-      .resolve(name).resolve(it.platformName).resolve(version)
-  }
-
-  data class CInteropsConfig(
-    var defFile: File,
-    var headers: String? = null,
-    var headersFile: File? = null,
-    var code: String? = null,
-    var codeFile: File? = null,
-    var cinteropsTargetWriter: CInteropsTargetWriter = defaultCInteropsTargetWriter
-  )
+	@XtraDSL
+	var packageFile: (KonanTarget) -> File = {
+		project.xtrasPackagesDir.resolve(group.toString().replace('.', File.separatorChar))
+			.resolve(name)
+			.resolve("xtras_${name}_${it.platformName}_${version}.tgz")
+	}
 
 
-  internal val cinteropsConfig = CInteropsConfig(
-    project.file("src/cinterops/${name}_${version}.def")
-  )
+	@XtraDSL
+	var artifactName: (KonanTarget) -> String = {
+		"package-${name.lowercase()}-${it.platformName.lowercase()}"
+	}
 
-  @XtraDSL
-  fun cinterops(block: CInteropsConfig.() -> Unit) {
-    cinteropsConfig.block()
-  }
+	@XtraDSL
+	var libsDir: (KonanTarget) -> File = {
+		project.xtrasLibsDir
+			.resolve(name).resolve(it.platformName).resolve(version)
+	}
 
-  override fun toString(): String =
-    "${this::class.java.simpleName.substringBefore("_Decorated")}[$name:$version]"
+	data class CInteropsConfig(
+		var defFile: File,
+		var headers: String? = null,
+		var headersFile: File? = null,
+		var code: String? = null,
+		var codeFile: File? = null,
+		var cinteropsTargetWriter: CInteropsTargetWriter = defaultCInteropsTargetWriter
+	)
 
-  val xtras: XtrasExtension
-    get() = project.extensions.findByType<XtrasExtension>()!!
+
+	internal val cinteropsConfig = CInteropsConfig(
+		project.layout.buildDirectory.get().asFile.resolve(
+			"generated/cinterops/${
+				group.replace(
+					'.',
+					'_'
+				)
+			}-${name}_${version}.def"
+		)
+	)
+
+	@XtraDSL
+	fun cinterops(block: CInteropsConfig.() -> Unit) {
+		cinteropsConfig.block()
+	}
+
+	override fun toString(): String =
+		"${this::class.java.simpleName.substringBefore("_Decorated")}[$name:$version]"
+
+	val xtras: XtrasExtension
+		get() = project.extensions.findByType<XtrasExtension>()!!
 }
 
 
 @XtraDSL
 inline fun <reified T : LibraryExtension> Project.xtrasRegisterLibrary(
-  group: String,
-  name: String,
-  version: String,
-  noinline block: T.() -> Unit = {}
+	group: String,
+	name: String,
+	version: String,
+	noinline block: T.() -> Unit = {}
 ): T = xtrasRegisterLibrary(group, name, version, T::class.java, block)
 
 
 fun <T : LibraryExtension> Project.xtrasRegisterLibrary(
-  group: String,
-  name: String,
-  version: String,
-  clazz: Class<T>,
-  block: T.() -> Unit = {}
+	group: String,
+	name: String,
+	version: String,
+	clazz: Class<T>,
+	block: T.() -> Unit = {}
 ): T {
 
-  extensions.findByName(name)?.also {
-    error("Extension $name is already registered")
-  }
+	extensions.findByName(name)?.also {
+		error("Extension $name is already registered")
+	}
 
-  return extensions.create(name, clazz, group, name, version, this).also {
-    extensions.configure<T>(name) {
-      block()
-      afterEvaluate {
-        it.registerTasks()
-        it.registerPublications()
-      }
-    }
-  }
+	return extensions.create(name, clazz, group, name, version, this).also {
+		extensions.configure<T>(name) {
+			block()
+			afterEvaluate {
+				it.registerTasks()
+				it.registerPublications()
+			}
+		}
+	}
 }
 
 

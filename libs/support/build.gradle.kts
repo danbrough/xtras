@@ -4,15 +4,16 @@ import org.danbrough.xtras.declareSupportedTargets
 import org.danbrough.xtras.runningInIDE
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.xtras)
+  id("org.danbrough.xtras.sonatype")
   id("com.android.library")
 }
 
-group = "$XTRAS_PACKAGE.support"
 
 xtras {
   buildEnvironment.binaries {
@@ -42,23 +43,29 @@ kotlin {
   } else {
     declareSupportedTargets()
   }
-  jvm()
-  androidTarget()
+  jvm {
+    compilations.all {
+      // kotlin compiler compatibility options
+      kotlinOptions {
+        jvmTarget = "1.8"
+      }
+    }
+  }
+
+  androidTarget{
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions{
+      jvmTarget.set(JvmTarget.JVM_1_8)
+    }
+  }
 
 
   sourceSets {
-    jvm {
-      compilations.all {
-        // kotlin compiler compatibility options
-        kotlinOptions {
-          jvmTarget = "1.8"
-        }
-      }
-    }
+
 
     val commonMain by getting {
       dependencies {
-        //api(libs.kotlin.logging)
+        api(libs.kotlin.logging)
       }
     }
 
@@ -73,14 +80,14 @@ kotlin {
     jvmMain {
       dependencies {
         api(libs.slf4j.api)
-        implementation(libs.slf4j.simple)
+        api(libs.logback.classic)
       }
     }
 
     androidMain {
       dependencies {
         api(libs.slf4j.api)
-        implementation(libs.slf4j.simple)
+        api(libs.slf4j.android)
       }
     }
   }

@@ -21,6 +21,7 @@ xtras-openssl = "0.0.1-alpha01"
 xtras-mqtt = "0.0.1-alpha01"
 klog = "0.0.2-beta07"
 dokka = "1.9.0"
+kotlin-logging = "6.0.3"
 
 [libraries]
 

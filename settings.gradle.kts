@@ -18,7 +18,7 @@ rootProject.name = "xtras"
 includeBuild("plugin")
 
 listOf(
-  //"support",
+  "support",
   "openssl",
   //"ssh2",
 ).forEach {

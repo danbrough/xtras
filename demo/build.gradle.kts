@@ -1,6 +1,7 @@
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.declareHostTarget
 import org.danbrough.xtras.xtrasDocsDir
+import org.danbrough.xtras.xtrasMavenDir
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 
@@ -12,20 +13,31 @@ plugins {
 
 repositories {
   mavenCentral()
-}
+  maven(xtrasMavenDir)
+  maven("https://s01.oss.sonatype.org/content/groups/staging")
 
-group = "$XTRAS_PACKAGE.demo"
-version = "0.0.1-beta01"
+}
 
 kotlin {
   declareHostTarget()
   applyDefaultHierarchyTemplate()
 
-  val commonMain by sourceSets.getting {
 
-    dependencies {
-      implementation("org.danbrough.openssl:openssl:0.0.1-alpha02")
+  sourceSets{
+    commonMain{
+      dependencies {
+        implementation("org.danbrough.openssl:openssl:0.0.1-alpha02")
+        implementation("org.danbrough.xtras:support:0.0.1-alpha02")
+
+      }
     }
+
+    commonTest{
+      dependencies{
+        implementation(kotlin("test"))
+      }
+    }
+
   }
 
 
