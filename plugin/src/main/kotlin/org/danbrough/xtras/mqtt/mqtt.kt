@@ -27,7 +27,7 @@ fun Project.mqtt(
 		val installDir = buildDir(target)
 		val buildEnv = xtras.buildEnvironment
 
-		environment("CFLAGS","${environment["CFLAGS"]} -Wno-deprecated-declarations")
+		environment("CFLAGS","${environment["CFLAGS"]?.toString() ?: ""} -Wno-deprecated-declarations")
 
 		outputs.file(workingDir.resolve("Makefile"))
 
