@@ -3,6 +3,7 @@ package org.danbrough.xtras.mqtt
 import jdk.jfr.Enabled
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.androidLibDir
+import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.registerGitLibrary
 import org.danbrough.xtras.tasks.compileSource
@@ -28,6 +29,9 @@ fun Project.mqtt(
 		val buildEnv = xtras.buildEnvironment
 
 		environment("CFLAGS","${environment["CFLAGS"]?.toString() ?: ""} -Wno-deprecated-declarations")
+		doFirst {
+			project.logDebug("CFLAGS are: ${environment["CFLAGS"]}")
+		}
 
 		outputs.file(workingDir.resolve("Makefile"))
 
