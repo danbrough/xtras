@@ -9,6 +9,7 @@ import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 const val MQTT_EXTN_NAME = "mqtt"
 const val PROPERTY_MQTT_GROUP = "mqtt.group"
@@ -26,13 +27,15 @@ fun Project.mqtt(
 		val installDir = buildDir(target)
 		val buildEnv = xtras.buildEnvironment
 
-		environment("CFLAGS","-Wno-deprecated-declarations")
+		environment("CFLAGS","${environment["CFLAGS"]} -Wno-deprecated-declarations")
 
 		outputs.file(workingDir.resolve("Makefile"))
 
 		doFirst {
 			project.logInfo("Using cmake: ${buildEnv.binaries.cmake}")
 		}
+
+		val sslDir = ssl.libsDir(target)
 
 		val cmakeArgs = mutableListOf(
 			buildEnv.binaries.cmake,
@@ -44,7 +47,7 @@ fun Project.mqtt(
 			"-DPAHO_ENABLE_TESTING=FALSE",
 			"-DPAHO_BUILD_SAMPLES=TRUE",
 			"-DPAHO_BUILD_DOCUMENTATION=FALSE",
-			"-DOPENSSL_ROOT_DIR=${ssl.libsDir(target).absolutePath}",
+			"-DOPENSSL_ROOT_DIR=${sslDir.absolutePath}",
 		)
 
 		if (target.family == Family.ANDROID) {
@@ -52,7 +55,26 @@ fun Project.mqtt(
 			cmakeArgs += listOf(
 				"-DANDROID_ABI=${target.androidLibDir}",
 				"-DANDROID_PLATFORM=21",
-				"-DCMAKE_TOOLCHAIN_FILE=${buildEnv.androidNdkDir.resolve("build/cmake/android.toolchain.cmake")}"
+				"-DCMAKE_TOOLCHAIN_FILE=${buildEnv.androidNdkDir.resolve("build/cmake/android.toolchain.cmake")}",
+				"-DOPENSSL_INCLUDE_DIR=${sslDir.resolve("include")}",
+				"-DOPENSSL_CRYPTO_LIBRARY=${sslDir.resolve("lib/libcrypto.so")}",
+				"-DOPENSSL_SSL_LIBRARY=${sslDir.resolve("lib/libssl.so")}",
+			)
+		}else if (target.family.isAppleFamily) {
+			if (target == KonanTarget.MACOS_X64) cmakeArgs += "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+			else if (target == KonanTarget.MACOS_ARM64) cmakeArgs += "-DCMAKE_OSX_ARCHITECTURES=arm64"
+		} else if (target.family == Family.MINGW) {
+			cmakeArgs += listOf(
+				"-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc",
+				"-DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++",
+				"-DCMAKE_SYSTEM_NAME=Windows",
+				"-DCMAKE_SYSTEM_VERSION=1",
+				"-DOPENSSL_CRYPTO_LIBRARY=${
+					ssl.libsDir(target).resolve("lib/libcrypto.a")
+				}",
+				"-DOPENSSL_SSL_LIBRARY=${
+					ssl.libsDir(target).resolve("lib/libssl.a")
+				}",
 			)
 		}
 
