@@ -92,6 +92,11 @@ fun Project.mqtt(
 		commandLine(xtras.buildEnvironment.binaries.make, "install")
 	}
 
+	cinterops {
+		headers = """
+			headers = MQTTAsync.h  MQTTClient.h  MQTTClientPersistence.h  MQTTExportDeclarations.h  MQTTProperties.h  MQTTReasonCodes.h  MQTTSubscribeOpts.h
+		""".trimIndent()
+	}
 	block()
 }
 
