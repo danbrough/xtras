@@ -38,7 +38,9 @@ val mqtt = mqtt(ssl){
 kotlin {
 	withSourcesJar(publish = true)
 	applyDefaultHierarchyTemplate()
-	declareSupportedTargets()
+	//declareSupportedTargets()
+	linuxX64()
+	macosX64()
 
 
 	sourceSets {
@@ -68,7 +70,7 @@ kotlin {
 		}
 	}
 
-	targets.withType<KotlinNativeTarget> {
+/*	targets.withType<KotlinNativeTarget> {
 		compilations["main"].cinterops {
 			create("thang") {
 				definitionFile = file("src/cinterops/thang.def")
@@ -80,7 +82,7 @@ kotlin {
 				}
 			}
 		}
-	}
+	}*/
 
 
 }

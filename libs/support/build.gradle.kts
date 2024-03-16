@@ -31,17 +31,18 @@ java {
 kotlin {
   withSourcesJar(publish = true)
   applyDefaultHierarchyTemplate()
+
   @OptIn(ExperimentalKotlinGradlePluginApi::class)
   compilerOptions {
     languageVersion.set(KotlinVersion.KOTLIN_2_0)
     apiVersion.set(KotlinVersion.DEFAULT)
   }
 
-
   if (runningInIDE) {
     declareHostTarget()
   } else {
     declareSupportedTargets()
+    macosX64()
   }
   jvm {
     compilations.all {
