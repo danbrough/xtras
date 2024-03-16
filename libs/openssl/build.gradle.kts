@@ -13,8 +13,8 @@ plugins {
 group = "org.danbrough.openssl"
 version = "0.0.1-alpha02"
 
-val ssl = openssl {
-  buildEnabled = false
+openssl {
+  buildEnabled = true
 }
 
 
