@@ -2,6 +2,7 @@
 
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.projectProperty
+import org.danbrough.xtras.xtrasMavenDir
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
@@ -23,9 +24,10 @@ allprojects {
   version = xtrasProjectVersion
 
   repositories {
+    maven(xtrasMavenDir)
     mavenCentral()
     google()
-    maven("https://s01.oss.sonatype.org/content/groups/staging")
+ //   maven("https://s01.oss.sonatype.org/content/groups/staging")
   }
 }
 
