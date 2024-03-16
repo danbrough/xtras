@@ -19,27 +19,31 @@ import java.io.PrintWriter
 import java.io.Writer
 
 fun LibraryExtension.registerTasks() {
-  project.logInfo("registerTasks(): $this sourceConfig: $sourceConfig")
+  project.logInfo("registerTasks(): $this sourceConfig: $sourceConfig buildEnabled: $buildEnabled")
 
 
-  val buildRequiredGlobal: Boolean? =
-    project.projectProperty("${this@registerTasks.name}.buildRequired") { null }
+//  val buildRequiredGlobal: Boolean? =
+//    project.projectProperty("${this@registerTasks.name}.buildRequired") { null }
 
 
-  buildRequired.convention {
-    buildRequiredGlobal ?: !packageFile(this).exists()
-  }
+//  buildRequired.convention {
+//    buildRequiredGlobal ?: !packageFile(this).exists()
+//  }
 
   supportedTargets.convention(xtras.nativeTargets)
 
-  sourcesRequired.convention(
-    supportedTargets.get().firstOrNull { target ->
-      buildRequired.get().invoke(target)
-    } != null
-  )
+//  sourcesRequired.convention(
+//    supportedTargets.get().firstOrNull { target ->
+//      buildRequired.get().invoke(target)
+//    } != null
+//  )
 
 
   registerSourceTasks()
+
+  registerPackageTasks()
+
+  if (!buildEnabled) return
 
   fun TaskConfig.run() = supportedTargets.get().forEach {
     invoke(it)
@@ -51,7 +55,7 @@ fun LibraryExtension.registerTasks() {
 
   taskCompileSource?.run()
 
-  registerPackageTasks()
+
   registerCInteropsTasks()
 
 }
@@ -137,9 +141,7 @@ fun LibraryExtension.sourceTask(
           target
         )
       )
-    onlyIf {
-      buildRequired.get().invoke(target)
-    }
+
     workingDir(sourceDir(target))
     doFirst {
       project.logDebug("$name: running command: ${commandLine.joinToString(" ")}")

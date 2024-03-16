@@ -7,6 +7,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 
 fun LibraryExtension.registerPublications() {
+  if (!buildEnabled) return
   project.logInfo("registerPublications()")
   project.extensions.findByType<PublishingExtension>()!!.run {
     supportedTargets.get().forEach { target ->

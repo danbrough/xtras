@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 fun Project.openssl(
-	block: LibraryExtension.() -> Unit
+	block: LibraryExtension.() -> Unit,
 ): LibraryExtension =
 	registerGitLibrary("openssl") {
 
@@ -31,7 +31,7 @@ fun Project.openssl(
 				project.logWarn("RUNNING CONFIGURE WITH ${commandLine.joinToString(" ")} CFLAGS: ${environment["CFLAGS"]}")
 			}
 			onlyIf {
-				!makeFile.exists() && buildRequired.get().invoke(target)
+				!makeFile.exists()
 			}
 
 			val args = mutableListOf(

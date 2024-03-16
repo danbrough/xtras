@@ -20,7 +20,8 @@ includeBuild("plugin")
 listOf(
   "support",
   "openssl",
-  //"ssh2",
+  "mqtt",
+//  "ssh2",
 ).forEach {
   include(":libs:$it")
 }

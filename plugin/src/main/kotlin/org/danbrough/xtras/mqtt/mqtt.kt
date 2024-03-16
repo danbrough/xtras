@@ -1,11 +1,14 @@
 package org.danbrough.xtras.mqtt
 
+import jdk.jfr.Enabled
 import org.danbrough.xtras.LibraryExtension
+import org.danbrough.xtras.androidLibDir
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.registerGitLibrary
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
 import org.gradle.api.Project
+import org.jetbrains.kotlin.konan.target.Family
 
 const val MQTT_EXTN_NAME = "mqtt"
 const val PROPERTY_MQTT_GROUP = "mqtt.group"
@@ -20,19 +23,14 @@ fun Project.mqtt(
 	dependsOn(ssl)
 
 	configureSource { target ->
-		val sourceDir = sourceDir(target)
 		val installDir = buildDir(target)
-		val compileDir = buildDir(target).resolve("build")
 		val buildEnv = xtras.buildEnvironment
 
-		workingDir(compileDir)
-		outputs.file(compileDir.resolve("Makefile"))
+		environment("CFLAGS","-Wno-deprecated-declarations")
+
+		outputs.file(workingDir.resolve("Makefile"))
 
 		doFirst {
-			if (compileDir.exists()) {
-				compileDir.deleteRecursively()
-			}
-			compileDir.mkdirs()
 			project.logInfo("Using cmake: ${buildEnv.binaries.cmake}")
 		}
 
@@ -49,7 +47,16 @@ fun Project.mqtt(
 			"-DOPENSSL_ROOT_DIR=${ssl.libsDir(target).absolutePath}",
 		)
 
-		cmakeArgs += sourceDir.absolutePath
+		if (target.family == Family.ANDROID) {
+
+			cmakeArgs += listOf(
+				"-DANDROID_ABI=${target.androidLibDir}",
+				"-DANDROID_PLATFORM=21",
+				"-DCMAKE_TOOLCHAIN_FILE=${buildEnv.androidNdkDir.resolve("build/cmake/android.toolchain.cmake")}"
+			)
+		}
+
+		cmakeArgs += "."
 
 		commandLine(cmakeArgs)
 	}

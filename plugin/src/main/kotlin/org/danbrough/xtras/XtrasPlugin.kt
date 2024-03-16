@@ -19,13 +19,15 @@ class XtrasPlugin : Plugin<Project> {
 
 
       afterEvaluate {
-        registerMiscTasks()
+
 
         val kotlin = target.extensions.findByName("kotlin")
         if (kotlin is KotlinMultiplatformExtension) {
           xtras.nativeTargets.convention(
             kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget })
         }
+
+        registerMiscTasks()
       }
     }
 

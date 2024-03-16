@@ -64,7 +64,7 @@ fun Project.ssh2(
 		outputs.file(configureFile)
 		commandLine("autoreconf", "-fi")
 		onlyIf {
-			!configureFile.exists() && buildRequired.get().invoke(target)
+			!configureFile.exists()
 		}
 	}
 
@@ -76,7 +76,7 @@ fun Project.ssh2(
 			project.logWarn("RUNNING CONFIGURE WITH ${commandLine.joinToString(" ")}")
 		}
 		onlyIf {
-			!makeFile.exists() && buildRequired.get().invoke(target)
+			!makeFile.exists()
 		}
 		val args = mutableListOf(
 			"./configure",

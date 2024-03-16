@@ -1,7 +1,7 @@
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.declareSupportedTargets
+import org.danbrough.xtras.mqtt.mqtt
 import org.danbrough.xtras.openssl.openssl
-import org.danbrough.xtras.ssh2.ssh2
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
@@ -14,7 +14,7 @@ plugins {
 
 }
 
-group = "org.danbrough.ssh2"
+group = "org.danbrough.mqtt"
 version = "0.0.1-alpha01"
 
 xtras {
@@ -27,6 +27,10 @@ xtras {
 val ssl = openssl {
 }
 
+
+val mqtt = mqtt(ssl){
+	buildEnabled = true
+}
 
 
 

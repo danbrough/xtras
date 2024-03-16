@@ -26,6 +26,8 @@ abstract class LibraryExtension(
 
 	var sourceConfig: SourceConfig? = null
 
+	var buildEnabled: Boolean = false
+
 	var publishing: Boolean = false
 
 	internal var taskPrepareSource: TaskConfig? = null
@@ -39,16 +41,16 @@ abstract class LibraryExtension(
 		dependencies.addAll(libs)
 	}
 
-	@XtraDSL
-	abstract val sourcesRequired: Property<Boolean>
+//	@XtraDSL
+//	abstract val sourcesRequired: Property<Boolean>
 
-	/**
-	 * Whether source and build tasks are enabled.
-	 * By default this will be the value of the gradle property [name].buildRequired (true|false)
-	 * otherwise it will be true if the [packageFile] doesn't exist.
-	 */
-	@XtraDSL
-	abstract val buildRequired: Property<KonanTarget.() -> Boolean>
+//	/**
+//	 * Whether source and build tasks are enabled.
+//	 * By default this will be the value of the gradle property [name].buildRequired (true|false)
+//	 * otherwise it will be true if the [packageFile] doesn't exist.
+//	 */
+//	@XtraDSL
+//	abstract val buildRequired: Property<KonanTarget.() -> Boolean>
 
 	@XtraDSL
 	abstract val supportedTargets: ListProperty<KonanTarget>
