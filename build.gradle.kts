@@ -37,3 +37,7 @@ tasks.register("thang"){
     println("EXTRA: ${project.projectProperty<Boolean?>("thang"){null}}")
   }
 }
+
+tasks.wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+}

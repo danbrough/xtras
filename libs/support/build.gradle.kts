@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.declareHostTarget
 import org.danbrough.xtras.declareSupportedTargets
@@ -32,7 +34,6 @@ kotlin {
   withSourcesJar(publish = true)
   applyDefaultHierarchyTemplate()
 
-  @OptIn(ExperimentalKotlinGradlePluginApi::class)
   compilerOptions {
     languageVersion.set(KotlinVersion.KOTLIN_2_0)
     apiVersion.set(KotlinVersion.DEFAULT)
@@ -44,25 +45,21 @@ kotlin {
     declareSupportedTargets()
     macosX64()
   }
+
   jvm {
-    compilations.all {
-      // kotlin compiler compatibility options
-      kotlinOptions {
-        jvmTarget = "1.8"
-      }
+    compilerOptions{
+      jvmTarget = JvmTarget.JVM_1_8
     }
   }
 
   androidTarget{
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions{
-      jvmTarget.set(JvmTarget.JVM_1_8)
+      jvmTarget = JvmTarget.JVM_1_8
     }
   }
 
 
   sourceSets {
-
 
     val commonMain by getting {
       dependencies {
@@ -97,10 +94,12 @@ kotlin {
 android {
   compileSdk = 34
   namespace = "$XTRAS_PACKAGE.support"
+
   defaultConfig {
     minSdk = 22
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8

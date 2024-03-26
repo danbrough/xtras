@@ -26,7 +26,7 @@ kotlin {
   sourceSets{
     commonMain{
       dependencies {
-        implementation("org.danbrough.openssl:openssl:0.0.1-alpha02")
+        implementation("org.danbrough.xtras.openssl:openssl:0.0.1-alpha02")
         implementation("org.danbrough.xtras:support:0.0.1-alpha02")
 
       }
