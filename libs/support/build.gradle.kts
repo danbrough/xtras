@@ -8,6 +8,7 @@ import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -46,16 +47,18 @@ kotlin {
   }
 
   jvm {
-    compilerOptions{
+    compilerOptions {
       jvmTarget = JvmTarget.JVM_1_8
     }
   }
 
-  androidTarget{
-    compilerOptions{
+  androidTarget {
+    compilerOptions {
       jvmTarget = JvmTarget.JVM_1_8
     }
   }
+
+
 
 
   sourceSets {
@@ -72,7 +75,16 @@ kotlin {
       }
     }
 
-    val nativeMain by getting {}
+    val posixMain by creating {
+      dependsOn(commonMain)
+    }
+
+    targets.withType<KotlinNativeTarget> {
+      if (!konanTarget.family.isAppleFamily) {
+        compilations["main"].defaultSourceSet.dependsOn(posixMain)
+      }
+    }
+
 
     jvmMain {
       dependencies {
