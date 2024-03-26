@@ -69,8 +69,7 @@ abstract class LibraryExtension(
 
 	@XtraDSL
 	var packageFile: (KonanTarget) -> File = {
-		project.xtrasPackagesDir.resolve(group.toString().replace('.', File.separatorChar))
-			.resolve(name)
+		project.xtrasPackagesDir.resolve(group.replace('.', File.separatorChar))
 			.resolve("xtras_${name}_${it.platformName}_${version}.tgz")
 	}
 
