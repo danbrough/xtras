@@ -43,7 +43,6 @@ kotlin {
     declareHostTarget()
   } else {
     declareSupportedTargets()
-    macosX64()
   }
 
   jvm {
