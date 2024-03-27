@@ -7,7 +7,7 @@ import org.danbrough.xtras.xtrasTesting
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.xtras)
-  id("org.danbrough.xtras.sonatype")
+  alias(libs.plugins.xtras.sonatype)
 }
 
 group = "org.danbrough.openssl"

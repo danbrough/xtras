@@ -10,8 +10,7 @@ import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
 	alias(libs.plugins.xtras)
-	id("org.danbrough.xtras.sonatype")
-
+	alias(libs.plugins.xtras.sonatype)
 }
 
 group = "org.danbrough.mqtt"
