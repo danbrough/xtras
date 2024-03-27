@@ -23,17 +23,43 @@ xtras {
 }
 
 
-val ssl = openssl {
-}
-
-
-val mqtt = mqtt(ssl){
+val mqtt = mqtt(openssl()){
 	buildEnabled = true
 }
 
 
 
+kotlin {
+	withSourcesJar(publish = true)
+	applyDefaultHierarchyTemplate()
+	declareSupportedTargets()
 
+	sourceSets {
+		val commonMain by getting{
+			dependencies {
+				implementation(project(":libs:support"))
+				implementation(libs.kotlinx.coroutines)
+			}
+		}
+
+		val commonTest by getting {
+			dependencies {
+				implementation(kotlin("test"))
+			}
+		}
+		val nativeMain by getting {
+		}
+	}
+}
+
+xtrasTesting()
+
+sonatype {
+
+}
+
+
+/*
 kotlin {
 	withSourcesJar(publish = true)
 	applyDefaultHierarchyTemplate()
@@ -69,6 +95,7 @@ kotlin {
 		}
 	}
 
+*/
 /*	targets.withType<KotlinNativeTarget> {
 		compilations["main"].cinterops {
 			create("thang") {
@@ -81,7 +108,8 @@ kotlin {
 				}
 			}
 		}
-	}*/
+	}*//*
+
 
 
 }
@@ -97,3 +125,4 @@ afterEvaluate {
 
 	}
 }
+*/
