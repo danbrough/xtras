@@ -13,85 +13,84 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 fun Project.mqtt(
-	ssl: LibraryExtension,
-	block: LibraryExtension.() -> Unit
+  ssl: LibraryExtension,
+  block: LibraryExtension.() -> Unit = {}
 ) = registerGitLibrary<LibraryExtension>("mqtt") {
-	dependsOn(ssl)
+  dependsOn(ssl)
 
-	configureSource { target ->
-		val installDir = buildDir(target)
-		val buildEnv = xtras.buildEnvironment
+  configureSource { target ->
+    val installDir = buildDir(target)
+    val buildEnv = xtras.buildEnvironment
 
-		environment("CFLAGS","${environment["CFLAGS"]?.toString() ?: ""} -Wno-deprecated-declarations")
-		doFirst {
-			project.logDebug("CFLAGS are: ${environment["CFLAGS"]}")
-		}
+    environment("CFLAGS", "${environment["CFLAGS"]?.toString() ?: ""} -Wno-deprecated-declarations")
+    doFirst {
+      project.logDebug("CFLAGS are: ${environment["CFLAGS"]}")
+    }
 
-		outputs.file(workingDir.resolve("Makefile"))
+    outputs.file(workingDir.resolve("Makefile"))
 
-		doFirst {
-			project.logInfo("Using cmake: ${buildEnv.binaries.cmake}")
-		}
+    doFirst {
+      project.logInfo("Using cmake: ${buildEnv.binaries.cmake}")
+    }
 
-		val sslDir = ssl.libsDir(target)
+    val sslDir = ssl.libsDir(target)
 
-		val cmakeArgs = mutableListOf(
-			buildEnv.binaries.cmake,
-			"-G", "Unix Makefiles",
-			"-DCMAKE_INSTALL_PREFIX=${installDir.absolutePath}",
-			"-DPAHO_WITH_SSL=TRUE",
-			"-DPAHO_BUILD_STATIC=TRUE",
-			"-DPAHO_BUILD_SHARED=TRUE",
-			"-DPAHO_ENABLE_TESTING=FALSE",
-			"-DPAHO_BUILD_SAMPLES=TRUE",
-			"-DPAHO_BUILD_DOCUMENTATION=FALSE",
-			"-DOPENSSL_ROOT_DIR=${sslDir.absolutePath}",
-		)
+    val cmakeArgs = mutableListOf(
+      buildEnv.binaries.cmake,
+      "-G", "Unix Makefiles",
+      "-DCMAKE_INSTALL_PREFIX=${installDir.absolutePath}",
+      "-DPAHO_WITH_SSL=TRUE",
+      "-DPAHO_BUILD_STATIC=TRUE",
+      "-DPAHO_BUILD_SHARED=TRUE",
+      "-DPAHO_ENABLE_TESTING=FALSE",
+      "-DPAHO_BUILD_SAMPLES=TRUE",
+      "-DPAHO_BUILD_DOCUMENTATION=FALSE",
+      "-DOPENSSL_ROOT_DIR=${sslDir.absolutePath}",
+    )
 
-		if (target.family == Family.ANDROID) {
+    if (target.family == Family.ANDROID) {
+      cmakeArgs += listOf(
+        "-DANDROID_ABI=${target.androidLibDir}",
+        "-DANDROID_PLATFORM=21",
+        "-DCMAKE_TOOLCHAIN_FILE=${buildEnv.androidNdkDir.resolve("build/cmake/android.toolchain.cmake")}",
+        "-DOPENSSL_INCLUDE_DIR=${sslDir.resolve("include")}",
+        "-DOPENSSL_CRYPTO_LIBRARY=${sslDir.resolve("lib/libcrypto.so")}",
+        "-DOPENSSL_SSL_LIBRARY=${sslDir.resolve("lib/libssl.so")}",
+      )
+    } else if (target.family.isAppleFamily) {
+      if (target == KonanTarget.MACOS_X64) cmakeArgs += "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+      else if (target == KonanTarget.MACOS_ARM64) cmakeArgs += "-DCMAKE_OSX_ARCHITECTURES=arm64"
+    } else if (target.family == Family.MINGW) {
+      cmakeArgs += listOf(
+        "-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc",
+        "-DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++",
+        "-DCMAKE_SYSTEM_NAME=Windows",
+        "-DCMAKE_SYSTEM_VERSION=1",
+        "-DOPENSSL_CRYPTO_LIBRARY=${
+          ssl.libsDir(target).resolve("lib/libcrypto.a")
+        }",
+        "-DOPENSSL_SSL_LIBRARY=${
+          ssl.libsDir(target).resolve("lib/libssl.a")
+        }",
+      )
+    }
 
-			cmakeArgs += listOf(
-				"-DANDROID_ABI=${target.androidLibDir}",
-				"-DANDROID_PLATFORM=21",
-				"-DCMAKE_TOOLCHAIN_FILE=${buildEnv.androidNdkDir.resolve("build/cmake/android.toolchain.cmake")}",
-				"-DOPENSSL_INCLUDE_DIR=${sslDir.resolve("include")}",
-				"-DOPENSSL_CRYPTO_LIBRARY=${sslDir.resolve("lib/libcrypto.so")}",
-				"-DOPENSSL_SSL_LIBRARY=${sslDir.resolve("lib/libssl.so")}",
-			)
-		}else if (target.family.isAppleFamily) {
-			if (target == KonanTarget.MACOS_X64) cmakeArgs += "-DCMAKE_OSX_ARCHITECTURES=x86_64"
-			else if (target == KonanTarget.MACOS_ARM64) cmakeArgs += "-DCMAKE_OSX_ARCHITECTURES=arm64"
-		} else if (target.family == Family.MINGW) {
-			cmakeArgs += listOf(
-				"-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc",
-				"-DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++",
-				"-DCMAKE_SYSTEM_NAME=Windows",
-				"-DCMAKE_SYSTEM_VERSION=1",
-				"-DOPENSSL_CRYPTO_LIBRARY=${
-					ssl.libsDir(target).resolve("lib/libcrypto.a")
-				}",
-				"-DOPENSSL_SSL_LIBRARY=${
-					ssl.libsDir(target).resolve("lib/libssl.a")
-				}",
-			)
-		}
+    cmakeArgs += "."
 
-		cmakeArgs += "."
+    commandLine(cmakeArgs)
+  }
 
-		commandLine(cmakeArgs)
-	}
+  compileSource { target ->
+    outputs.dir(buildDir(target))
+    commandLine(xtras.buildEnvironment.binaries.make, "install")
+  }
 
-	compileSource { target ->
-		outputs.dir(buildDir(target))
-		commandLine(xtras.buildEnvironment.binaries.make, "install")
-	}
-
-	cinterops {
-		headers = """
+  cinterops {
+    headers = """
 			headers = MQTTAsync.h  MQTTClient.h  MQTTClientPersistence.h  MQTTExportDeclarations.h  MQTTProperties.h  MQTTReasonCodes.h  MQTTSubscribeOpts.h
 		""".trimIndent()
-	}
-	block()
+  }
+  block()
 }
 
 /*

@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
 	alias(libs.plugins.xtras)
-	alias(libs.plugins.xtras.sonatype)
+	id("org.danbrough.xtras.sonatype")
 }
 
 group = "org.danbrough.mqtt"
@@ -22,8 +22,11 @@ xtras {
 	}
 }
 
+val ssl = openssl{
 
-val mqtt = mqtt(openssl()){
+}
+
+val mqtt = mqtt(ssl){
 	buildEnabled = true
 }
 

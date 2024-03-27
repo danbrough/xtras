@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 fun Project.openssl(
-	block: LibraryExtension.() -> Unit,
+	block: LibraryExtension.() -> Unit = {},
 ): LibraryExtension =
 	registerGitLibrary("openssl") {
 
