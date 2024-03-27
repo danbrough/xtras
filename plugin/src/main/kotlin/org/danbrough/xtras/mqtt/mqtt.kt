@@ -1,6 +1,5 @@
 package org.danbrough.xtras.mqtt
 
-import jdk.jfr.Enabled
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.androidLibDir
 import org.danbrough.xtras.logDebug
@@ -12,11 +11,6 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
-const val MQTT_EXTN_NAME = "mqtt"
-const val PROPERTY_MQTT_GROUP = "mqtt.group"
-const val PROPERTY_MQTT_VERSION = "mqtt.version"
-const val PROPERTY_MQTT_COMMIT = "mqtt.commit"
-const val PROPERTY_MQTT_URL = "mqtt.url"
 
 fun Project.mqtt(
 	ssl: LibraryExtension,

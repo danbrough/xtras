@@ -132,6 +132,9 @@ fun LibraryExtension.sourceTask(
     dependsOn(*dependencies.map { it.taskNamePackageExtract(target) }.toTypedArray())
     group = XTRAS_TASK_GROUP
     environment(xtras.buildEnvironment.getEnvironment(target))
+    onlyIf {
+      !packageFile(target).exists()
+    }
     if (dependsOn != null)
       dependsOn(
         xtrasTaskName(
