@@ -22,32 +22,35 @@ import kotlinx.cinterop.staticCFunction
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.useContents
 import kotlinx.cinterop.value
+import org.danbrough.mqtt.cinterops.MQTTAsyncVar
 import org.danbrough.mqtt.cinterops.MQTTCLIENT_PERSISTENCE_NONE
 import org.danbrough.mqtt.cinterops.MQTTCLIENT_SUCCESS
-import org.danbrough.mqtt.cinterops.MQTTClient
-import org.danbrough.mqtt.cinterops.MQTTClientVar
+import org.danbrough.mqtt.cinterops.MQTTAsync
+import org.danbrough.mqtt.cinterops.MQTTAsyncVar
 
-import org.danbrough.mqtt.cinterops.MQTTClient_connectOptions
-import org.danbrough.mqtt.cinterops.MQTTClient_connectionLost
-import org.danbrough.mqtt.cinterops.MQTTClient_create
-import org.danbrough.mqtt.cinterops.MQTTClient_deliveryComplete
-import org.danbrough.mqtt.cinterops.MQTTClient_deliveryToken
-import org.danbrough.mqtt.cinterops.MQTTClient_deliveryTokenVar
-import org.danbrough.mqtt.cinterops.MQTTClient_freeMessage
-import org.danbrough.mqtt.cinterops.MQTTClient_message
-import org.danbrough.mqtt.cinterops.MQTTClient_messageArrived
-import org.danbrough.mqtt.cinterops.MQTTClient_setCallbacks
+import org.danbrough.mqtt.cinterops.MQTTAsync_connectOptions
+import org.danbrough.mqtt.cinterops.MQTTAsync_connectionLost
+import org.danbrough.mqtt.cinterops.MQTTAsync_create
+import org.danbrough.mqtt.cinterops.MQTTAsync_deliveryComplete
+import org.danbrough.mqtt.cinterops.MQTTAsync_deliveryToken
+import org.danbrough.mqtt.cinterops.MQTTAsync_deliveryTokenVar
+import org.danbrough.mqtt.cinterops.MQTTAsync_freeMessage
+import org.danbrough.mqtt.cinterops.MQTTAsync_message
+import org.danbrough.mqtt.cinterops.MQTTAsync_messageArrived
+import org.danbrough.mqtt.cinterops.MQTTAsync_setCallbacks
 import org.danbrough.mqtt.cinterops.createConnectOptions
 import org.danbrough.mqtt.cinterops.createMessage
 import org.danbrough.xtras.support.initLogging
 
-val log = KotlinLogging.logger("MQTTClient").also {
+val log = KotlinLogging.logger("MQTTAsync").also {
   initLogging(it)
 }
 
 const val ADDRESS = "tcp://mqtt.eclipseprojects.io:1883"
 const val CLIENTID = "ExampleClientPub"
-val deliveryToken: MQTTClient_deliveryTokenVar = nativeHeap.alloc()
+
+
+val deliveryToken: MQTTAsync_deliveryTokenVar = nativeHeap.alloc()
 
 /*
 
@@ -66,58 +69,58 @@ fun main(args: Array<String>) {
   log.info { "main()" }
 
   memScoped {
-    val client:MQTTClientVar = alloc()
-    val connectOptions: CValue<MQTTClient_connectOptions> = createConnectOptions()
-    val message: CValue<MQTTClient_message> = createMessage()
-    val token: MQTTClient_deliveryTokenVar = alloc()
+    val client:MQTTAsyncVar = alloc()
+    val connectOptions: CValue<MQTTAsync_connectOptions> = createConnectOptions()
+    val message: CValue<MQTTAsync_message> = createMessage()
+    //val token: MQTTAsync_deliveryTokenVar = alloc()
     val rc = 0
 
 
     runCatching {
 
 
-      log.debug { "MQTTClient_create" }
+      log.debug { "MQTTAsync_create" }
 
       /*
-          if ((rc = MQTTClient_create(&client, ADDRESS, CLIENTID,
+          if ((rc = MQTTAsync_create(&client, ADDRESS, CLIENTID,
         MQTTCLIENT_PERSISTENCE_NONE, NULL)) != MQTTCLIENT_SUCCESS)
        */
-      MQTTClient_create(client.ptr, ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, null).also {
+      MQTTAsync_create(client.ptr, ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, null).also {
         if (it != MQTTCLIENT_SUCCESS)
           error("Failed to create client, return code $it")
       }
 
 
 
-      //typedef void MQTTClient_connectionLost(void* context, char* cause);
-      val connLost: CPointer<MQTTClient_connectionLost> = staticCFunction { _, cause ->
-        KotlinLogging.logger("MQTTClient").error { "connection lost: cause: ${cause?.toKString()}" }
+      //typedef void MQTTAsync_connectionLost(void* context, char* cause);
+      val connLost: CPointer<MQTTAsync_connectionLost> = staticCFunction { _, cause ->
+        KotlinLogging.logger("MQTTAsync").error { "connection lost: cause: ${cause?.toKString()}" }
       }
 
-      //typedef int MQTTClient_messageArrived(void* context, char* topicName, int topicLen, MQTTClient_message* message);
-      val messageArrived: CPointer<MQTTClient_messageArrived> = staticCFunction { _, topicName, topicLen, message ->
-        KotlinLogging.logger("MQTTClient").info{"MQTTClient_messageArrived: topicName: $topicName topicLen:$topicLen"}
+      //typedef int MQTTAsync_messageArrived(void* context, char* topicName, int topicLen, MQTTAsync_message* message);
+      val messageArrived: CPointer<MQTTAsync_messageArrived> = staticCFunction { _, topicName, topicLen, message ->
+        KotlinLogging.logger("MQTTAsync").info{"MQTTAsync_messageArrived: topicName: $topicName topicLen:$topicLen"}
 
         if (message != null)
-          MQTTClient_freeMessage(message.reinterpret())
+          MQTTAsync_freeMessage(message.reinterpret())
 
         if (topicName != null)
-          MQTTClient_freeMessage(topicName.reinterpret())
+          MQTTAsync_freeMessage(topicName.reinterpret())
 
         1
       }
 
-      //typedef void MQTTClient_deliveryComplete(void* context, MQTTClient_deliveryToken dt);
-      val delivered:CPointer<MQTTClient_deliveryComplete> = staticCFunction {_,token->
+      //typedef void MQTTAsync_deliveryComplete(void* context, MQTTAsync_deliveryToken dt);
+      val delivered:CPointer<MQTTAsync_deliveryComplete> = staticCFunction {_,token->
        // deliveryToken.value = token
-        KotlinLogging.logger("MQTTClient").info{"MQTTClient_deliveryComplete: token: $token"}
+        KotlinLogging.logger("MQTTAsync").info{"MQTTAsync_deliveryComplete: token: $token"}
       }
 
-      log.debug { "MQTTClient_setCallbacks" }
-      //if ((rc = MQTTClient_setCallbacks(client, NULL, connlost, msgarrvd, delivered)) != MQTTCLIENT_SUCCESS)
-      MQTTClient_setCallbacks(client.ptr, null, null, null, null).also {
+      log.debug { "MQTTAsync_setCallbacks" }
+      //if ((rc = MQTTAsync_setCallbacks(client, NULL, connlost, msgarrvd, delivered)) != MQTTCLIENT_SUCCESS)
+      MQTTAsync_setCallbacks(client.ptr, null, null, null, null).also {
         if (it != MQTTCLIENT_SUCCESS)
-          error("MQTTClient_setCallbacks failed: error: $it")
+          error("MQTTAsync_setCallbacks failed: error: $it")
       }
 
       connectOptions.useContents {
@@ -130,7 +133,7 @@ fun main(args: Array<String>) {
 
 
       /*
-    if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
+    if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
     {
         printf("Failed to connect, return code %d\n", rc);
         rc = EXIT_FAILURE;
