@@ -43,6 +43,8 @@ fun LibraryExtension.registerTasks() {
 
   registerPackageTasks()
 
+  registerCInteropsTasks()
+
   if (!buildEnabled) return
 
   fun TaskConfig.run() = supportedTargets.get().forEach {
@@ -56,7 +58,7 @@ fun LibraryExtension.registerTasks() {
   taskCompileSource?.run()
 
 
-  registerCInteropsTasks()
+
 
 }
 

@@ -38,6 +38,14 @@ kotlin {
 	declareSupportedTargets()
 
 	sourceSets {
+		all {
+			languageSettings {
+				listOf(
+					"kotlinx.cinterop.ExperimentalForeignApi",
+				).forEach(::optIn)
+			}
+		}
+
 		val commonMain by getting{
 			dependencies {
 				implementation(project(":libs:support"))
@@ -51,6 +59,17 @@ kotlin {
 			}
 		}
 		val nativeMain by getting {
+			dependencies {
+				implementation(project(":libs:support"))
+			}
+		}
+	}
+
+	targets.withType<KotlinNativeTarget> {
+		binaries{
+			executable("mqttPublish") {
+				entryPoint = "org.danbrough.mqtt.publish.main"
+			}
 		}
 	}
 }

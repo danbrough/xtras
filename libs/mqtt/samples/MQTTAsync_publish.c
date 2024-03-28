@@ -32,7 +32,7 @@
 #define ADDRESS     "tcp://mqtt.eclipseprojects.io:1883"
 #define CLIENTID    "ExampleClientPub"
 #define TOPIC       "MQTT Examples"
-#define PAYLOAD     "Hello World!"
+#define PAYLOAD     "Hello World! from my async demo"
 #define QOS         1
 #define TIMEOUT     10000L
 

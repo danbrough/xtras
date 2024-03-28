@@ -29,21 +29,32 @@ val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
 internal fun LibraryExtension.taskNameCInterops(): String =
   xtrasTaskName("cinterops", "create", this)
 
-internal fun LibraryExtension.writeInteropsFile(writer: PrintWriter) {
+internal fun LibraryExtension.writeInteropsFile(printerWriter: PrintWriter) {
+  printerWriter.use { writer ->
 
-  (cinteropsConfig.headers ?: cinteropsConfig.headersFile?.readText())?.also {
-    writer.println(it)
-  }
+    (cinteropsConfig.headers ?: cinteropsConfig.headersFile?.readText())?.also {
+      writer.println(it)
+    }
 
-  supportedTargets.get().forEachIndexed { index, konanTarget ->
-    if (index == 0) writer.println("\n### XTRAS: generated paths from the cinteropsTargetWriter\n")
-    cinteropsConfig.cinteropsTargetWriter.invoke(this, konanTarget, writer)
-  }
+    supportedTargets.get().forEachIndexed { index, konanTarget ->
+      if (index == 0) writer.println("\n### XTRAS: generated paths from the cinteropsTargetWriter\n")
+      cinteropsConfig.cinteropsTargetWriter.invoke(this, konanTarget, writer)
+    }
 
-
-  (cinteropsConfig.code ?: cinteropsConfig.codeFile?.readText())?.also {
     writer.println("---")
-    writer.println(it)
+    writer.println()
+
+    val interops = "/${group.replace('.', '/')}/interops.h"
+
+    this::class.java.getResourceAsStream(interops)?.also {
+      writer.println()
+      writer.println("// interops header code from resource: $interops")
+      writer.println(it.readAllBytes().decodeToString())
+    }
+
+    (cinteropsConfig.code ?: cinteropsConfig.codeFile?.readText())?.also {
+      writer.println(it)
+    }
   }
 }
 
