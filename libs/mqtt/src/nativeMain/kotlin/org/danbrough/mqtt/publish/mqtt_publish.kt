@@ -1,43 +1,28 @@
 package org.danbrough.mqtt.publish
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.cinterop.ByteVar
-import kotlinx.cinterop.COpaquePointer
-import kotlinx.cinterop.COpaquePointerVar
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.CValue
-import kotlinx.cinterop.CValuesRef
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
-import kotlinx.cinterop.cValue
-import kotlinx.cinterop.cstr
 import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.nativeHeap
-import kotlinx.cinterop.objcPtr
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.reinterpret
-import kotlinx.cinterop.set
 import kotlinx.cinterop.staticCFunction
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.useContents
-import kotlinx.cinterop.value
+import org.danbrough.mqtt.cinterops.MQTTASYNC_SUCCESS
 import org.danbrough.mqtt.cinterops.MQTTAsyncVar
-import org.danbrough.mqtt.cinterops.MQTTCLIENT_PERSISTENCE_NONE
-import org.danbrough.mqtt.cinterops.MQTTCLIENT_SUCCESS
-import org.danbrough.mqtt.cinterops.MQTTAsync
-import org.danbrough.mqtt.cinterops.MQTTAsyncVar
-
 import org.danbrough.mqtt.cinterops.MQTTAsync_connectOptions
 import org.danbrough.mqtt.cinterops.MQTTAsync_connectionLost
 import org.danbrough.mqtt.cinterops.MQTTAsync_create
 import org.danbrough.mqtt.cinterops.MQTTAsync_deliveryComplete
-import org.danbrough.mqtt.cinterops.MQTTAsync_deliveryToken
-import org.danbrough.mqtt.cinterops.MQTTAsync_deliveryTokenVar
 import org.danbrough.mqtt.cinterops.MQTTAsync_freeMessage
 import org.danbrough.mqtt.cinterops.MQTTAsync_message
 import org.danbrough.mqtt.cinterops.MQTTAsync_messageArrived
 import org.danbrough.mqtt.cinterops.MQTTAsync_setCallbacks
+import org.danbrough.mqtt.cinterops.MQTTCLIENT_PERSISTENCE_NONE
 import org.danbrough.mqtt.cinterops.createConnectOptions
 import org.danbrough.mqtt.cinterops.createMessage
 import org.danbrough.xtras.support.initLogging
@@ -50,7 +35,7 @@ const val ADDRESS = "tcp://mqtt.eclipseprojects.io:1883"
 const val CLIENTID = "ExampleClientPub"
 
 
-val deliveryToken: MQTTAsync_deliveryTokenVar = nativeHeap.alloc()
+//val deliveryToken: MQTTAsync_deliveryTokenVar = nativeHeap.alloc()
 
 /*
 
@@ -85,8 +70,8 @@ fun main(args: Array<String>) {
           if ((rc = MQTTAsync_create(&client, ADDRESS, CLIENTID,
         MQTTCLIENT_PERSISTENCE_NONE, NULL)) != MQTTCLIENT_SUCCESS)
        */
-      MQTTAsync_create(client.ptr, ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, null).also {
-        if (it != MQTTCLIENT_SUCCESS)
+      MQTTAsync_create(client.ptr.pointed.ptr, ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, null).also {
+        if (it != MQTTASYNC_SUCCESS)
           error("Failed to create client, return code $it")
       }
 
@@ -94,7 +79,7 @@ fun main(args: Array<String>) {
 
       //typedef void MQTTAsync_connectionLost(void* context, char* cause);
       val connLost: CPointer<MQTTAsync_connectionLost> = staticCFunction { _, cause ->
-        KotlinLogging.logger("MQTTAsync").error { "connection lost: cause: ${cause?.toKString()}" }
+       // KotlinLogging.logger("MQTTAsync").error { "connection lost: cause: ${cause?.toKString()}" }
       }
 
       //typedef int MQTTAsync_messageArrived(void* context, char* topicName, int topicLen, MQTTAsync_message* message);
@@ -118,8 +103,8 @@ fun main(args: Array<String>) {
 
       log.debug { "MQTTAsync_setCallbacks" }
       //if ((rc = MQTTAsync_setCallbacks(client, NULL, connlost, msgarrvd, delivered)) != MQTTCLIENT_SUCCESS)
-      MQTTAsync_setCallbacks(client.ptr, null, null, null, null).also {
-        if (it != MQTTCLIENT_SUCCESS)
+      MQTTAsync_setCallbacks(client.ptr, client.ptr, connLost, null, null).also {
+        if (it != MQTTASYNC_SUCCESS)
           error("MQTTAsync_setCallbacks failed: error: $it")
       }
 

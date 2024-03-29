@@ -89,9 +89,10 @@ fun Project.mqtt(
     headers = """
       package = $group.cinterops
       headers = MQTTAsync.h
-			#headers = MQTTAsync.h  MQTTClient.h  MQTTClientPersistence.h  MQTTExportDeclarations.h  MQTTProperties.h  MQTTReasonCodes.h  MQTTSubscribeOpts.h
-      staticLibraries = libpaho-mqtt3as.a
-		""".trimIndent()
+      #headers = MQTTAsync.h  MQTTClient.h  MQTTClientPersistence.h  MQTTExportDeclarations.h  MQTTProperties.h  MQTTReasonCodes.h  MQTTSubscribeOpts.h
+      #staticLibraries = libpaho-mqtt3as.a
+      linkerOpts = -lpaho-mqtt3as 
+      """.trimIndent()
   }
   block()
 }
