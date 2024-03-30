@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "org.danbrough.openssl"
-version = "0.0.1-alpha02"
+version = "3.2.1-beta01"
 
 openssl {
   buildEnabled = true

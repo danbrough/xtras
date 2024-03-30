@@ -7,6 +7,7 @@ import org.danbrough.xtras.XtraDSL
 import org.danbrough.xtras.XtrasExtension
 import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logError
+import org.danbrough.xtras.logTrace
 
 import org.danbrough.xtras.xtrasDownloadsDir
 import org.gradle.api.Project
@@ -27,11 +28,10 @@ fun LibraryExtension.gitSource(url: String, commit: String) {
 private fun LibraryExtension.registerGitTagsTask() {
 	val config = sourceConfig as GitSource
 	val tagsTaskName = xtrasTaskName("tags", this@registerGitTagsTask.name)
-	project.logError("registerGitTagsTask(): $tagsTaskName")
+	//project.logTrace("registerGitTagsTask(): $tagsTaskName")
 
 	project.tasks.register<Exec>(tagsTaskName) {
-
-		project.logError("REGISTERED: $name")
+		
 		commandLine(
 			xtras.buildEnvironment.binaries.git,
 			"ls-remote",

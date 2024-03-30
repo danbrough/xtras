@@ -24,12 +24,15 @@ xtras {
   }
 }
 
-val javaVersion = JavaVersion.VERSION_1_8
-val jvmTarget = JvmTarget.JVM_1_8
+object JavaConfig {
+  val javaVersion = JavaVersion.VERSION_1_8
+  val jvmTarget = JvmTarget.JVM_1_8
+}
+
 
 java {
-  sourceCompatibility = javaVersion
-  targetCompatibility = javaVersion
+  sourceCompatibility = JavaConfig.javaVersion
+  targetCompatibility = JavaConfig.javaVersion
 }
 
 
@@ -50,16 +53,15 @@ kotlin {
 
   jvm {
     compilerOptions {
-      jvmTarget = jvmTarget
+      jvmTarget = JavaConfig.jvmTarget
     }
   }
 
   androidTarget {
     compilerOptions {
-      jvmTarget = jvmTarget
+      jvmTarget = JavaConfig.jvmTarget
     }
   }
-
 
 
   sourceSets {
@@ -113,8 +115,8 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
+    sourceCompatibility = JavaConfig.javaVersion
+    targetCompatibility = JavaConfig.javaVersion
   }
 
 }

@@ -135,9 +135,7 @@ fun LibraryExtension.registerCInteropsTasks() {
   }
 
   project.tasks.withType<KotlinNativeHostTest> {
-    println("NATIVE TEST: $name type: ${this::class.java} targetName: $targetName")
-    val konanTarget = KonanTarget.targetNameMap[targetName]!!
-    println("NATIVE TEST TARGET: $konanTarget")
+    val konanTarget = KonanTarget.targetNameMap[targetName] ?: error("Failed to find konanTarget for $targetName")
 
     val libPath = buildString {
       append(libsDir(konanTarget).resolve("lib").absolutePath)
