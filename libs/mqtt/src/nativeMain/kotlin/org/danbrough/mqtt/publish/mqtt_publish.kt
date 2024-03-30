@@ -18,7 +18,7 @@ import org.danbrough.mqtt.cinterops.createMessage
 import org.danbrough.xtras.support.initLogging
 import platform.posix.free
 
-val log = KotlinLogging.logger("MQTTAsync").also {
+private val log = KotlinLogging.logger("MQTTAsync").also {
   initLogging(it)
 }
 
@@ -38,6 +38,41 @@ const val CLIENTID = "ExampleClientPub"
 #define QOS         1
 #define TIMEOUT     10000L
  */
+
+
+
+/*
+void connlost(void *context, char *cause)
+{
+MQTTAsync client = (MQTTAsync)context;
+MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
+int rc;
+
+printf("\nConnection lost\n");
+if (cause)
+printf("     cause: %s\n", cause);
+
+printf("Reconnecting\n");
+conn_opts.keepAliveInterval = 20;
+conn_opts.cleansession = 1;
+if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS)
+{
+printf("Failed to start connect, return code %d\n", rc);
+finished = 1;
+}
+}
+ */
+private val connLost: CPointer<MQTTAsync_connectionLost> = staticCFunction { _, cause ->
+  println("connLost: cause: ${cause?.toKString()}")
+  // KotlinLogging.logger("MQTTAsync").error { "connection lost: cause: ${cause?.toKString()}" }
+}
+
+private val messageArrived: CPointer<MQTTAsync_messageArrived> = staticCFunction{ _,topicName,_,_->
+  println("messageArrived: ${topicName?.toKString()}")
+  topicName?.also { free(it) }
+  1
+}
+
 @OptIn(ExperimentalForeignApi::class)
 fun main(args: Array<String>) {
 
@@ -46,15 +81,17 @@ fun main(args: Array<String>) {
 
   memScoped {
     val client:MQTTAsyncVar = alloc()
+
     val connectOptions: CValue<MQTTAsync_connectOptions> = createConnectOptions()
     val message: CValue<MQTTAsync_message> = createMessage()
     //val token: MQTTAsync_deliveryTokenVar = alloc()
     val rc = 0
 
-
+    connectOptions.useContents {
+      keepAliveInterval = 21
+    }
+    log.info { "keepAliveInterval: ${connectOptions.ptr.pointed.keepAliveInterval}" }
     runCatching {
-
-
       log.debug { "MQTTAsync_create" }
 
       /*
@@ -68,74 +105,7 @@ fun main(args: Array<String>) {
           error("Failed to create client, return code $it")
       }
 
-      /*
-{
-	MQTTAsync client = (MQTTAsync)context;
-	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
-	int rc;
-
-	printf("\nConnection lost\n");
-	if (cause)
-		printf("     cause: %s\n", cause);
-
-	printf("Reconnecting\n");
-	conn_opts.keepAliveInterval = 20;
-	conn_opts.cleansession = 1;
-	if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS)
-	{
-		printf("Failed to start connect, return code %d\n", rc);
- 		finished = 1;
-	}
-}
-       */
-      val connLost: CPointer<MQTTAsync_connectionLost> = staticCFunction { _, cause ->
-        println("connLost: cause: ${cause?.toKString()}")
-        // KotlinLogging.logger("MQTTAsync").error { "connection lost: cause: ${cause?.toKString()}" }
-      }
-
-      val messageArrived: CPointer<MQTTAsync_messageArrived> = staticCFunction{ _,topicName,_,_->
-        println("messageArrived: ${topicName?.toKString()}")
-        topicName?.also { free(it) }
-        1
-      }
-
-      /*
-      int messageArrived(void* context, char* topicName, int topicLen, MQTTAsync_message* m)
-{
-	/* not expecting any messages */
-	return 1;
-}
-       */
-
-/*
-
-
- //typedef void MQTTAsync_connectionLost(void* context, char* cause);
-      val connLost: CPointer<MQTTAsync_connectionLost> = staticCFunction { _, cause ->
-       // KotlinLogging.logger("MQTTAsync").error { "connection lost: cause: ${cause?.toKString()}" }
-      }
-
-      //typedef int MQTTAsync_messageArrived(void* context, char* topicName, int topicLen, MQTTAsync_message* message);
-      val messageArrived: CPointer<MQTTAsync_messageArrived> = staticCFunction { _, topicName, topicLen, message ->
-        KotlinLogging.logger("MQTTAsync").info{"MQTTAsync_messageArrived: topicName: $topicName topicLen:$topicLen"}
-
-        if (message != null)
-          MQTTAsync_freeMessage(message.reinterpret())
-
-        if (topicName != null)
-          MQTTAsync_freeMessage(topicName.reinterpret())
-
-        1
-      }
-
-      //typedef void MQTTAsync_deliveryComplete(void* context, MQTTAsync_deliveryToken dt);
-      val delivered:CPointer<MQTTAsync_deliveryComplete> = staticCFunction {_,token->
-       // deliveryToken.value = token
-        KotlinLogging.logger("MQTTAsync").info{"MQTTAsync_deliveryComplete: token: $token"}
-      }*/
-
       log.debug { "MQTTAsync_setCallbacks" }
-      //if ((rc = MQTTAsync_setCallbacks(client, NULL, connlost, msgarrvd, delivered)) != MQTTCLIENT_SUCCESS)
       MQTTAsync_setCallbacks(client.value, client.value, connLost, messageArrived, null).also {
         if (it != MQTTASYNC_SUCCESS)
           error("MQTTAsync_setCallbacks failed: error: $it")
@@ -143,11 +113,27 @@ fun main(args: Array<String>) {
       }
 
 
+      /*
+      	conn_opts.keepAliveInterval = 20;
+	conn_opts.cleansession = 1;
+	conn_opts.onSuccess = onConnect;
+	conn_opts.onFailure = onConnectFailure;
+	conn_opts.context = client;
+	if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS)
+	{
+		printf("Failed to start connect, return code %d\n", rc);
+		exit(EXIT_FAILURE);
+	}
+       */
+
+
 
       connectOptions.useContents {
-        keepAliveInterval = 20
+        keepAliveInterval = 24
         cleansession = 1
       }
+
+      log.info { "keepAliveInterval: ${connectOptions.useContents { keepAliveInterval }}" }
 
       log.trace { "connectOptions keepAliveInterval: ${connectOptions.useContents { keepAliveInterval }}" }
       log.warn { "connectOptions cleansession: ${connectOptions.useContents { cleansession }}" }

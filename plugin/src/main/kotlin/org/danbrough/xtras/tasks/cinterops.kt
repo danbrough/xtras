@@ -3,15 +3,24 @@ package org.danbrough.xtras.tasks
 import org.danbrough.xtras.CInteropsTargetWriter
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.XTRAS_TASK_GROUP
+import org.danbrough.xtras.envLibraryPathName
+import org.danbrough.xtras.logError
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.logWarn
+import org.danbrough.xtras.targetNameMap
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.environment
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.Executable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
+import org.jetbrains.kotlin.konan.file.File
+import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.PrintWriter
 
 
@@ -104,11 +113,40 @@ fun LibraryExtension.registerCInteropsTasks() {
     compilations["main"].cinterops.create(this@registerCInteropsTasks.name) {
       defFile = cinteropsConfig.defFile
     }
+
+    binaries.all {
+      if (this is Executable) {
+        runTask?.apply {
+          val libPath = buildString {
+            append(libsDir(konanTarget).resolve("lib").absolutePath)
+            if (environment.containsKey(konanTarget.envLibraryPathName)) {
+              append("${File.pathSeparator}${environment[konanTarget.envLibraryPathName]}")
+            }
+          }
+          environment[konanTarget.envLibraryPathName] = libPath
+        }
+      }
+    }
   }
 
   project.tasks.withType<CInteropProcess> {
     dependsOn(taskNameCInterops(), taskNamePackageExtract(konanTarget))
     //dependsOn(taskNamePackageExtract(konanTarget))
   }
+
+  project.tasks.withType<KotlinNativeHostTest> {
+    println("NATIVE TEST: $name type: ${this::class.java} targetName: $targetName")
+    val konanTarget = KonanTarget.targetNameMap[targetName]!!
+    println("NATIVE TEST TARGET: $konanTarget")
+
+    val libPath = buildString {
+      append(libsDir(konanTarget).resolve("lib").absolutePath)
+      if (environment.containsKey(konanTarget.envLibraryPathName)) {
+        append("${File.pathSeparator}${environment[konanTarget.envLibraryPathName]}")
+      }
+    }
+    environment(konanTarget.envLibraryPathName, libPath)
+  }
+
 
 }

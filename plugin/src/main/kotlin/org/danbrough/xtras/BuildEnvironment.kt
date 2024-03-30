@@ -106,12 +106,10 @@ open class BuildEnvironment : Cloneable {
 
 
   @XtraDSL
-
-  var androidNdkDir: File = ANDROID_NDK_NOT_SET
+  lateinit var androidNdkDir: File
 
 
   @XtraDSL
-
   var environmentForTarget: MutableMap<String, String>.(KonanTarget) -> Unit = { target ->
 
     if (!HostManager.hostIsMac || !target.family.isAppleFamily) {
@@ -226,15 +224,8 @@ open class BuildEnvironment : Cloneable {
       System.getProperty("user.home"), ".konan"
     )
 
-    if (androidNdkDir == ANDROID_NDK_NOT_SET) {
-      val ndkRoot = System.getenv("ANDROID_NDK_ROOT") ?: System.getenv("ANDROID_NDK_HOME")
-      if (ndkRoot != null) androidNdkDir = File(ndkRoot)
-      else {
-        androidNdkDir = project.xtrasNdkDir
+    androidNdkDir = project.xtrasNdkDir
 
-        project.logWarn("Neither ANDROID_NDK_ROOT or ANDROID_NDK_HOME are set!")
-      }
-    }
 
     binaries.apply {
       git = project.binaryProperty("git", git)

@@ -21,6 +21,16 @@ val KonanTarget.platformName: String
     return name.split("_").joinToString("") { it.capitalized() }.decapitalized()
   }
 
+
+val KonanTarget.Companion.targetNameMap:Map<String,KonanTarget>
+  get() = predefinedTargets.mapKeys { keyEntry ->
+      keyEntry.key.split('_').joinToString(""){
+        it.capitalized()
+      }.decapitalized()
+    }
+
+
+
 val KonanTarget.hostTriplet: String
   get() = when (this) {
     KonanTarget.LINUX_ARM64 -> "aarch64-unknown-linux-gnu"
@@ -40,7 +50,7 @@ val KonanTarget.hostTriplet: String
     KonanTarget.IOS_X64 -> "x86_64-apple-ios-simulator" //"x86_64-ios-darwin"
 
 
-        KonanTarget.TVOS_ARM64 -> "aarch64-apple-tvos"
+    KonanTarget.TVOS_ARM64 -> "aarch64-apple-tvos"
     //KonanTarget.TVOS_SIMULATOR_ARM64 -> "aarch64-tvossimulator-darwin"
     KonanTarget.TVOS_X64 -> "x86_64-apple-tvos-simulator"
     KonanTarget.WASM32 -> TODO()
@@ -70,7 +80,11 @@ val KonanTarget.sharedLibExtn: String
     else -> "so"
   }
 
-val SHARED_LIBRARY_PATH_NAME = if (HostManager.hostIsMac) "DYLD_LIBRARY_PATH" else "LD_LIBRARY_PATH"
+val KonanTarget.envLibraryPathName: String
+  get() = when {
+    family.isAppleFamily -> "DYLD_LIBRARY_PATH"
+    else -> "LD_LIBRARY_PATH"
+  }
 
 
 val KonanTarget.goOS: String?

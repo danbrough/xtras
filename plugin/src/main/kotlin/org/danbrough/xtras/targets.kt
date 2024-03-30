@@ -103,7 +103,7 @@ fun KotlinMultiplatformExtension.declareHostTarget(configure: KotlinNativeTarget
 val runningInIDE: Boolean
   get() = System.getProperty("idea.active") != null
 
-fun XtrasExtension.defaultSupportedTargets() = buildList {
+/*fun XtrasExtension.defaultSupportedTargets() = buildList {
 
   if (runningInIDE) {
     add(HostManager.host)
@@ -141,4 +141,4 @@ fun XtrasExtension.defaultSupportedTargets() = buildList {
   }
 
 
-}
+}*/
