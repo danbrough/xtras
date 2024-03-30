@@ -5,6 +5,7 @@ import org.danbrough.xtras.openssl.openssl
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 plugins {
@@ -66,9 +67,11 @@ kotlin {
 	}
 
 	targets.withType<KotlinNativeTarget> {
-		binaries{
-			executable("mqttPublish") {
-				entryPoint = "org.danbrough.mqtt.publish.main"
+		if (konanTarget == KonanTarget.LINUX_X64) {
+			binaries {
+				executable("mqttPublish") {
+					entryPoint = "org.danbrough.mqtt.publish.main"
+				}
 			}
 		}
 	}
