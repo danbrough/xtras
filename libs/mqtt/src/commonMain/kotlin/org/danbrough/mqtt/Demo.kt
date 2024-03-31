@@ -4,7 +4,7 @@ expect fun getenv(name: String): String?
 
 object Demo {
   private const val DEFAULT_ADDRESS = "tcp://mqtt.eclipseprojects.io:1883"
-  private const val DEFAULT_TOPIC = "MQTT Examples"
+  private const val DEFAULT_TOPIC = "MQTT_Examples"
   private const val DEFAULT_CLIENT_ID = "ExampleClientPub"
   private const val DEFAULT_CAPATH = "/etc/ssl/certs"
   private const val DEFAULT_QOS = "1"
