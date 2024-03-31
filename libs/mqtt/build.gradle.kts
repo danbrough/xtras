@@ -65,6 +65,10 @@ kotlin {
       executable("mqttPublish") {
         entryPoint = "org.danbrough.mqtt.publish.main"
       }
+
+      executable("mqttSubscribe") {
+        entryPoint = "org.danbrough.mqtt.subscribe.main"
+      }
     }
   }
 }
