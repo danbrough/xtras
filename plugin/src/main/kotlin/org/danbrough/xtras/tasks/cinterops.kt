@@ -131,6 +131,7 @@ fun LibraryExtension.registerCInteropsTasks() {
 
   project.tasks.withType<CInteropProcess> {
     dependsOn(taskNameCInterops(), taskNamePackageExtract(konanTarget))
+
     //dependsOn(taskNamePackageExtract(konanTarget))
   }
 

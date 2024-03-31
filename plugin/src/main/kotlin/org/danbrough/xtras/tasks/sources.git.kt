@@ -31,7 +31,7 @@ private fun LibraryExtension.registerGitTagsTask() {
 	//project.logTrace("registerGitTagsTask(): $tagsTaskName")
 
 	project.tasks.register<Exec>(tagsTaskName) {
-		
+
 		commandLine(
 			xtras.buildEnvironment.binaries.git,
 			"ls-remote",
