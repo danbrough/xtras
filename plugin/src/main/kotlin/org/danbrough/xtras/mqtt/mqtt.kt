@@ -41,9 +41,9 @@ fun Project.mqtt(
       "-DCMAKE_INSTALL_PREFIX=${installDir.absolutePath}",
       "-DPAHO_WITH_SSL=TRUE",
       "-DPAHO_BUILD_STATIC=TRUE",
-      "-DPAHO_BUILD_SHARED=TRUE",
+      "-DPAHO_BUILD_SHARED=FALSE",
       "-DPAHO_ENABLE_TESTING=FALSE",
-      "-DPAHO_BUILD_SAMPLES=TRUE",
+      "-DPAHO_BUILD_SAMPLES=FALSE",
       "-DPAHO_BUILD_DOCUMENTATION=FALSE",
       "-DOPENSSL_ROOT_DIR=${sslDir.absolutePath}",
     )

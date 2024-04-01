@@ -24,8 +24,22 @@ xtras {
 val mqtt = mqtt(openssl()) {
   buildEnabled = true
 }
+//private const val DEFAULT_ADDRESS = "tcp://mqtt.eclipseprojects.io:1883"
+//private const val DEFAULT_TOPIC = "MQTT_Examples"
+//private const val DEFAULT_CLIENT_ID = "ExampleClientPub"
+//private const val DEFAULT_CAPATH = ""// "/etc/ssl/certs"
+//private const val DEFAULT_QOS = "1"
 
+val testEnv = mutableMapOf(
+  "MQTT_ADDRESS" to "tcp://mqtt.eclipseprojects.io:1883",
+  "MQTT_TOPIC" to "MQTT Examples",
+  "MQTT_CLIENT_ID" to "MQTTExampleClient",
+  "MQTT_TOPIC" to "MQTT Examples",
+  "MQTT_CAPATH" to "/etc/ssl/certs",
+  "MQTT_QOS" to "1",
+)
 
+println("testEnv $testEnv")
 
 kotlin {
   withSourcesJar(publish = true)
@@ -63,10 +77,12 @@ kotlin {
   targets.withType<KotlinNativeTarget> {
     binaries {
       executable("mqttPublish") {
+        runTask?.environment?.putAll(testEnv)
         entryPoint = "org.danbrough.mqtt.publish.main"
       }
 
       executable("mqttSubscribe") {
+        runTask?.environment?.putAll(testEnv)
         entryPoint = "org.danbrough.mqtt.subscribe.main"
       }
     }
