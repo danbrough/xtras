@@ -90,9 +90,9 @@ fun Project.mqtt(
       package = $group.cinterops
       headers = MQTTAsync.h
       #headers = MQTTAsync.h  MQTTClient.h  MQTTClientPersistence.h  MQTTExportDeclarations.h  MQTTProperties.h  MQTTReasonCodes.h  MQTTSubscribeOpts.h
-      staticLibraries.linux = libpaho-mqtt3as.a
-      staticLibraries.mingw_x64 = libpaho-mqtt3as-static.a
-      #linkerOpts = -lpaho-mqtt3as 
+      #staticLibraries.linux = libpaho-mqtt3as.a
+      #staticLibraries.mingw_x64 = libpaho-mqtt3as-static.a
+      linkerOpts = -lpaho-mqtt3as 
       """.trimIndent()
   }
   block()
