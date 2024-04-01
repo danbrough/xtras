@@ -32,7 +32,7 @@ agp = "8.3.1"
 ##⬆= "8.4.0-beta02"
 ##⬆= "8.5.0-alpha01"
 ##⬆= "8.5.0-alpha02"
-kotlin = "2.0.0-Beta5"
+kotlin = "1.9.23"
 
 xtrasPackage = "org.danbrough.xtras"
 xtras-version = "0.0.1-alpha02"

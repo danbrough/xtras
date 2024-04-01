@@ -52,15 +52,15 @@ kotlin {
   }
 
   jvm {
-    compilerOptions {
+/*    compilerOptions {
       jvmTarget = JavaConfig.jvmTarget
-    }
+    }*/
   }
 
   androidTarget {
-    compilerOptions {
+    /*compilerOptions {
       jvmTarget = JavaConfig.jvmTarget
-    }
+    }*/
   }
 
 
