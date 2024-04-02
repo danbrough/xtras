@@ -6,7 +6,6 @@ object Demo {
   private const val DEFAULT_ADDRESS = "tcp://mqtt.eclipseprojects.io:1883"
   private const val DEFAULT_TOPIC = "MQTT_Examples"
   private const val DEFAULT_CLIENT_ID = "ExampleClientPub"
-  private const val DEFAULT_CAPATH = ""// "/etc/ssl/certs"
   private const val DEFAULT_QOS = "1"
 
 
@@ -26,13 +25,13 @@ object Demo {
 
   val topic: String = mqttProperty("topic", DEFAULT_TOPIC)!!
 
-  val clientID = mqttProperty("client_id", DEFAULT_CLIENT_ID)!!
+  val clientID:String = mqttProperty("client_id", DEFAULT_CLIENT_ID)!!
 
-  val qos = mqttProperty("qos", DEFAULT_QOS)!!.toInt()
+  val qos:Int = mqttProperty("qos", DEFAULT_QOS)!!.toInt()
 
-  val caPath = mqttProperty("capath", DEFAULT_CAPATH)!!
+  val caPath:String? = mqttProperty("capath")
 
-  val caFile = mqttProperty("cafile")
+  val caFile:String? = mqttProperty("cafile")
 
   override fun toString() = """
     Demo: 

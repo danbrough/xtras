@@ -3,11 +3,13 @@ package org.danbrough.mqtt
 import kotlinx.cinterop.ByteVarOf
 import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.CValue
 import kotlinx.cinterop.StableRef
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.asStableRef
 import kotlinx.cinterop.cValuesOf
 import kotlinx.cinterop.copy
+import kotlinx.cinterop.cstr
 import kotlinx.cinterop.free
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
@@ -19,8 +21,11 @@ import kotlinx.cinterop.toKString
 import kotlinx.cinterop.value
 import org.danbrough.mqtt.cinterops.MQTTASYNC_SUCCESS
 import org.danbrough.mqtt.cinterops.MQTTAsyncVar
+import org.danbrough.mqtt.cinterops.MQTTAsync_SSLOptions
 import org.danbrough.mqtt.cinterops.MQTTAsync_connect
+import org.danbrough.mqtt.cinterops.MQTTAsync_connectOptions
 import org.danbrough.mqtt.cinterops.MQTTAsync_connectionLost
+import org.danbrough.mqtt.cinterops.MQTTAsync_create
 import org.danbrough.mqtt.cinterops.MQTTAsync_failureData
 import org.danbrough.mqtt.cinterops.MQTTAsync_free
 import org.danbrough.mqtt.cinterops.MQTTAsync_freeMessage
@@ -28,13 +33,22 @@ import org.danbrough.mqtt.cinterops.MQTTAsync_message
 import org.danbrough.mqtt.cinterops.MQTTAsync_messageArrived
 import org.danbrough.mqtt.cinterops.MQTTAsync_onFailure
 import org.danbrough.mqtt.cinterops.MQTTAsync_onSuccess
+import org.danbrough.mqtt.cinterops.MQTTAsync_setCallbacks
 import org.danbrough.mqtt.cinterops.MQTTAsync_subscribe
 import org.danbrough.mqtt.cinterops.MQTTAsync_successData
+import org.danbrough.mqtt.cinterops.MQTTCLIENT_PERSISTENCE_NONE
 import org.danbrough.mqtt.cinterops.callOptions
 import org.danbrough.mqtt.cinterops.connectOptionsAsync
+import org.danbrough.mqtt.cinterops.sslOptions
+import platform.posix.aligned_alloc
 import kotlin.native.ref.createCleaner
 
-class AsyncContext() {
+class AsyncContext(
+  val address: String? = null,
+  val clientID: String? = null,
+  val username: String? = null,
+  val password: String? = null,
+) {
 
   val stableRef = StableRef.create(this)
   val client: MQTTAsyncVar = nativeHeap.alloc()
@@ -47,43 +61,66 @@ class AsyncContext() {
   }
 
   companion object {
+
     private val COpaquePointer?.asyncContext: AsyncContext
       get() = this?.asStableRef<AsyncContext>()?.get() ?: error { "void* is null" }
 
-    val onMessageArrived: CPointer<MQTTAsync_messageArrived> =
+    private val onMessageArrived: CPointer<MQTTAsync_messageArrived> =
       staticCFunction { ctx, topicName, topicLen, message ->
         ctx.asyncContext.onMessageArrived(topicName, topicLen, message)
         1
       }
 
-    val onConnect: CPointer<MQTTAsync_onSuccess> = staticCFunction { ctx, response ->
+    private val onConnect: CPointer<MQTTAsync_onSuccess> = staticCFunction { ctx, response ->
       ctx.asyncContext.onConnect(response)
     }
 
-    val onConnectionLost: CPointer<MQTTAsync_connectionLost> = staticCFunction { ctx, cause ->
+    private val onConnectionLost: CPointer<MQTTAsync_connectionLost> = staticCFunction { ctx, cause ->
       ctx.asyncContext.onConnectionLost(cause)
     }
 
-    val onConnectFailure: CPointer<MQTTAsync_onFailure> = staticCFunction { ctx, response ->
+    private val onConnectFailure: CPointer<MQTTAsync_onFailure> = staticCFunction { ctx, response ->
       ctx.asyncContext.onConnectFailure(response)
     }
 
-    val onDisconnectFailure: CPointer<MQTTAsync_onFailure> = staticCFunction { ctx, response ->
+    private val onDisconnectFailure: CPointer<MQTTAsync_onFailure> = staticCFunction { ctx, response ->
       ctx.asyncContext.onDisconnectFailure(response)
     }
 
-    val onDisconnect: CPointer<MQTTAsync_onSuccess> = staticCFunction { ctx, response ->
+    private val onDisconnect: CPointer<MQTTAsync_onSuccess> = staticCFunction { ctx, response ->
       ctx.asyncContext.onDisconnect(response)
     }
 
-    val onSubscribe: CPointer<MQTTAsync_onSuccess> = staticCFunction { ctx, response ->
-      log.trace { "onSubscribe: response:${response?.rawValue} ctx:${ctx?.rawValue}" }
+    private val onSubscribe: CPointer<MQTTAsync_onSuccess> = staticCFunction { ctx, response ->
       ctx.asyncContext.onSubscribe(response)
     }
 
-    val onSubscribeFailure: CPointer<MQTTAsync_onFailure> = staticCFunction { ctx, response ->
-      log.trace { "onSubscribeFailure" }
+    private val onSubscribeFailure: CPointer<MQTTAsync_onFailure> = staticCFunction { ctx, response ->
       ctx.asyncContext.onSubscribeFailure(response)
+    }
+  }
+
+  fun create() {
+    log.debug { "asyncContext.create()" }
+    MQTTAsync_create(
+      client.ptr,
+      address,
+      clientID,
+      MQTTCLIENT_PERSISTENCE_NONE,
+      null
+    ).also {
+      if (it != MQTTASYNC_SUCCESS) error("MQTTAsync_create failed: %it")
+    }
+
+    log.trace { "MQTTAsync_setCallbacks" }
+    MQTTAsync_setCallbacks(
+      client.value,
+      client.value,
+      onConnectionLost,
+      onMessageArrived,
+      null
+    ).also {
+      if (it != MQTTASYNC_SUCCESS) error { "MQTTAsync_setCallbacks failed: $it" }
     }
   }
 
@@ -193,4 +230,36 @@ class AsyncContext() {
 
     return 1
   }
+
+  private var sslOpts:CValue<MQTTAsync_SSLOptions>? = null
+
+  fun ssl(block:MQTTAsync_SSLOptions.()->Unit) {
+    sslOpts?.also { error("ssl already configured") }
+    sslOpts = sslOptions().copy {
+      block()
+    }
+  }
+
+  fun connect(block:MQTTAsync_connectOptions.()->Unit = {} ) {
+    memScoped {
+      val connOpts = connectOptionsAsync().copy {
+        context = stableRef.asCPointer()
+        keepAliveInterval = 20
+        cleansession = 1
+        if (Demo.username != null)
+          username = Demo.username.cstr.ptr
+        if (Demo.password != null)
+          password = Demo.password.cstr.ptr
+        onSuccess = onConnect
+        onFailure = onConnectFailure
+        ssl = sslOpts?.ptr
+        block()
+      }
+
+      MQTTAsync_connect(client.value, connOpts).also {
+        if (it != MQTTASYNC_SUCCESS) error("Failed to start connect: $it")
+      }
+    }
+  }
 }
+

@@ -1,16 +1,17 @@
 package org.danbrough.mqtt.subscribe
 
-import kotlinx.cinterop.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.cinterop.cstr
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
 import org.danbrough.mqtt.AsyncContext
 import org.danbrough.mqtt.Demo
-import org.danbrough.mqtt.cinterops.*
-import platform.posix.*
+import org.danbrough.mqtt.cinterops.MQTTAsync_destroy
 import org.danbrough.mqtt.log
-import kotlin.experimental.ExperimentalNativeApi
-import kotlin.native.ref.createCleaner
-import kotlin.time.Duration.Companion.seconds
+import platform.posix.fflush
+import platform.posix.getchar
+import platform.posix.printf
+import platform.posix.sleep
+import platform.posix.stdout
 
 
 fun subscribeDemo() {
@@ -24,31 +25,12 @@ fun subscribeDemo() {
 
   memScoped {
 
-    val asyncContext = AsyncContext()
+    val asyncContext = AsyncContext(address = Demo.address, clientID = Demo.clientID)
 
     runCatching {
 
-      log.debug { "MQTTAsync_create" }
-      MQTTAsync_create(
-        asyncContext.client.ptr,
-        Demo.address,
-        Demo.clientID,
-        MQTTCLIENT_PERSISTENCE_NONE,
-        null
-      ).also {
-        if (it != MQTTASYNC_SUCCESS) error("MQTTAsync_create failed: %it")
-      }
+      asyncContext.create()
 
-      log.debug { "MQTTAsync_setCallbacks" }
-      MQTTAsync_setCallbacks(
-        asyncContext.client.value,
-        asyncContext.client.value,
-        AsyncContext.onConnectionLost,
-        AsyncContext.onMessageArrived,
-        null
-      ).also {
-        if (it != MQTTASYNC_SUCCESS) error { "Failed to setCallbacks: $it" }
-      }
 
 //      val sslOptions = sslOptionsAsync().copy {
 //        /*
@@ -72,43 +54,12 @@ fun subscribeDemo() {
 //          "wss:"
 //        )
 //
-      val sslOpts = sslOptions().copy {
-        verify = 1
-
-        if (Demo.caPath.isNotBlank())
-          CApath = Demo.caPath.cstr.ptr
-        Demo.caFile?.also {
-          trustStore = it.cstr.ptr
-        }
-
+      asyncContext.ssl {
+        CApath = Demo.caPath?.cstr?.ptr
+        trustStore = Demo.caFile?.cstr?.ptr
       }
 
-      log.info { "DEMO: $Demo" }
-      val connOpts = connectOptionsAsync().copy {
-        context = asyncContext.stableRef.asCPointer()
-        keepAliveInterval = 20
-        cleansession = 1
-        if (Demo.username != null)
-          username = Demo.username.cstr.ptr
-        if (Demo.password != null)
-          password = Demo.password.cstr.ptr
-        onSuccess = AsyncContext.onConnect
-        onFailure = AsyncContext.onConnectFailure
-        //if (useSSL)
-        ssl = sslOpts.ptr
-      }
-
-      connOpts.ptr.pointed.also { opts ->
-        log.info { "username is ${opts.username?.toKString()}" }
-        opts.connectProperties?.pointed?.also {
-          log.debug { "connect properties: $it" }
-        }
-      }
-
-      log.debug { "MQTTAsync_connect: ${Demo.address}" }
-      MQTTAsync_connect(asyncContext.client.value, connOpts).also {
-        if (it != MQTTASYNC_SUCCESS) error("Failed to start connect: $it")
-      }
+      asyncContext.connect()
 
       log.debug { "finished calling connect" }
       sleep(1u)
