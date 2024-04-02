@@ -1,28 +1,34 @@
 package org.danbrough.mqtt.subscribe
 
 import kotlinx.cinterop.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.danbrough.mqtt.AsyncContext
 import org.danbrough.mqtt.Demo
 import org.danbrough.mqtt.cinterops.*
 import platform.posix.*
 import org.danbrough.mqtt.log
+import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.ref.createCleaner
+import kotlin.time.Duration.Companion.seconds
 
-@Suppress("UNUSED_PARAMETER")
-@OptIn(ExperimentalForeignApi::class)
-fun main(args: Array<String>) {
 
-  printf("\u001b[1;32m### %s\u001b[0m\n","Hello there")
+fun subscribeDemo() {
+
+  printf("\u001b[1;32m### %s\u001b[0m\n", "Hello there")
   println("\u001b[1;34m### Hello There again!\u001b[0m\n")
 
-  log.info{"subscribe.main()!"}
+  log.info { "subscribe.main()!" }
+
+
 
   memScoped {
-    
-    val asyncContext = AsyncContext(alloc())
+
+    val asyncContext = AsyncContext()
 
     runCatching {
 
-      log.debug{"MQTTAsync_create"}
+      log.debug { "MQTTAsync_create" }
       MQTTAsync_create(
         asyncContext.client.ptr,
         Demo.address,
@@ -33,7 +39,7 @@ fun main(args: Array<String>) {
         if (it != MQTTASYNC_SUCCESS) error("MQTTAsync_create failed: %it")
       }
 
-      log.debug{"MQTTAsync_setCallbacks"}
+      log.debug { "MQTTAsync_setCallbacks" }
       MQTTAsync_setCallbacks(
         asyncContext.client.value,
         asyncContext.client.value,
@@ -41,7 +47,7 @@ fun main(args: Array<String>) {
         AsyncContext.onMessageArrived,
         null
       ).also {
-        if (it != MQTTASYNC_SUCCESS) error{"Failed to setCallbacks: $it"}
+        if (it != MQTTASYNC_SUCCESS) error { "Failed to setCallbacks: $it" }
       }
 
 //      val sslOptions = sslOptionsAsync().copy {
@@ -77,7 +83,7 @@ fun main(args: Array<String>) {
 
       }
 
-      log.info{"DEMO: $Demo"}
+      log.info { "DEMO: $Demo" }
       val connOpts = connectOptionsAsync().copy {
         context = asyncContext.stableRef.asCPointer()
         keepAliveInterval = 20
@@ -93,18 +99,18 @@ fun main(args: Array<String>) {
       }
 
       connOpts.ptr.pointed.also { opts ->
-        log.info{"username is ${opts.username?.toKString()}"}
+        log.info { "username is ${opts.username?.toKString()}" }
         opts.connectProperties?.pointed?.also {
-          log.debug{"connect properties: $it"}
+          log.debug { "connect properties: $it" }
         }
       }
 
-      log.debug{"MQTTAsync_connect: ${Demo.address}"}
+      log.debug { "MQTTAsync_connect: ${Demo.address}" }
       MQTTAsync_connect(asyncContext.client.value, connOpts).also {
         if (it != MQTTASYNC_SUCCESS) error("Failed to start connect: $it")
       }
 
-      log.debug{"finished calling connect"}
+      log.debug { "finished calling connect" }
       sleep(1u)
 
       do {
@@ -117,11 +123,22 @@ fun main(args: Array<String>) {
 
     }.exceptionOrNull().also {
 
-      if (it != null) log.error(it){it.message}
-      log.info{"MQTTAsync_destroy"}
+      if (it != null) log.error(it) { it.message }
+      log.info { "MQTTAsync_destroy" }
       MQTTAsync_destroy(asyncContext.client.ptr)
-      log.info{"MQTTAsync_destroy: complete"}
+      log.info { "MQTTAsync_destroy: complete" }
+      asyncContext.destroy()
     }
   }
+
+}
+
+
+@Suppress("UNUSED_PARAMETER")
+fun main(args: Array<String>) {
+  printf("\u001b[1;32m### %s\u001b[0m\n", "Hello there")
+  println("\u001b[1;34m### Hello There again!\u001b[0m\n")
+  subscribeDemo()
+
 
 }

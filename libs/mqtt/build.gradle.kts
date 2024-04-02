@@ -51,6 +51,7 @@ kotlin {
       languageSettings {
         listOf(
           "kotlinx.cinterop.ExperimentalForeignApi",
+          "kotlin.experimental.ExperimentalNativeApi",
         ).forEach(::optIn)
       }
     }
