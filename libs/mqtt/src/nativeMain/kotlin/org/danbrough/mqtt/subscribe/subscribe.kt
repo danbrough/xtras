@@ -11,7 +11,10 @@ import org.danbrough.mqtt.log
 @OptIn(ExperimentalForeignApi::class)
 fun main(args: Array<String>) {
 
-  log.info{"subscribe.main()"}
+  printf("\u001b[1;32m### %s\u001b[0m\n","Hello there")
+  println("\u001b[1;34m### Hello There again!\u001b[0m\n")
+
+  log.info{"subscribe.main()!"}
 
   memScoped {
     
