@@ -83,9 +83,9 @@ kotlin {
     }
 
     targets.withType<KotlinNativeTarget> {
-      //if (!konanTarget.family.isAppleFamily) {
+/*      if (!konanTarget.family.isAppleFamily) {
         compilations["main"].defaultSourceSet.dependsOn(posixMain)
-      //}
+      }*/
     }
 
 
