@@ -21,7 +21,7 @@ listOf(
   "support",
   "openssl",
   "mqtt",
-//  "ssh2",
+  "ssh2",
 ).forEach {
   include(":libs:$it")
 }
