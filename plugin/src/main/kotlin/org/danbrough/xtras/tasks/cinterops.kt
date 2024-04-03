@@ -41,8 +41,9 @@ internal fun LibraryExtension.taskNameCInterops(): String =
 internal fun LibraryExtension.writeInteropsFile(printerWriter: PrintWriter) {
   printerWriter.use { writer ->
 
-    (cinteropsConfig.headers ?: cinteropsConfig.headersFile?.readText())?.also {
-      writer.println(it)
+    writer.println("package = ${cinteropsConfig.interopsPackage}")
+    if (cinteropsConfig.headers.isNotBlank()){
+      writer.println(cinteropsConfig.headers)
     }
 
     supportedTargets.get().forEachIndexed { index, konanTarget ->
@@ -59,11 +60,11 @@ internal fun LibraryExtension.writeInteropsFile(printerWriter: PrintWriter) {
       writer.println()
       writer.println("// interops header code from resource: $interops")
       writer.println(it.readAllBytes().decodeToString())
-    }
+    } ?: project.logError("failed to find interops resource: $interops")
 
-    (cinteropsConfig.code ?: cinteropsConfig.codeFile?.readText())?.also {
-      writer.println(it)
-    }
+    cinteropsConfig.codeFile?.readText()?.also{writer.println(it)}
+
+    cinteropsConfig.code?.also{writer.println(it)}
   }
 }
 
@@ -74,9 +75,6 @@ private fun LibraryExtension.registerCInteropsTask() =
     val interopsFile = cinteropsConfig.defFile
     inputs.property("cinterops", cinteropsConfig.hashCode())
 
-    cinteropsConfig.headersFile?.also {
-      inputs.file(it)
-    }
     cinteropsConfig.codeFile?.also {
       inputs.file(it)
     }
@@ -84,8 +82,7 @@ private fun LibraryExtension.registerCInteropsTask() =
 
     doFirst {
       project.logInfo("creating cinterops file for $name at ${interopsFile.absolutePath}")
-      if (cinteropsConfig.headers != null && cinteropsConfig.headersFile != null)
-        error("Only one of cinterops.headers or cinterops.headersFile should be provided")
+
       if (cinteropsConfig.code != null && cinteropsConfig.codeFile != null)
         error("Only one of cinterops.code or cinterops.codeFile should be provided")
     }

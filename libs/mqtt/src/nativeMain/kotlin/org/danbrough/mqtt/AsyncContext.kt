@@ -235,6 +235,7 @@ class AsyncContext(
 
   fun ssl(block:MQTTAsync_SSLOptions.()->Unit) {
     sslOpts?.also { error("ssl already configured") }
+
     sslOpts = sslOptions().copy {
       block()
     }
