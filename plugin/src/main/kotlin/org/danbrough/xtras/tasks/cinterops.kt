@@ -4,6 +4,7 @@ import org.danbrough.xtras.CInteropsTargetWriter
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.envLibraryPathName
+import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logError
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.logWarn
@@ -75,10 +76,12 @@ private fun LibraryExtension.registerCInteropsTask() =
     val interopsFile = cinteropsConfig.defFile
     inputs.property("cinterops", cinteropsConfig.hashCode())
 
-    project.file("/${group.toString().replace('.', '/')}/interops.h").also {
+    project.rootProject.file("plugin/src/main/resources/${this@registerCInteropsTask.group.replace('.', '/')}/interops.h").also {
       if (it.exists()) {
         project.logInfo("$name: adding input file: ${it.absolutePath}")
         inputs.file(it)
+      } else {
+        project.logDebug("$name: did not find file: ${it.absolutePath}")
       }
     }
 
