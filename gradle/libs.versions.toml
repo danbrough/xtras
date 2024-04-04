@@ -74,7 +74,5 @@ kotlin-logging = { module = "org.danbrough:kotlin-logging", version.ref = "kotli
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
-
 slf4j-android = {module = "org.slf4j:slf4j-android", version="1.7.36"}
-
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }

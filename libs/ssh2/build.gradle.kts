@@ -2,6 +2,7 @@ import org.danbrough.xtras.declareSupportedTargets
 import org.danbrough.xtras.openssl.openssl
 import org.danbrough.xtras.ssh2.ssh2
 import org.danbrough.xtras.xtrasTesting
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 
 plugins {
@@ -56,8 +57,6 @@ kotlin {
 			}
 		}
 
-		val nativeMain by getting {
-		}
 	}
 }
 

@@ -26,4 +26,6 @@ listOf(
   include(":libs:$it")
 }
 
+include(":examples")
+
 //include(":iotest")

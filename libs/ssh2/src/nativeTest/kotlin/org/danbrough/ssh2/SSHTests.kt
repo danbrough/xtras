@@ -3,15 +3,19 @@ package org.danbrough.ssh2
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.IntVar
+import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.cValue
+import kotlinx.cinterop.convert
 import kotlinx.cinterop.cstr
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.sizeOf
+import kotlinx.cinterop.toCValues
 import kotlinx.cinterop.toKString
+import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,7 +34,9 @@ import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION
 import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION_BLOCK_INBOUND
 import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION_BLOCK_OUTBOUND
 import org.danbrough.ssh2.cinterops.SSH_DISCONNECT_BY_APPLICATION
+import org.danbrough.ssh2.cinterops.libssh2_channel_exec2
 import org.danbrough.ssh2.cinterops.libssh2_channel_open_ex
+import org.danbrough.ssh2.cinterops.libssh2_channel_read_ex
 import org.danbrough.ssh2.cinterops.libssh2_exit
 import org.danbrough.ssh2.cinterops.libssh2_init
 import org.danbrough.ssh2.cinterops.libssh2_knownhost
@@ -49,6 +55,7 @@ import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
 import org.danbrough.ssh2.cinterops.libssh2_socket_t
 
 import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
+import org.danbrough.ssh2.cinterops.waitsocket
 import org.danbrough.xtras.support.supportLog
 import platform.linux.inet_addr
 import platform.posix.AF_INET
@@ -56,6 +63,8 @@ import platform.posix.SOCK_STREAM
 import platform.posix.close
 import platform.posix.connect
 import platform.posix.fd_set
+import platform.posix.fprintf
+import platform.posix.fputc
 import platform.posix.htons
 import platform.posix.posix_FD_SET
 import platform.posix.posix_FD_ZERO
@@ -65,8 +74,10 @@ import platform.posix.size_t
 import platform.posix.size_tVar
 import platform.posix.sockaddr_in
 import platform.posix.socket
+import platform.posix.stderr
 import platform.posix.strerror
 import platform.posix.timeval
+import platform.posix.wait
 import kotlin.io.encoding.Base64
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
@@ -77,7 +88,8 @@ val log = run {
 }
 
 object TestConfig {
-  fun property(name: String, default: String): String = platform.posix.getenv(name)?.toKString() ?: default
+  fun property(name: String, default: String): String =
+    platform.posix.getenv(name)?.toKString() ?: default
 
   val user = "dan"
   val hostname = "192.168.1.4"
@@ -85,6 +97,7 @@ object TestConfig {
   val pubKey = "/home/dan/.ssh/test.pub"
   val privKey = "/home/dan/.ssh/test"
   val password = "password"
+  val commandLine = "uptime"
 }
 
 
@@ -198,21 +211,9 @@ class SSHTests {
             knownHost.ptr.reinterpret()
           )
 
-          val ok = check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH
-          log.info { "Host check: $check" }
-          /*
-                 if(fingerprint) {
-          struct libssh2_knownhost *host;
-          int check = libssh2_knownhost_checkp(nh, hostname, 22,
-          fingerprint, len,
-          LIBSSH2_KNOWNHOST_TYPE_PLAIN|
-          LIBSSH2_KNOWNHOST_KEYENC_RAW,
-          &host);
-
-          fprintf(stderr, "Host check: %d, key: %s\n", check,
-          (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) ?
-          host->key : "<none>");
-           */
+          (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH).also {
+            log.info { "Host check: $it" }
+          }
 
           libssh2_knownhost_free(nh)
 
@@ -229,22 +230,6 @@ class SSHTests {
 
           if (rc != 0) error("libssh2_userauth_publickey_fromfile_ex returned $rc")
 
-          /*
-
-
-        while((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                        pubkey, privkey,
-                                                        password)) ==
-              LIBSSH2_ERROR_EAGAIN);
-        if(rc) {
-            fprintf(stderr, "Authentication by public key failed.\n");
-            goto shutdown;
-        }
-           */
-
-          val ss = "session".cstr.size
-
-          log.trace { "(\"session\".cstr.size - 1) == ${"session".cstr.size - 1}" }
 
           var channel: CPointer<LIBSSH2_CHANNEL>? = null
 
@@ -252,7 +237,7 @@ class SSHTests {
             channel = libssh2_channel_open_ex(
               session,
               "session",
-              ("session".cstr.size - 1).toUInt(),
+              "session".length.toUInt(),
               LIBSSH2_CHANNEL_WINDOW_DEFAULT.toUInt(),
               LIBSSH2_CHANNEL_PACKET_DEFAULT.toUInt(),
               null,
@@ -261,40 +246,93 @@ class SSHTests {
             if (channel != null ||
               libssh2_session_last_error(session, null, null, 0) != LIBSSH2_ERROR_EAGAIN
             ) break
-            waitSocket(sock, session!!)
+
+            waitsocket(sock, session)
+            //waitSocket(sock, session!!)
           }
 
-          log.debug { "channel: $channel" }
+          log.info { "opened channel: $channel" }
+          if (channel == null) error("open channel failed")
+
+          log.trace { "libssh2_channel_exec2 commandLine: ${TestConfig.commandLine}" }
+          while (libssh2_channel_exec2(channel, TestConfig.commandLine).also {
+              rc = it
+            } == LIBSSH2_ERROR_EAGAIN) {
+            waitsocket(sock, session)
+          }
+
+          if (rc != 0) error("libssh2_channel_exec2 failed: $rc")
+
+          var byteCount: Long = 0
+
+          while(true){
+            var readCount: Long = 0
+            do {
+              val buffer = ByteArray(0x4000)
+              buffer.usePinned {
+                readCount= libssh2_channel_read_ex(channel,0,it.addressOf(0),buffer.size.convert())
+                log.trace { "read: $readCount" }
+                if (readCount > 0) {
+                  byteCount += readCount
+                  fprintf(stderr, "We read:\n")
+                  for (i in 0 until readCount.convert()) {
+                    fputc(buffer[i].convert(), stderr)
+                  }
+                  fprintf(stderr, "\n")
+                } else {
+                  if (readCount != LIBSSH2_ERROR_EAGAIN.toLong())
+                    fprintf(stderr,"libssh2_channel_read returned $readCount\n")
+                }
+                Unit
+              }
+            } while(readCount > 0)
+
+            /* this is due to blocking that would occur otherwise so we loop on
+           this condition */
+            if(rc == LIBSSH2_ERROR_EAGAIN) {
+              waitsocket(sock, session);
+            }
+            else {
+              log.trace { "breaking from loop as rc == $rc" }
+              break;
+            }
+            //libssh2_channel_read_ex()
+          }
 
           /*
+             for(;;) {
+        ssize_t nread;
+        /* loop until we block */
+        do {
+            char buffer[0x4000];
+            nread = libssh2_channel_read(channel, buffer, sizeof(buffer));
+            if(nread > 0) {
+                ssize_t i;
+                bytecount += nread;
+                fprintf(stderr, "We read:\n");
+                for(i = 0; i < nread; ++i)
+                    fputc(buffer[i], stderr);
+                fprintf(stderr, "\n");
+            }
+            else {
+                if(nread != LIBSSH2_ERROR_EAGAIN)
+                    /* no need to output this for the EAGAIN case */
+                    fprintf(stderr, "libssh2_channel_read returned %d\n",
+                            (int)nread);
+            }
+        }
+        while(nread > 0);
 
-          #define libssh2_channel_open_session(session) \
-    libssh2_channel_open_ex((session), "session", sizeof("session") - 1, \
-                            LIBSSH2_CHANNEL_WINDOW_DEFAULT, \
-                            LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0)
-
-             // Exec non-blocking on the remote host
-    do {
-        channel = libssh2_channel_open_session(session);
-        if(channel ||
-           libssh2_session_last_error(session, NULL, NULL, 0) !=
-           LIBSSH2_ERROR_EAGAIN)
+        /* this is due to blocking that would occur otherwise so we loop on
+           this condition */
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            waitsocket(sock, session);
+        }
+        else
             break;
-        waitsocket(sock, session);
-    } while(1);
-    if(!channel) {
-        fprintf(stderr, "Error\n");
-        exit(1);
-    }
-    while((rc = libssh2_channel_exec(channel, commandline)) ==
-          LIBSSH2_ERROR_EAGAIN) {
-        waitsocket(sock, session);
-    }
-    if(rc) {
-        fprintf(stderr, "exec error\n");
-        exit(1);
     }
            */
+
           delay(1.seconds)
           log.debug { "exiting.." }
           libssh2_exit()
@@ -334,7 +372,10 @@ class SSHTests {
 
   }
 
-  private fun waitSocket(socketFd: libssh2_socket_t, session: CPointer<LIBSSH2_SESSION>): Int {
+  private fun waitSocketKotlin(
+    socketFd: libssh2_socket_t,
+    session: CPointer<LIBSSH2_SESSION>
+  ): Int {
 
     memScoped {
       val timeout = cValue<timeval> {

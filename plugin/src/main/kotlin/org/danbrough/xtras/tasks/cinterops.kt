@@ -75,6 +75,15 @@ private fun LibraryExtension.registerCInteropsTask() =
     val interopsFile = cinteropsConfig.defFile
     inputs.property("cinterops", cinteropsConfig.hashCode())
 
+    project.file("/${group.toString().replace('.', '/')}/interops.h").also {
+      if (it.exists()) {
+        project.logInfo("$name: adding input file: ${it.absolutePath}")
+        inputs.file(it)
+      }
+    }
+
+
+
     cinteropsConfig.codeFile?.also {
       inputs.file(it)
     }
