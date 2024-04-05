@@ -177,9 +177,9 @@ fun ssh2Exec() {
       val fingerprint = libssh2_session_hostkey(session, keyLength.ptr, keyType.ptr)
         ?: error("Failed to get session fingerprint")
 
-      org.danbrough.ssh2.log.info { "keyLength: ${keyLength.value} keyType: ${keyType.value}" }
+      log.info { "keyLength: ${keyLength.value} keyType: ${keyType.value}" }
       val fingerprintString = fingerprint.readBytes(keyLength.value.toInt())
-      org.danbrough.ssh2.log.info { "FINGERPRINT: ${Base64.encode(fingerprintString)}" }
+      log.info { "FINGERPRINT: ${Base64.encode(fingerprintString)}" }
 
       val knownHost = cValue<libssh2_knownhost>()
       val check = libssh2_knownhost_checkp(
@@ -254,7 +254,7 @@ fun ssh2Exec() {
           val buffer = ByteArray(0x4000)
           buffer.usePinned {
             readCount = libssh2_channel_read_ex(channel, 0, it.addressOf(0), buffer.size.convert())
-            org.danbrough.ssh2.log.trace { "read: $readCount" }
+            log.trace { "read: $readCount" }
             if (readCount > 0) {
               byteCount += readCount
               fprintf(stderr, "We read:\n")

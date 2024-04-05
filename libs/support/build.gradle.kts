@@ -45,11 +45,9 @@ kotlin {
     apiVersion.set(KotlinVersion.DEFAULT)
   }
 
-  if (runningInIDE) {
-    declareHostTarget()
-  } else {
-    declareSupportedTargets()
-  }
+
+  declareSupportedTargets()
+
 
   jvm {
 /*    compilerOptions {
