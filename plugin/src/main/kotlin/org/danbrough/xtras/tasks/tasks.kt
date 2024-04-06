@@ -56,10 +56,6 @@ fun LibraryExtension.registerTasks() {
   taskConfigureSource?.run()
 
   taskCompileSource?.run()
-
-
-
-
 }
 
 
