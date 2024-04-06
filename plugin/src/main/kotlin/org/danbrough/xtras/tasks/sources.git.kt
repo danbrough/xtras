@@ -14,6 +14,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
