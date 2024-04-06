@@ -2,9 +2,11 @@ package org.danbrough.xtras
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 
 const val XTRAS_PLUGIN_ID = XTRAS_PACKAGE
 const val XTRAS_EXTENSION_NAME = "xtras"
@@ -27,15 +29,16 @@ class XtrasPlugin : Plugin<Project> {
             kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget })
         }
 
-        registerMiscTasks()
+        registerMiscTasks(xtras)
       }
     }
 
 }
 
-internal fun Project.registerMiscTasks() {
+internal fun Project.registerMiscTasks(xtras:XtrasExtension) {
 
   val kotlin = extensions.findByName("kotlin")
+
   if (kotlin is KotlinMultiplatformExtension) {
     tasks.register("xtrasTargets") {
       doFirst {
@@ -45,4 +48,8 @@ internal fun Project.registerMiscTasks() {
       }
     }
   }
+
+
+
+
 }

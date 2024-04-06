@@ -2,6 +2,7 @@ package org.danbrough.xtras.ssh2
 
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.hostTriplet
+import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.logWarn
 import org.danbrough.xtras.registerGitLibrary
 import org.danbrough.xtras.tasks.SourceTaskName
@@ -9,7 +10,9 @@ import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
 import org.danbrough.xtras.tasks.prepareSource
 import org.gradle.api.Project
-
+import org.gradle.api.tasks.Exec
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.konan.target.HostManager
 
 
 fun Project.ssh2(

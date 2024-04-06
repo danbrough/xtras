@@ -14,22 +14,7 @@ kotest-multiplatform = { id = "io.kotest.multiplatform", version = "5.8.0" }
 
 [versions]
 
-agp = "8.3.1"
-##⬆= "8.4.0-alpha01"
-##⬆= "8.4.0-alpha02"
-##⬆= "8.4.0-alpha03"
-##⬆= "8.4.0-alpha04"
-##⬆= "8.4.0-alpha05"
-##⬆= "8.4.0-alpha06"
-##⬆= "8.4.0-alpha07"
-##⬆= "8.4.0-alpha08"
-##⬆= "8.4.0-alpha09"
-##⬆= "8.4.0-alpha10"
-##⬆= "8.4.0-alpha11"
-##⬆= "8.4.0-alpha12"
-##⬆= "8.4.0-alpha13"
-##⬆= "8.4.0-beta01"
-##⬆= "8.4.0-beta02"
+agp = "8.4.0-rc01"
 ##⬆= "8.5.0-alpha01"
 ##⬆= "8.5.0-alpha02"
 ##⬆= "8.5.0-alpha03"
@@ -49,12 +34,9 @@ dokka = "1.9.20"
 klog = "0.0.2-beta09"
 kotlinx-io = "0.3.2"
 slf4j-api = "2.0.12"
-##     ⬆ = "2.1.0-alpha0"
-##     ⬆ = "2.1.0-alpha1"
 slf4j-simple = "2.0.12"
 logback-classic = "1.5.3"
 kotlinx-coroutines = "1.8.0"
-##              ⬆ = "1.8.1-Beta"
 
 [libraries]
 

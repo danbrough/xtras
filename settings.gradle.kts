@@ -17,16 +17,18 @@ rootProject.name = "xtras"
 
 includeBuild("plugin")
 
+
 listOf(
   "support",
   "openssl",
-  "mqtt",
-  "ssh2",
-  "jni",
+//  "mqtt",
+//  "ssh2",
+//  "jni",
 ).forEach {
   include(":libs:$it")
 }
 
-include(":examples")
+//include(":examples")
+
 
 //include(":iotest")
