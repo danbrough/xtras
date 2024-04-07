@@ -20,7 +20,7 @@ plugins {
 
 
 val xtrasProjectGroup = XTRAS_PACKAGE
-val xtrasProjectVersion = libs.versions.xtras.version.get()
+val xtrasProjectVersion:String = libs.versions.xtras.version.get()
 
 
 allprojects {
@@ -35,3 +35,12 @@ allprojects {
   }
 }
 
+tasks.register("thang"){
+  doFirst{
+    val f = properties["file"].toString()
+    println("file is [$f]")
+    File(f).also {
+      println("abspath: ${it.absolutePath}")
+    }
+  }
+}

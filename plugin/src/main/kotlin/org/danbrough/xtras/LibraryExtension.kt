@@ -107,7 +107,8 @@ abstract class LibraryExtension(
     "${this::class.java.simpleName.substringBefore("_Decorated")}[$name:$version]"
 
   val xtras: XtrasExtension
-    get() = project.extensions.findByType<XtrasExtension>()!!
+      by lazy { project.extensions.findByType<XtrasExtension>()!! }
+
 }
 
 

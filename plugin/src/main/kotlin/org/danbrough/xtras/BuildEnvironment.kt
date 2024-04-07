@@ -68,12 +68,10 @@ open class BuildEnvironment : Cloneable {
   }
 
   @XtraDSL
-
   var basePath: List<String> =
     listOf("/bin", "/sbin", "/usr/bin", "/usr/sbin", "/usr/local/bin", "/opt/local/bin")
 
   @XtraDSL
-
   var androidNdkApiVersion = 21
 
 //
@@ -87,11 +85,9 @@ open class BuildEnvironment : Cloneable {
    * default: 11
    */
   @XtraDSL
-
   var javaLanguageVersion: Int? = 11
 
   @XtraDSL
-
   var defaultEnvironment: Map<String, String> = buildMap {
 
     if (!HostManager.hostIsMingw) put("PATH", basePath.joinToString(File.pathSeparator))
@@ -314,7 +310,6 @@ fun Project.xtrasBuildEnvironment(configure: BuildEnvironment.() -> Unit = {}): 
   }
 
 
-fun File.cygpath(buildEnvironment: BuildEnvironment) = buildEnvironment.cygpath(this)
 
 
 
