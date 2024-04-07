@@ -25,7 +25,7 @@ xtras {
 kotlin {
   applyDefaultHierarchyTemplate()
   declareHostTarget()
-  mingwX64()
+
 
   sourceSets {
     all {

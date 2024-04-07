@@ -63,7 +63,6 @@ fun Project.openssl(
 
 		cinterops {
 			headers = """
-        package = $group.cinterops
 
         #staticLibraries =  libcrypto.a libssl.a
         headerFilter = openssl/**

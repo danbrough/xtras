@@ -85,6 +85,7 @@ object TestConfig {
 fun ssh2Exec() {
   log.info { "ssh2Exec()" }
 
+
   var rc = 0
   var sock: libssh2_socket_t = 0
   var session: CPointer<LIBSSH2_SESSION>? = null

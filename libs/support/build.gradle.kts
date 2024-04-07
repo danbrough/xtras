@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -80,12 +81,6 @@ kotlin {
       dependsOn(commonMain)
     }
 
-    targets.withType<KotlinNativeTarget> {
-/*      if (!konanTarget.family.isAppleFamily) {
-        compilations["main"].defaultSourceSet.dependsOn(posixMain)
-      }*/
-    }
-
 
     jvmMain {
       dependencies {
@@ -98,6 +93,26 @@ kotlin {
       dependencies {
         api(libs.slf4j.api)
         api(libs.slf4j.android)
+      }
+    }
+  }
+
+
+  targets.withType<KotlinNativeTarget> {
+    if (konanTarget.family != Family.ANDROID) {
+      compilations["main"].cinterops {
+        create("jni") {
+          defFile(project.file("src/cinterops/jni.def"))
+          packageName = "platform.android"
+          compilerOpts.add("-I${project.file("src/headers")}")
+          when (konanTarget.family) {
+            Family.LINUX -> "linux"
+            Family.MINGW -> "win32"
+            else -> error("Unhandled target: $konanTarget")
+          }.also {
+            compilerOpts.add("-I${project.file("src/headers/$it")}")
+          }
+        }
       }
     }
   }

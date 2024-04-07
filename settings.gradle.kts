@@ -22,13 +22,12 @@ listOf(
   "support",
   "openssl",
 //  "mqtt",
-//  "ssh2",
-//  "jni",
+  "ssh2",
 ).forEach {
   include(":libs:$it")
 }
 
-//include(":examples")
+include(":examples")
 
 
 //include(":iotest")
