@@ -7,13 +7,11 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.cValue
 import kotlinx.cinterop.convert
-import kotlinx.cinterop.cstr
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.sizeOf
-import kotlinx.cinterop.toCValues
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
@@ -56,6 +54,7 @@ import org.danbrough.ssh2.cinterops.libssh2_socket_t
 
 import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
 import org.danbrough.ssh2.cinterops.waitsocket
+import org.danbrough.xtras.support.getEnv
 import org.danbrough.xtras.support.supportLog
 import platform.linux.inet_addr
 import platform.posix.AF_INET
@@ -77,7 +76,6 @@ import platform.posix.socket
 import platform.posix.stderr
 import platform.posix.strerror
 import platform.posix.timeval
-import platform.posix.wait
 import kotlin.io.encoding.Base64
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
@@ -89,15 +87,15 @@ val log = run {
 
 object TestConfig {
   fun property(name: String, default: String): String =
-    platform.posix.getenv(name)?.toKString() ?: default
+    getEnv(name) ?: default
 
-  val user = "dan"
-  val hostname = "192.168.1.4"
-  val port = 22.toUShort()
-  val pubKey = "/home/dan/.ssh/test.pub"
-  val privKey = "/home/dan/.ssh/test"
-  val password = "password"
-  val commandLine = "uptime"
+  const val USER = "dan"
+  const val HOSTNAME = "192.168.1.4"
+  const val PORT: UShort = 22u
+  const val PUB_KEY = "/home/dan/.ssh/test.pub"
+  const val PRIVATE_KEY = "/home/dan/.ssh/test"
+  const val PASSWORD = "password"
+  const val COMMAND_LINE = "uptime"
 }
 
 
@@ -119,9 +117,7 @@ class SSHTests {
       var sock: libssh2_socket_t = 0
       var session: CPointer<LIBSSH2_SESSION>? = null
       var nh: CPointer<LIBSSH2_KNOWNHOSTS>? = null
-      var rc = 0
-      var type = 0
-      var len: size_t = 0.toULong()
+      var rc: Int
 
       /*
           uint32_t hostaddr;
@@ -150,7 +146,7 @@ class SSHTests {
             error("libssh2 initialization failed ($rc)")
           }
 
-          val hostaddr = inet_addr(TestConfig.hostname)
+          val hostaddr = inet_addr(TestConfig.HOSTNAME)
 
           sock = socket(AF_INET, SOCK_STREAM, 0)
           if (sock == LIBSSH2_INVALID_SOCKET) {
@@ -159,7 +155,7 @@ class SSHTests {
 
           val sin = cValue<sockaddr_in> {
             sin_family = AF_INET.toUShort()
-            sin_port = htons(TestConfig.port)
+            sin_port = htons(TestConfig.PORT)
             sin_addr.s_addr = hostaddr
           }
 
@@ -203,8 +199,8 @@ class SSHTests {
           val knownHost = cValue<libssh2_knownhost>()
           val check = libssh2_knownhost_checkp(
             nh,
-            TestConfig.hostname,
-            TestConfig.port.toInt(),
+            TestConfig.HOSTNAME,
+            TestConfig.PORT.toInt(),
             fingerprintString.toKString(),
             keyLength.value,
             LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_RAW,// or LIBSSH2_KNOWNHOST_TYPE_SHA1,
@@ -220,11 +216,11 @@ class SSHTests {
           do {
             rc = libssh2_userauth_publickey_fromfile_ex(
               session,
-              TestConfig.user,
-              TestConfig.user.length.toUInt(),
-              TestConfig.pubKey,
-              TestConfig.privKey,
-              TestConfig.password
+              TestConfig.USER,
+              TestConfig.USER.length.toUInt(),
+              TestConfig.PUB_KEY,
+              TestConfig.PRIVATE_KEY,
+              TestConfig.PASSWORD
             )
           } while (rc == LIBSSH2_ERROR_EAGAIN)
 
@@ -254,8 +250,8 @@ class SSHTests {
           log.info { "opened channel: $channel" }
           if (channel == null) error("open channel failed")
 
-          log.trace { "libssh2_channel_exec2 commandLine: ${TestConfig.commandLine}" }
-          while (libssh2_channel_exec2(channel, TestConfig.commandLine).also {
+          log.trace { "libssh2_channel_exec2 commandLine: ${TestConfig.COMMAND_LINE}" }
+          while (libssh2_channel_exec2(channel, TestConfig.COMMAND_LINE).also {
               rc = it
             } == LIBSSH2_ERROR_EAGAIN) {
             waitsocket(sock, session)
@@ -265,12 +261,13 @@ class SSHTests {
 
           var byteCount: Long = 0
 
-          while(true){
+          while (true) {
             var readCount: Long = 0
             do {
               val buffer = ByteArray(0x4000)
               buffer.usePinned {
-                readCount= libssh2_channel_read_ex(channel,0,it.addressOf(0),buffer.size.convert())
+                readCount =
+                  libssh2_channel_read_ex(channel, 0, it.addressOf(0), buffer.size.convert())
                 log.trace { "read: $readCount" }
                 if (readCount > 0) {
                   byteCount += readCount
@@ -281,18 +278,17 @@ class SSHTests {
                   fprintf(stderr, "\n")
                 } else {
                   if (readCount != LIBSSH2_ERROR_EAGAIN.toLong())
-                    fprintf(stderr,"libssh2_channel_read returned $readCount\n")
+                    fprintf(stderr, "libssh2_channel_read returned $readCount\n")
                 }
                 Unit
               }
-            } while(readCount > 0)
+            } while (readCount > 0)
 
             /* this is due to blocking that would occur otherwise so we loop on
            this condition */
-            if(rc == LIBSSH2_ERROR_EAGAIN) {
+            if (rc == LIBSSH2_ERROR_EAGAIN) {
               waitsocket(sock, session);
-            }
-            else {
+            } else {
               log.trace { "breaking from loop as rc == $rc" }
               break;
             }
