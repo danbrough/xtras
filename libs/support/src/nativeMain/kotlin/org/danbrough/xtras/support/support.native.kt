@@ -5,6 +5,9 @@ import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KLoggingEvent
 import io.github.oshai.kotlinlogging.KotlinLoggingConfiguration
 import io.github.oshai.kotlinlogging.Level
+import kotlinx.cinterop.cstr
+import kotlinx.cinterop.toKString
+import platform.posix.getenv
 
 actual fun initLogging(log: KLogger) {
 	log.info { "initSupport() nativeMain" }
@@ -46,3 +49,5 @@ internal val Level.color: String
 
 internal fun String.colored(level: Level) =
 	"${ANSIConstants.ESC_START}${level.color}m$this${ANSIConstants.ESC_START}m"
+
+actual fun getEnv(name: String):String? = getenv(name)?.toKString()

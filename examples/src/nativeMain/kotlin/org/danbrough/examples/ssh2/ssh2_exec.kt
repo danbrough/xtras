@@ -58,6 +58,7 @@ import platform.posix.close
 import platform.posix.connect
 import platform.posix.fprintf
 import platform.posix.fputc
+import platform.posix.getenv
 import platform.posix.htons
 import platform.posix.shutdown
 import platform.posix.size_tVar
@@ -69,7 +70,7 @@ import kotlin.io.encoding.Base64
 
 object TestConfig {
   fun property(name: String, default: String): String =
-    platform.posix.getenv(name)?.toKString() ?: default
+    getenv(name)?.toKString() ?: default
 
   val user = "dan"
   val hostname = "192.168.1.4"
@@ -329,12 +330,12 @@ fun ssh2Exec() {
     }
   }.exceptionOrNull().also {
     if (it != null) log.error(it) { it.message }
-    if (session != null){
+    if (session != null) {
       log.trace { "calling libssh2_session_disconnect_ex" }
-      libssh2_session_disconnect_ex(session,SSH_DISCONNECT_BY_APPLICATION, "Normal Shutdown","")
+      libssh2_session_disconnect_ex(session, SSH_DISCONNECT_BY_APPLICATION, "Normal Shutdown", "")
     }
 
-    if (sock != LIBSSH2_INVALID_SOCKET){
+    if (sock != LIBSSH2_INVALID_SOCKET) {
       log.trace { "shutdown socket.." }
       shutdown(sock, 2)
       //libssh2_socket_close2(sock)

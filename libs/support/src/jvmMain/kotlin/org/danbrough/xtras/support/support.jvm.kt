@@ -4,3 +4,5 @@ import io.github.oshai.kotlinlogging.KLogger
 
 actual fun initLogging(log: KLogger) {
 }
+
+actual fun getEnv(name: String): String? = System.getenv(name)
