@@ -11,6 +11,7 @@ import org.danbrough.xtras.platformName
 import org.danbrough.xtras.projectProperty
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.InputStreamReader
 import java.io.PipedInputStream
@@ -148,6 +149,10 @@ fun LibraryExtension.sourceTask(
       project.logDebug("$name: running command: ${commandLine.joinToString(" ")}")
     }
     block(target)
+
+    if (HostManager.hostIsMingw)
+      commandLine(listOf(xtras.buildEnvironment.binaries.bash,"-cl",commandLine.joinToString(" ")))
+
   }
 }
 

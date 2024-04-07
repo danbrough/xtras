@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
 
-const val XTRAS_PLUGIN_ID = XTRAS_PACKAGE
 const val XTRAS_EXTENSION_NAME = "xtras"
 
 class XtrasPlugin : Plugin<Project> {
@@ -19,9 +18,7 @@ class XtrasPlugin : Plugin<Project> {
       val xtras = extensions.create(XTRAS_EXTENSION_NAME, XtrasExtension::class.java)
       xtras.nativeTargets.convention(emptyList())
 
-
       afterEvaluate {
-
 
         val kotlin = target.extensions.findByName("kotlin")
         if (kotlin is KotlinMultiplatformExtension) {

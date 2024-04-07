@@ -85,9 +85,10 @@ internal fun LibraryExtension.registerGitTasks() {
 		dependsOn(resetTaskName)
 	}
 
+
 	gitTask(
 		initTaskName,
-		listOf("init", "--bare", repoDir.absolutePath)
+		listOf("init", "--bare", xtras.buildEnvironment.cygpath(repoDir))
 	) {
 		onlyIf {
 			!repoDir.exists()
@@ -132,19 +133,16 @@ internal fun LibraryExtension.registerGitTasks() {
 			val commit = repoDir.resolve("fetch_${config.commit}").readText()
 			commandLine(buildEnvironment.binaries.git, "reset", "--soft", commit)
 		}
-
 		workingDir(repoDir)
 		outputs.dir(repoDir)
 	}
-
-
 
 
 	supportedTargets.get().forEach { target ->
 		val sourceDir = this@registerGitTasks.sourceDir(target)
 		gitTask(
 			taskNameExtractSource(target),
-			listOf("clone", repoDir.absolutePath, sourceDir.absolutePath)
+			listOf("clone", buildEnvironment.cygpath(repoDir), buildEnvironment.cygpath(sourceDir.absolutePath))
 		) {
 			group = XTRAS_TASK_GROUP
 			doFirst {
@@ -155,31 +153,10 @@ internal fun LibraryExtension.registerGitTasks() {
 			}
 			description =
 				"Extracts the sources for ${this@registerGitTasks.name} to ${sourceDir.absolutePath}"
-			doFirst {
-				// project.delete(sourceDir)
-			}
 			dependsOn(downloadSourceTaskName)
-			//outputs.dir(sourceDir)
 		}
 	}
-	//project.logWarn("TARGETS: ${project.kotlinExtension.targets.joinToString()}")
 
-	/*
-		supportedTargets.forEach { target ->
-		val sourceDir = sourcesDir(target)
-		gitTask(
-			extractSourceTaskName(target),
-			listOf("clone", repoDir.absolutePath, sourceDir.absolutePath)
-		) {
-			group = XTRAS_TASK_GROUP
-			doFirst {
-				project.delete(sourceDir)
-			}
-			dependsOn(downloadSourcesTaskName)
-			outputs.dir(sourceDir)
-		}
-	}
-	 */
 
 }
 
@@ -193,9 +170,14 @@ private fun LibraryExtension.gitTask(
 		val buildEnvironment = xtras.buildEnvironment
 
 		environment(buildEnvironment.getEnvironment())
-		commandLine(args.toMutableList().apply {
-			add(0, buildEnvironment.binaries.git)
+
+		commandLine(args.toMutableList().let {
+			it.add(0, buildEnvironment.binaries.git)
+			if (HostManager.hostIsMingw){
+				listOf(buildEnvironment.binaries.bash,"-cl",it.joinToString(" "))
+			} else it
 		})
+
 		doFirst {
 			project.logDebug("running: ${commandLine.joinToString(" ")}")
 		}

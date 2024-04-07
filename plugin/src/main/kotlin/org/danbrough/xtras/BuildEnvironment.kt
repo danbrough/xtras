@@ -143,30 +143,14 @@ open class BuildEnvironment : Cloneable {
 
       KonanTarget.MINGW_X64 -> {
 
-//        if (HostManager.hostIsLinux) clangArgs =
-//          "--target=${target.hostTriplet} --gcc-toolchain=$konanDir/dependencies/msys2-mingw-w64-x86_64-2  " +
-//              " --sysroot=$konanDir/dependencies/msys2-mingw-w64-x86_64-2/x86_64-w64-mingw32"
 
-//        put("CC", "x86_64-w64-mingw32-gcc")
-//
-//        if (HostManager.hostIsMingw) clangArgs = "--target=${target.hostTriplet} --gcc-toolchain=${
-//          konanDir.resolve("dependencies/msys2-mingw-w64-x86_64-2").cygpath
-//        }   --sysroot=${konanDir.resolve("dependencies/msys2-mingw-w64-x86_64-2/x86_64-w64-mingw32").cygpath}"
-
-        //clangArgs = "--target=${target.hostTriplet} --gcc-toolchain=$konanDir/dependencies/aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2 --sysroot=$konanDir/dependencies/aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2/aarch64-unknown-linux-gnu/sysroot"
-
-        put("CC", "x86_64-w64-mingw32-gcc")
+        put("CC","gcc")
+        //put("CC", "x86_64-w64-mingw32-gcc")
         //put("AR", "x86_64-w64-mingw32-ar")
         //put("RANLIB", "x86_64-w64-mingw32-ranlib")
-        put("RC", "x86_64-w64-mingw32-windres")
+        //put("RC", "x86_64-w64-mingw32-windres")
 
-        /*
-             environment(
-          "RC",
-          //  buildEnvironment.konanDir.resolve("dependencies/msys2-mingw-w64-x86_64-2/bin/windres.exe")
-          "/usr/bin/x86_64-w64-mingw32-windres"
-        )
-         */
+
       }
 
       KonanTarget.ANDROID_X64, KonanTarget.ANDROID_X86, KonanTarget.ANDROID_ARM64, KonanTarget.ANDROID_ARM32 -> {
@@ -181,7 +165,7 @@ open class BuildEnvironment : Cloneable {
 
         put(
           "PATH",
-          "${androidNdkDir.resolve("toolchains/llvm/prebuilt/$archFolder/bin").cygpath}${File.pathSeparator}${
+          "${androidNdkDir.resolve("toolchains/llvm/prebuilt/$archFolder/bin").absolutePath}${File.pathSeparator}${
             get("PATH")
           }"
         )
@@ -282,34 +266,33 @@ open class BuildEnvironment : Cloneable {
 
   fun cygpath(
     path: String,
+    mode: CygpathMode = CygpathMode.UNIX
   ): String =
     if (HostManager.hostIsMingw)
       Runtime.getRuntime()
-        .exec(arrayOf(binaries.cygpath, CygpathMode.UNIX.arg, path)).inputStream.readAllBytes()
+        .exec(arrayOf(binaries.cygpath, mode.arg, path)).inputStream.readAllBytes()
         .decodeToString().trim()
     else
       path
 
 
-  fun cygpath(file: File) = cygpath(file.absolutePath)
+  fun cygpath(file: File,mode: CygpathMode = CygpathMode.UNIX) = cygpath(file.absolutePath,mode)
 
-  val File.cygpath: String
-    get() = cygpath(this)
+  //fun File.cygpath(mode: CygpathMode = CygpathMode.UNIX): String = cygpath(this,mode)
 
 }
 
+/*
 const val XTRAS_EXTN_BUILD_ENVIRONMENT = "xtrasBuildEnvironment"
 
-fun Project.xtrasBuildEnvironment(configure: BuildEnvironment.() -> Unit = {}): BuildEnvironment =
+fun Project.xtrasBuildEnvironment(): BuildEnvironment =
 
-  extensions.findByType<BuildEnvironment>()?.also {
-    return (it.clone() as BuildEnvironment).also(configure)
-  } ?: extensions.create<BuildEnvironment>(XTRAS_EXTN_BUILD_ENVIRONMENT).apply {
+  extensions.findByType<BuildEnvironment>()?: extensions.create<BuildEnvironment>(XTRAS_EXTN_BUILD_ENVIRONMENT).apply {
     initialize(this@xtrasBuildEnvironment)
-    configure()
   }
 
 
+*/
 
 
 

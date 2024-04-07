@@ -12,7 +12,9 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 abstract class XtrasExtension(val project: Project) {
   abstract val message: Property<String>
 
-  val buildEnvironment = project.xtrasBuildEnvironment()
+  val buildEnvironment by lazy {
+    BuildEnvironment().also { it.initialize(project) }
+  }
 
   @XtraDSL
   abstract val nativeTargets: ListProperty<KonanTarget>
