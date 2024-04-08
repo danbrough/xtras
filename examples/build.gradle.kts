@@ -26,7 +26,6 @@ kotlin {
   applyDefaultHierarchyTemplate()
   declareHostTarget()
 
-
   sourceSets {
     all {
       languageSettings {

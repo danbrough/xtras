@@ -1,6 +1,5 @@
 package org.danbrough.ssh2
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.addressOf
@@ -51,11 +50,9 @@ import org.danbrough.ssh2.cinterops.libssh2_session_init_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_last_error
 import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
 import org.danbrough.ssh2.cinterops.libssh2_socket_t
-
 import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
 import org.danbrough.ssh2.cinterops.waitsocket
 import org.danbrough.xtras.support.getEnv
-import org.danbrough.xtras.support.supportLog
 import platform.linux.inet_addr
 import platform.posix.AF_INET
 import platform.posix.SOCK_STREAM
@@ -69,7 +66,6 @@ import platform.posix.posix_FD_SET
 import platform.posix.posix_FD_ZERO
 import platform.posix.select
 import platform.posix.shutdown
-import platform.posix.size_t
 import platform.posix.size_tVar
 import platform.posix.sockaddr_in
 import platform.posix.socket
@@ -80,10 +76,6 @@ import kotlin.io.encoding.Base64
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
-val log = run {
-  supportLog.trace { }
-  KotlinLogging.logger("TESTS")
-}
 
 object TestConfig {
   fun property(name: String, default: String): String =
@@ -98,7 +90,7 @@ object TestConfig {
   const val COMMAND_LINE = "uptime"
 }
 
-
+@Deprecated("Example package has demo code")
 class SSHTests {
 
   @Test
@@ -111,7 +103,6 @@ class SSHTests {
   @Test
   fun testExec() {
     log.info { "testExec()" }
-
 
     runBlocking {
       var sock: libssh2_socket_t = 0
@@ -185,7 +176,6 @@ class SSHTests {
             nh, "/home/dan/.ssh/known_hosts",
             LIBSSH2_KNOWNHOST_FILE_OPENSSH
           )
-
 
           val keyType = alloc<IntVar>()
           val keyLength = alloc<size_tVar>()

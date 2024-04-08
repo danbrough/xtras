@@ -2,6 +2,7 @@ package org.danbrough.examples.ssh2
 
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.alloc
@@ -9,13 +10,16 @@ import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.cValue
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.sizeOf
 import kotlinx.cinterop.toKString
+import kotlinx.cinterop.useContents
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
+import org.danbrough.examples.TestConfig
 import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL
 import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL_PACKET_DEFAULT
 import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL_WINDOW_DEFAULT
@@ -37,6 +41,7 @@ import org.danbrough.ssh2.cinterops.libssh2_channel_read_ex
 import org.danbrough.ssh2.cinterops.libssh2_exit
 import org.danbrough.ssh2.cinterops.libssh2_init
 import org.danbrough.ssh2.cinterops.libssh2_knownhost
+import org.danbrough.ssh2.cinterops.libssh2_knownhost_addc
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_checkp
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_free
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_init
@@ -58,7 +63,6 @@ import platform.posix.close
 import platform.posix.connect
 import platform.posix.fprintf
 import platform.posix.fputc
-import platform.posix.getenv
 import platform.posix.htons
 import platform.posix.shutdown
 import platform.posix.size_tVar
@@ -68,20 +72,6 @@ import platform.posix.stderr
 import platform.posix.strerror
 import kotlin.io.encoding.Base64
 
-object TestConfig {
-  fun property(name: String, default: String): String =
-    getenv(name)?.toKString() ?: default
-
-  val user = "dan"
-  val hostname = "192.168.1.4"
-  val port = 22.toUShort()
-  val pubKey = "/home/dan/.ssh/test.pub"
-  val privKey = "/home/dan/.ssh/test"
-  val password = "password"
-  val commandLine = "uptime"
-  val knownHostsInput: String? = "/home/dan/.ssh/known_hosts"
-  val knownHostsOutput: String? = "/home/dan/.ssh/known_hosts_dump"
-}
 
 fun ssh2Exec() {
   log.info { "ssh2Exec()" }
@@ -94,7 +84,7 @@ fun ssh2Exec() {
     if (it != 0) error("libssh2 initialization failed ($it)")
   }
 
-  val hostaddr = inet_addr(TestConfig.hostname)
+  val hostaddr = inet_addr(TestConfig.HOSTNAME)
 
   sock = socket(AF_INET, SOCK_STREAM, 0)
   if (sock == LIBSSH2_INVALID_SOCKET) {
@@ -106,7 +96,7 @@ fun ssh2Exec() {
 
       val sin = cValue<sockaddr_in> {
         sin_family = AF_INET.toUShort()
-        sin_port = htons(TestConfig.port)
+        sin_port = htons(TestConfig.PORT)
         sin_addr.s_addr = hostaddr
       }
 
@@ -134,18 +124,24 @@ fun ssh2Exec() {
 
       TestConfig.knownHostsInput?.also {
         /* read all hosts from here */
+        log.debug { "reading known hosts from $it" }
         libssh2_knownhost_readfile(
           nh, it,
           LIBSSH2_KNOWNHOST_FILE_OPENSSH
-        )
+        ).also {
+          log.debug { "read known hosts returned $it" }
+        }
       }
 
       /* store all known hosts to here */
       TestConfig.knownHostsOutput?.also {
+        log.debug { "writing known hosts to $it" }
         libssh2_knownhost_writefile(
           nh, it,
           LIBSSH2_KNOWNHOST_FILE_OPENSSH
-        )
+        ).also {
+          log.debug { "write known hosts returned $it" }
+        }
       }
 
       /*
@@ -183,31 +179,41 @@ fun ssh2Exec() {
       val fingerprintString = fingerprint.readBytes(keyLength.value.toInt())
       log.info { "FINGERPRINT: ${Base64.encode(fingerprintString)}" }
 
-      val knownHost = cValue<libssh2_knownhost>()
+
+      //val knownHost = cValue<libssh2_knownhost>()
+      val host: CPointerVar<libssh2_knownhost> = alloc()
       val check = libssh2_knownhost_checkp(
         nh,
-        TestConfig.hostname,
-        TestConfig.port.toInt(),
+        TestConfig.HOSTNAME,
+        TestConfig.PORT.toInt(),
         fingerprintString.toKString(),
         keyLength.value,
         LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_RAW,// or LIBSSH2_KNOWNHOST_TYPE_SHA1,
-        knownHost.ptr.reinterpret()
+        host.ptr.reinterpret()
       )
 
-      (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH).also {
-        log.info { "Host check: $it" }
-      }
+      log.info { "key ${host.pointed?.key?.toKString()} name:${host.pointed?.name?.toKString()}" }
+      log.warn { "Host check: $check key: ${if (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) host.pointed?.key?.toKString() else "<none>"}" }
+
+
+
+      /*
+             fprintf(stderr, "Host check: %d, key: %s\n", check,
+                (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) ?
+                host->key : "<none>");
+       */
+
 
       libssh2_knownhost_free(nh)
 
       do {
         rc = libssh2_userauth_publickey_fromfile_ex(
           session,
-          TestConfig.user,
-          TestConfig.user.length.convert(),
-          TestConfig.pubKey,
-          TestConfig.privKey,
-          TestConfig.password
+          TestConfig.USER,
+          TestConfig.USER.length.convert(),
+          TestConfig.PUB_KEY,
+          TestConfig.PRIVATE_KEY,
+          TestConfig.PASSWORD
         )
       } while (rc == LIBSSH2_ERROR_EAGAIN)
 
@@ -239,8 +245,8 @@ fun ssh2Exec() {
       } ?: error("open channel failed")
 
 
-      log.trace { "libssh2_channel_exec2 commandLine: ${TestConfig.commandLine}" }
-      while (libssh2_channel_exec2(channel, TestConfig.commandLine).also {
+      log.trace { "libssh2_channel_exec2 commandLine: ${TestConfig.COMMAND_LINE}" }
+      while (libssh2_channel_exec2(channel, TestConfig.COMMAND_LINE).also {
           rc = it
         } == LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session)
