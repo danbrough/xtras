@@ -10,11 +10,14 @@ version = xtras.versions.xtras.version.get()
 
 repositories {
   mavenCentral()
+  google()
 }
 
 dependencies {
   implementation(xtras.kotlin.gradle.plugin)
   compileOnly(xtras.dokka.gradle.plugin)
+
+  compileOnly(xtras.gradle.android)
 }
 
 java {

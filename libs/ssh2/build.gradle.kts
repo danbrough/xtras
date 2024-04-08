@@ -1,11 +1,14 @@
+import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.androidLibDir
 import org.danbrough.xtras.declareSupportedTargets
 import org.danbrough.xtras.envLibraryPathName
 import org.danbrough.xtras.logDebug
+import org.danbrough.xtras.logWarn
 import org.danbrough.xtras.openssl.openssl
 import org.danbrough.xtras.ssh2.ssh2
 import org.danbrough.xtras.targetNameMap
+import org.danbrough.xtras.xtrasJniConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -67,7 +70,6 @@ kotlin {
     all {
       languageSettings {
         listOf(
-          "kotlinx.cinterop.ExperimentalForeignApi",
           "kotlin.io.encoding.ExperimentalEncodingApi",
           "kotlin.experimental.ExperimentalNativeApi",
         ).forEach(::optIn)
@@ -111,7 +113,8 @@ kotlin {
 
 
 
-android {
+/*android {
+  println("ANDROID EXTENSION: $this class:${this::class.java}")
   compileSdk = 34
   namespace = "$XTRAS_PACKAGE.ssh2"
 
@@ -124,55 +127,14 @@ android {
     sourceCompatibility = JavaConfig.javaVersion
     targetCompatibility = JavaConfig.javaVersion
   }
-
-  sourceSets["debug"].jniLibs {
-    srcDir(project.file("src/jniLibs/debug"))
-  }
-
-  sourceSets["release"].jniLibs {
-    srcDir(project.file("src/jniLibs/release"))
-  }
-
-
-}
+}*/
 
 xtrasTesting()
 
 sonatype {
 }
 
-tasks.withType<KotlinNativeLink> {
-  val konanTarget = binary.target.konanTarget
 
-  if (konanTarget.family == Family.ANDROID) {
-    val libsDir = outputs.files.files.first()
-    val jniLibsDir =
-      file("src/jniLibs/${if (binary.buildType.debuggable) "debug" else "release"}/${konanTarget.androidLibDir}")
-    val taskCopyName = "${name}_copyLibs"
-    tasks.register<Copy>(taskCopyName) {
-      doFirst {
-        logDebug("copying files from $libsDir to $jniLibsDir for ${this@withType.name}")
-      }
-      from(libsDir)
-      into(jniLibsDir)
-    }
-    finalizedBy(taskCopyName)
-  }
-}
 
-afterEvaluate {
-  tasks.withType<KotlinJvmTest> {
-    println("JVM TEST: $name")
-    val linkTask = tasks.first {
-      it is KotlinNativeLink &&
-          it.binary is SharedLibrary &&
-          it.binary.target.konanTarget == HostManager.host
-          && it.binary.buildType == NativeBuildType.DEBUG
-    }
+xtrasJniConfig()
 
-    val env = environment[HostManager.host.envLibraryPathName]
-    println("EXISTING ENV: $env")
-    dependsOn(linkTask)
-    environment(HostManager.host.envLibraryPathName, linkTask.outputs.files.files.first())
-  }
-}

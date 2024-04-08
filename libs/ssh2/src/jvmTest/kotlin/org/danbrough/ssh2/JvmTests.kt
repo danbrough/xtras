@@ -11,7 +11,7 @@ class JvmTests {
       System.loadLibrary("ssh2")
       log.info { "loaded ssh2" }
       log.debug { "calling SSH2JNI.initSSH2()" }
-      SSH2JNI.initSSH2(0).also {
+      SSH2JNI.initSSH2().also {
         log.trace { "initSSH2 returned $it" }
       }
       log.info { "finished" }
