@@ -16,7 +16,8 @@ import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.File
 
-fun Project.xtrasJniConfig(namespace:String = group.toString(),compileSdk:Int = 34,javaVersion: JavaVersion = JavaVersion.VERSION_1_8) {
+fun Project.xtrasJniConfig(namespace:String = group.toString(),compileSdk:Int = 34,javaVersion: JavaVersion = JavaVersion.VERSION_1_8,
+                           block:LibraryExtension.()->Unit = {}) {
   extensions.getByType<LibraryExtension>().apply {
     this.compileSdk = compileSdk
     this.namespace = namespace
@@ -38,6 +39,8 @@ fun Project.xtrasJniConfig(namespace:String = group.toString(),compileSdk:Int = 
     sourceSets["release"].jniLibs {
       srcDir(project.file("src/jniLibs/release"))
     }
+
+    block()
   }
 
   /**

@@ -1,5 +1,6 @@
 package org.danbrough.ssh2
 
+import java.io.FileWriter
 import kotlin.test.Test
 
 class JvmTests {
@@ -15,6 +16,8 @@ class JvmTests {
         log.trace { "initSSH2 returned $it" }
       }
       log.info { "finished" }
+
+
     }.exceptionOrNull()?.also {
       log.error(it) { it.message }
     }

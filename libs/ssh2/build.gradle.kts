@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
+import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -105,7 +106,7 @@ kotlin {
   targets.withType<KotlinNativeTarget> {
     binaries {
       sharedLib("ssh2") {
-        this as SharedLibrary
+
       }
     }
   }
@@ -113,21 +114,6 @@ kotlin {
 
 
 
-/*android {
-  println("ANDROID EXTENSION: $this class:${this::class.java}")
-  compileSdk = 34
-  namespace = "$XTRAS_PACKAGE.ssh2"
-
-  defaultConfig {
-    minSdk = 22
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-  }
-
-  compileOptions {
-    sourceCompatibility = JavaConfig.javaVersion
-    targetCompatibility = JavaConfig.javaVersion
-  }
-}*/
 
 xtrasTesting()
 
@@ -135,6 +121,7 @@ sonatype {
 }
 
 
-
-xtrasJniConfig()
+xtrasJniConfig(javaVersion = JavaConfig.javaVersion) {
+  compileSdk = 34
+}
 
