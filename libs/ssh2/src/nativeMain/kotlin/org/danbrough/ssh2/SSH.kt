@@ -188,25 +188,28 @@ class SSH {
           keyLength.value,
           LIBSSH2_KNOWNHOST_TYPE_SHA1,
           //LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_RAW,// or LIBSSH2_KNOWNHOST_TYPE_SHA1,
-          host.ptr.reinterpret()
+          host.ptr.getPointer(this).reinterpret()
         )
 
         log.debug {
           /*
           LIBSSH2_KNOWNHOST_CHECK_FAILURE:3 - something prevented the check to be made
           LIBSSH2_KNOWNHOST_CHECK_NOTFOUND:2 - no host match was found
-          LIBSSH2_KNOWNHOST_CHECK_MATCH:1 - hosts and keys match.
-          LIBSSH2_KNOWNHOST_CHECK_MISMATCH:0 - host was found, but the keys didn't match!
+          LIBSSH2_KNOWNHOST_CHECK_MISMATCH:1 - host was found, but the keys didn't match!
+          LIBSSH2_KNOWNHOST_CHECK_MATCH:0 - hosts and keys match.
+
            */
           val checkMessage = when (check) {
             LIBSSH2_KNOWNHOST_CHECK_FAILURE -> "LIBSSH2_KNOWNHOST_CHECK_FAILURE"
             LIBSSH2_KNOWNHOST_CHECK_NOTFOUND -> "LIBSSH2_KNOWNHOST_CHECK_NOTFOUND"
-            LIBSSH2_KNOWNHOST_CHECK_MATCH -> "LIBSSH2_KNOWNHOST_CHECK_MATCH"
             LIBSSH2_KNOWNHOST_CHECK_MISMATCH -> "LIBSSH2_KNOWNHOST_CHECK_MISMATCH"
+            LIBSSH2_KNOWNHOST_CHECK_MATCH -> "LIBSSH2_KNOWNHOST_CHECK_MATCH"
             else -> "UNKNOWN check value $check"
           }
-          "libssh2_knownhost_checkp -> $checkMessage, name:${host.pointed?.name?.toKString()} key:${host.pointed?.key?.toKString()} "
+          "libssh2_knownhost_checkp -> $checkMessage ($check), name:${host.pointed?.name?.toKString()} key:${host.pointed?.key?.toKString()} "
         }
+
+        log.error { "LIBSSH2_KNOWNHOST_CHECK_MATCH == $LIBSSH2_KNOWNHOST_CHECK_MATCH" }
 
       } finally {
         if (nh != null)
