@@ -109,7 +109,7 @@ kotlin {
     binaries {
       sharedLib("ssh2")
 
-      listOf("exec").forEach { test ->
+      listOf("sshExec").forEach { test ->
         executable(test, listOf(NativeBuildType.DEBUG)) {
           entryPoint = "org.danbrough.ssh2.tests.main${test.capitalized()}"
           compilation = compilations["test"]
