@@ -41,7 +41,6 @@ import org.danbrough.ssh2.cinterops.libssh2_channel_read_ex
 import org.danbrough.ssh2.cinterops.libssh2_exit
 import org.danbrough.ssh2.cinterops.libssh2_init
 import org.danbrough.ssh2.cinterops.libssh2_knownhost
-import org.danbrough.ssh2.cinterops.libssh2_knownhost_addc
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_checkp
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_free
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_init
@@ -73,7 +72,7 @@ import platform.posix.strerror
 import kotlin.io.encoding.Base64
 
 
-fun ssh2Exec() {
+fun sshExec() {
   log.info { "ssh2Exec()" }
 
 
@@ -99,6 +98,7 @@ fun ssh2Exec() {
         sin_port = htons(TestConfig.PORT)
         sin_addr.s_addr = hostaddr
       }
+
 
       connect(sock, sin.ptr.reinterpret(), sizeOf<sockaddr_in>().convert()).also {
         log.trace { "connected returned $it" }
@@ -194,7 +194,6 @@ fun ssh2Exec() {
 
       log.info { "key ${host.pointed?.key?.toKString()} name:${host.pointed?.name?.toKString()}" }
       log.warn { "Host check: $check key: ${if (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) host.pointed?.key?.toKString() else "<none>"}" }
-
 
 
       /*

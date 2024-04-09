@@ -1,5 +1,7 @@
 package org.danbrough.examples
 
+import kotlinx.cinterop.convert
+import org.danbrough.ssh2.SessionConfig
 import org.danbrough.xtras.support.getEnv
 
 
@@ -16,4 +18,7 @@ object TestConfig {
   val COMMAND_LINE = property("SSH_COMMAND", "uptime")
   val knownHostsInput: String? ="/home/dan/.ssh/known_hosts"
   val knownHostsOutput: String? = "/home/dan/.ssh/known_hosts_dump"
+
+  fun toSessionConfig() = SessionConfig( HOSTNAME,PORT.convert(),USER, PASSWORD, PUB_KEY, PRIVATE_KEY,
+    knownHostsInput)
 }

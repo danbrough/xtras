@@ -4,41 +4,64 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+
+static int ssh2_init(int flags) {
+    int rc = 0;
+#ifdef _WIN32
+    WSADATA wsadata;
+
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
+        return 1;
+    }
+#endif
+
+    return libssh2_init(flags);
+}
+
+static int ssh2_exit(){
+    libssh2_exit();
+#ifdef _WIN32
+    WSACleanup();
+#endif
+}
+
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session) {
-  struct timeval timeout;
-  int rc;
-  fd_set fd;
-  fd_set *writefd = NULL;
-  fd_set *readfd = NULL;
-  int dir;
+    struct timeval timeout;
+    int rc;
+    fd_set fd;
+    fd_set *writefd = NULL;
+    fd_set *readfd = NULL;
+    int dir;
 
-  timeout.tv_sec = 10;
-  timeout.tv_usec = 0;
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
 
-  FD_ZERO(&fd);
+    FD_ZERO(&fd);
 
-  FD_SET(socket_fd, &fd);
+    FD_SET(socket_fd, &fd);
 
-  /* now make sure we wait in the correct direction */
-  dir = libssh2_session_block_directions(session);
+    /* now make sure we wait in the correct direction */
+    dir = libssh2_session_block_directions(session);
 
-  if (dir & LIBSSH2_SESSION_BLOCK_INBOUND)
-    readfd = &fd;
+    if (dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+        readfd = &fd;
 
-  if (dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
-    writefd = &fd;
+    if (dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+        writefd = &fd;
 
-  rc = select((int) (socket_fd + 1), readfd, writefd, NULL, &timeout);
+    rc = select((int) (socket_fd + 1), readfd, writefd, NULL, &timeout);
 
-  return rc;
+    return rc;
 }
 
 static LIBSSH2_API int libssh2_channel_exec2(LIBSSH2_CHANNEL *channel, const char *command) {
-  return libssh2_channel_process_startup(channel, "exec", sizeof("exec") - 1, command,
-                                         (unsigned int) strlen(command));
+    return libssh2_channel_process_startup(channel, "exec", sizeof("exec") - 1, command,
+                                           (unsigned int) strlen(command));
 }
 
 
 static LIBSSH2_API inline void libssh2_socket_close2(libssh2_socket_t socket) {
-  LIBSSH2_SOCKET_CLOSE(socket);
+    LIBSSH2_SOCKET_CLOSE(socket);
 }

@@ -1,6 +1,7 @@
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.androidLibDir
+import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.declareSupportedTargets
 import org.danbrough.xtras.envLibraryPathName
 import org.danbrough.xtras.logDebug
@@ -73,6 +74,7 @@ kotlin {
         listOf(
           "kotlin.io.encoding.ExperimentalEncodingApi",
           "kotlin.experimental.ExperimentalNativeApi",
+          "kotlinx.cinterop.ExperimentalForeignApi",
         ).forEach(::optIn)
       }
     }
@@ -105,9 +107,24 @@ kotlin {
 
   targets.withType<KotlinNativeTarget> {
     binaries {
-      sharedLib("ssh2") {
+      sharedLib("ssh2")
 
+      listOf("exec").forEach { test ->
+        executable(test, listOf(NativeBuildType.DEBUG)) {
+          entryPoint = "org.danbrough.ssh2.tests.main${test.capitalized()}"
+          compilation = compilations["test"]
+          runTask?.apply {
+            project.properties.forEach { (key, value) ->
+              if (key.startsWith("ssh.")) {
+                val envKey = key.replace('.','_').uppercase()
+                println("SETTING $envKey to $value")
+                environment(envKey, value!!)
+              }
+            }
+          }
+        }
       }
+
     }
   }
 }

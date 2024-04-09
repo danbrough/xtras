@@ -46,8 +46,11 @@ kotlin {
 
   targets.withType<KotlinNativeTarget> {
     binaries {
-      executable("ssh2Exec", listOf(NativeBuildType.DEBUG)) {
-        entryPoint = "org.danbrough.examples.ssh2.ssh2Exec"
+      executable("sshExec", listOf(NativeBuildType.DEBUG)) {
+        entryPoint = "org.danbrough.examples.ssh2.sshExec"
+      }
+      executable("sshExec2", listOf(NativeBuildType.DEBUG)) {
+        entryPoint = "org.danbrough.examples.ssh2.sshExec2"
       }
     }
   }
