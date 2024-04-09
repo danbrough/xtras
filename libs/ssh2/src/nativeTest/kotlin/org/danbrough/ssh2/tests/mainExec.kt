@@ -12,8 +12,12 @@ fun mainExec() {
   log.debug { "config: $testSessionConfig" }
 
   val ssh = SSH()
+  var session:SSH.Session? = null
+
   runCatching {
     ssh.initialize()
+    session = ssh.connect(testSessionConfig)
+
   }.exceptionOrNull().also {
     if (it != null) log.error(it) { it.message }
     ssh.dispose()
