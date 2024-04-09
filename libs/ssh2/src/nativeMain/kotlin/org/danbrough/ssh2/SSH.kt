@@ -17,8 +17,11 @@ import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.sizeOf
 import kotlinx.cinterop.toKString
+import kotlinx.cinterop.toKStringFromUtf8
 import kotlinx.cinterop.value
 import org.danbrough.ssh2.cinterops.LIBSSH2_ERROR_EAGAIN
+import org.danbrough.ssh2.cinterops.LIBSSH2_HOSTKEY_HASH_SHA1
+import org.danbrough.ssh2.cinterops.LIBSSH2_HOSTKEY_HASH_SHA256
 import org.danbrough.ssh2.cinterops.LIBSSH2_HOSTKEY_TYPE_DSS
 import org.danbrough.ssh2.cinterops.LIBSSH2_HOSTKEY_TYPE_ECDSA_256
 import org.danbrough.ssh2.cinterops.LIBSSH2_HOSTKEY_TYPE_ECDSA_384
@@ -34,10 +37,12 @@ import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_CHECK_MISMATCH
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_CHECK_NOTFOUND
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_FILE_OPENSSH
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_BASE64
+import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_MASK
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_RAW
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_PLAIN
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_SHA1
 import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION
+import org.danbrough.ssh2.cinterops.libssh2_hostkey_hash
 import org.danbrough.ssh2.cinterops.libssh2_knownhost
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_checkp
 import org.danbrough.ssh2.cinterops.libssh2_knownhost_free
@@ -151,12 +156,12 @@ class SSH {
          */
 
         log.debug {
-          val keyTypeName = when(keyType.value){
+          val keyTypeName = when (keyType.value) {
             LIBSSH2_HOSTKEY_TYPE_UNKNOWN -> "LIBSSH2_HOSTKEY_TYPE_UNKNOWN"
             LIBSSH2_HOSTKEY_TYPE_RSA -> "LIBSSH2_HOSTKEY_TYPE_RSA"
             LIBSSH2_HOSTKEY_TYPE_DSS -> "LIBSSH2_HOSTKEY_TYPE_DSS"
             LIBSSH2_HOSTKEY_TYPE_ECDSA_256 -> "LIBSSH2_HOSTKEY_TYPE_ECDSA_256"
-            LIBSSH2_HOSTKEY_TYPE_ECDSA_384-> "LIBSSH2_HOSTKEY_TYPE_ECDSA_384"
+            LIBSSH2_HOSTKEY_TYPE_ECDSA_384 -> "LIBSSH2_HOSTKEY_TYPE_ECDSA_384"
             LIBSSH2_HOSTKEY_TYPE_ECDSA_521 -> "LIBSSH2_HOSTKEY_TYPE_ECDSA_521"
             LIBSSH2_HOSTKEY_TYPE_ED25519 -> "LIBSSH2_HOSTKEY_TYPE_ED25519"
             else -> "Invalid LIBSSH2_HOSTKEY_TYPE: ${keyType.value}"
@@ -164,16 +169,10 @@ class SSH {
           "keyLength: ${keyLength.value} keyType: ${keyType.value} = $keyTypeName"
         }
         val fingerprintString = fingerprint.readBytes(keyLength.value.toInt())
-        log.debug { "fingerprint: ${Base64.encode(fingerprintString)}" }
+        log.debug { "fingerprintBase64: ${Base64.encode(fingerprintString)} fingerPrintString:${fingerprintString.toKString()} fingerPrint:${fingerprint.toKString()}" }
 
         nh = libssh2_knownhost_init(session) ?: error("libssh2_knownhost_init(session) failed")
 
-        /*
-        libssh2_knownhost_readfile(
-          nh, it,
-          LIBSSH2_KNOWNHOST_FILE_OPENSSH
-        ).
-         */
 
         libssh2_knownhost_readfile(nh, knownHostsFile, LIBSSH2_KNOWNHOST_FILE_OPENSSH).also {
           if (it < 0) error("libssh2_knownhost_readfile($knownHostsFile) returned $it")
@@ -183,22 +182,22 @@ class SSH {
 
         /*
         typemask is a bitmask that specifies format and info about the data passed to this function. Specifically, it details what format the host name is, what format the key is and what key type it is.
-
-The host name is given as one of the following types: LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_TYPE_CUSTOM.
-
-The key is encoded using one of the following encodings: LIBSSH2_KNOWNHOST_KEYENC_RAW or LIBSSH2_KNOWNHOST_KEYENC_BASE64.
-         */
+        The host name is given as one of the following types: LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_TYPE_CUSTOM.
+        The key is encoded using one of the following encodings: LIBSSH2_KNOWNHOST_KEYENC_RAW or LIBSSH2_KNOWNHOST_KEYENC_BASE64.
+        */
         val host: CPointerVar<libssh2_knownhost> = alloc()
+        //TODO: fix this up so that it actually works
+        val test = "AAAAC3NzaC1lZDI1NTE5AAAAIAs5CmvRp22l3kkoF9x1zQ0X0Pr3B03lt/7yEA08lRu/"
         val check = libssh2_knownhost_checkp(
           nh,
           config.hostName,
           config.port,
-          fingerprintString.toKString(),
-          keyLength.value,
-          LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_RAW,
-          host.ptr.getPointer(this).reinterpret()
+          test,//Base64.encode(fingerprintString),
+          test.length.convert(),//Base64.encode(fingerprintString).length.convert(),
+          LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_BASE64,
+          host.ptr
         )
-
+        
         log.debug {
           val checkMessage = when (check) {
             LIBSSH2_KNOWNHOST_CHECK_FAILURE -> "LIBSSH2_KNOWNHOST_CHECK_FAILURE" //3 - something prevented the check to be made
@@ -209,6 +208,7 @@ The key is encoded using one of the following encodings: LIBSSH2_KNOWNHOST_KEYEN
           }
           "libssh2_knownhost_checkp -> $checkMessage ($check), name:${host.pointed?.name?.toKString()} key:${host.pointed?.key?.toKString()} "
         }
+
 
       } finally {
         if (nh != null)
