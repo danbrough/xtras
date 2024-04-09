@@ -51,8 +51,12 @@ import org.danbrough.ssh2.cinterops.libssh2_knownhost_readfile
 import org.danbrough.ssh2.cinterops.libssh2_session_handshake
 import org.danbrough.ssh2.cinterops.libssh2_session_hostkey
 import org.danbrough.ssh2.cinterops.libssh2_session_init_ex
+import org.danbrough.ssh2.cinterops.libssh2_session_last_errno
+import org.danbrough.ssh2.cinterops.libssh2_session_last_error
 import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
+import org.danbrough.ssh2.cinterops.libssh2_session_set_last_error
 import org.danbrough.ssh2.cinterops.libssh2_socket_t
+import org.danbrough.ssh2.cinterops.libssh2_userauth_list
 import org.danbrough.ssh2.cinterops.ssh2_exit
 import org.danbrough.ssh2.cinterops.ssh2_init
 import platform.linux.inet_addr
@@ -126,6 +130,8 @@ class SSH {
 
         config.knownHostsFile?.also { loadKnownHosts(this, it) }
 
+        authenticate(this)
+
       }
     }
 
@@ -197,7 +203,7 @@ class SSH {
           LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_BASE64,
           host.ptr
         )
-        
+
         log.debug {
           val checkMessage = when (check) {
             LIBSSH2_KNOWNHOST_CHECK_FAILURE -> "LIBSSH2_KNOWNHOST_CHECK_FAILURE" //3 - something prevented the check to be made
@@ -214,6 +220,30 @@ class SSH {
         if (nh != null)
           libssh2_knownhost_free(nh)
       }
+    }
+
+    private fun authenticate(memScope: MemScope) = memScope.apply {
+      val authMethod = config.authMethod
+        ?: if (config.privateKeyFile != null) SessionConfig.AuthMethod.KEY else if (config.password != null) SessionConfig.AuthMethod.PASSWORD
+        else SessionConfig.AuthMethod.KEYBOARD
+      log.info { "authenticate() authMethod:$authMethod" }
+
+      //libssh2_userauth_list(session, username, (unsigned int)strlen(username));
+
+      var userAuthList: String?
+      var rc = 0
+      do {
+        userAuthList = libssh2_userauth_list(session, config.user, config.user.length.convert())?.toKString()
+        if (userAuthList == null)
+          rc = libssh2_session_last_errno(session)
+      } while (userAuthList == null && rc == LIBSSH2_ERROR_EAGAIN)
+
+      if (userAuthList == null) error("libssh2_userauth_list failed with error: $rc")
+
+      log.info { "userAuthList: $userAuthList rc: $rc" }
+
+
+
     }
   }
 
