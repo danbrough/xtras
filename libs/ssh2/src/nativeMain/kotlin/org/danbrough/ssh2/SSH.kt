@@ -33,6 +33,7 @@ import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_CHECK_MATCH
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_CHECK_MISMATCH
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_CHECK_NOTFOUND
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_FILE_OPENSSH
+import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_BASE64
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_KEYENC_RAW
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_PLAIN
 import org.danbrough.ssh2.cinterops.LIBSSH2_KNOWNHOST_TYPE_SHA1
@@ -179,6 +180,14 @@ class SSH {
           else log.trace { "libssh2_knownhost_readfile($knownHostsFile) parsed $it entries" }
         }
 
+
+        /*
+        typemask is a bitmask that specifies format and info about the data passed to this function. Specifically, it details what format the host name is, what format the key is and what key type it is.
+
+The host name is given as one of the following types: LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_TYPE_CUSTOM.
+
+The key is encoded using one of the following encodings: LIBSSH2_KNOWNHOST_KEYENC_RAW or LIBSSH2_KNOWNHOST_KEYENC_BASE64.
+         */
         val host: CPointerVar<libssh2_knownhost> = alloc()
         val check = libssh2_knownhost_checkp(
           nh,
@@ -186,30 +195,20 @@ class SSH {
           config.port,
           fingerprintString.toKString(),
           keyLength.value,
-          LIBSSH2_KNOWNHOST_TYPE_SHA1,
-          //LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_RAW,// or LIBSSH2_KNOWNHOST_TYPE_SHA1,
+          LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_KEYENC_RAW,
           host.ptr.getPointer(this).reinterpret()
         )
 
         log.debug {
-          /*
-          LIBSSH2_KNOWNHOST_CHECK_FAILURE:3 - something prevented the check to be made
-          LIBSSH2_KNOWNHOST_CHECK_NOTFOUND:2 - no host match was found
-          LIBSSH2_KNOWNHOST_CHECK_MISMATCH:1 - host was found, but the keys didn't match!
-          LIBSSH2_KNOWNHOST_CHECK_MATCH:0 - hosts and keys match.
-
-           */
           val checkMessage = when (check) {
-            LIBSSH2_KNOWNHOST_CHECK_FAILURE -> "LIBSSH2_KNOWNHOST_CHECK_FAILURE"
-            LIBSSH2_KNOWNHOST_CHECK_NOTFOUND -> "LIBSSH2_KNOWNHOST_CHECK_NOTFOUND"
-            LIBSSH2_KNOWNHOST_CHECK_MISMATCH -> "LIBSSH2_KNOWNHOST_CHECK_MISMATCH"
-            LIBSSH2_KNOWNHOST_CHECK_MATCH -> "LIBSSH2_KNOWNHOST_CHECK_MATCH"
+            LIBSSH2_KNOWNHOST_CHECK_FAILURE -> "LIBSSH2_KNOWNHOST_CHECK_FAILURE" //3 - something prevented the check to be made
+            LIBSSH2_KNOWNHOST_CHECK_NOTFOUND -> "LIBSSH2_KNOWNHOST_CHECK_NOTFOUND" //2 - no host match was found
+            LIBSSH2_KNOWNHOST_CHECK_MISMATCH -> "LIBSSH2_KNOWNHOST_CHECK_MISMATCH" //1 - host was found, but the keys didn't match!
+            LIBSSH2_KNOWNHOST_CHECK_MATCH -> "LIBSSH2_KNOWNHOST_CHECK_MATCH" //0 - hosts and keys match.
             else -> "UNKNOWN check value $check"
           }
           "libssh2_knownhost_checkp -> $checkMessage ($check), name:${host.pointed?.name?.toKString()} key:${host.pointed?.key?.toKString()} "
         }
-
-        log.error { "LIBSSH2_KNOWNHOST_CHECK_MATCH == $LIBSSH2_KNOWNHOST_CHECK_MATCH" }
 
       } finally {
         if (nh != null)
