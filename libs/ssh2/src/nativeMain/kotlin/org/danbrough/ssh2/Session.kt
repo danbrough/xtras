@@ -57,6 +57,7 @@ import org.danbrough.ssh2.cinterops.waitsocket
 import platform.linux.inet_addr
 import platform.posix.AF_INET
 import platform.posix.SOCK_STREAM
+import platform.posix.connect
 import platform.posix.htons
 import platform.posix.shutdown
 import platform.posix.size_tVar
@@ -85,14 +86,14 @@ class Session internal constructor(@Suppress("MemberVisibilityCanBePrivate") val
         sin_addr.s_addr = inet_addr(config.hostName)
       }
 
-      platform.posix.connect(sock, sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
+      connect(sock, sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
         .also {
           log.trace { "connected returned $it" }
           if (it != 0)
             error("Failed to connect: ${strerror(it)?.toKString()}")
         }
 
-      log.debug { "socket connected" }
+      log.trace { "socket connected" }
 
       session =
         libssh2_session_init_ex(null, null, null, null)
@@ -276,11 +277,24 @@ class Session internal constructor(@Suppress("MemberVisibilityCanBePrivate") val
   fun openChannel(): Channel {
     var rc = 0
     var channel: CPointer<LIBSSH2_CHANNEL>?
+    val channelType = "session" // Channel type to open. Typically one of session, direct-tcpip, or tcpip-forward.
     while (true) {
+      /*
+session - Session instance as returned by libssh2_session_init_ex
+channel_type - Channel type to open. Typically one of session, direct-tcpip, or tcpip-forward. The SSH2 protocol allowed for additional types including local, custom channel types.
+channel_type_len - Length of channel_type
+window_size - Maximum amount of unacknowledged data remote host is allowed to send before receiving an SSH_MSG_CHANNEL_WINDOW_ADJUST packet.
+packet_size - Maximum number of bytes remote host is allowed to send in a single SSH_MSG_CHANNEL_DATA or SSG_MSG_CHANNEL_EXTENDED_DATA packet.
+message - Additional data as required by the selected channel_type.
+message_len - Length of message parameter.
+Allocate a new channel for exchanging data with the server.
+This method is typically called through its macroized form: libssh2_channel_open_session
+or via libssh2_channel_direct_tcpip or libssh2_channel_forward_listen
+       */
       channel = libssh2_channel_open_ex(
         session,
-        "session",
-        "session".length.convert(),
+        channelType,
+        channelType.length.convert(),
         LIBSSH2_CHANNEL_WINDOW_DEFAULT.convert(),
         LIBSSH2_CHANNEL_PACKET_DEFAULT.convert(),
         null,
@@ -296,7 +310,7 @@ class Session internal constructor(@Suppress("MemberVisibilityCanBePrivate") val
   }
 
   override fun close() {
-    log.trace { "libssh2_session_free(session)" }
+    log.debug { "Session::close()" }
     /*
         if(session) {
         libssh2_session_disconnect(session, "Normal Shutdown");

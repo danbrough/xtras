@@ -20,10 +20,12 @@ class Channel(private val session: Session, private val channel: CPointer<LIBSSH
     log.info { "exec:() $commandline" }
     var rc: Int
 
+    val processType = "exec" // "shell", "exec" or "subsystem"
+
     while (libssh2_channel_process_startup(
         channel,
-        "exec",
-        "exec".length.convert(),
+        processType,
+        processType.length.convert(),
         commandline,
         commandline.length.convert()
       ).also { rc = it } == LIBSSH2_ERROR_EAGAIN
@@ -58,9 +60,7 @@ class Channel(private val session: Session, private val channel: CPointer<LIBSSH
         } while (readCount > 0L)
 
         if (readCount == LIBSSH2_ERROR_EAGAIN.toLong())
-          session.waitSocket()
-        else
-          break
+          session.waitSocket() else break
       }
     }
   }
@@ -71,12 +71,11 @@ class Channel(private val session: Session, private val channel: CPointer<LIBSSH
     var rc: Int
     while (libssh2_channel_close(channel).also { rc = it } == LIBSSH2_ERROR_EAGAIN)
       session.waitSocket()
-    log.trace { "closed channel: rc: $rc" }
-
+    log.trace { "libssh2_channel_close() -> $rc" }
 
     if (rc == 0) {
       libssh2_channel_get_exit_status(channel).also {
-        log.trace { "libssh2_channel_get_exit_status(channel) == $it" }
+        log.trace { "libssh2_channel_get_exit_status(channel) -> $it" }
       }
     }
 
