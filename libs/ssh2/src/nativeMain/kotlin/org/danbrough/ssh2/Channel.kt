@@ -35,35 +35,35 @@ class Channel(private val session: Session, private val channel: CPointer<LIBSSH
     if (rc != 0) error("libssh2_channel_process_startup($commandline) returned $rc")
   }
 
-  fun readLoop() {
+  fun readLoop() = memScoped {
     var readCount = 0L
-    memScoped {
-      while (true) {
-        do {
-          val buffer = ByteArray(0x4000) //allocArray<ByteVar>(0x4000)
-          buffer.usePinned {
-            readCount = libssh2_channel_read_ex(channel, 0, it.addressOf(0), buffer.size.convert())
-            if (readCount > 0) {
-              log.info {
-                "readCount: $readCount <${
-                  buffer.decodeToString(
-                    0,
-                    readCount.convert()
-                  )
-                }>"
-              }
-            } else {
-              if (readCount != LIBSSH2_ERROR_EAGAIN.toLong() && readCount != 0L)
-                error("libssh2_channel_read_ex returned $readCount")
-            }
-          }
-        } while (readCount > 0L)
 
-        if (readCount == LIBSSH2_ERROR_EAGAIN.toLong())
-          session.waitSocket() else break
-      }
+    while (true) {
+      do {
+        val buffer = ByteArray(0x4000) //allocArray<ByteVar>(0x4000)
+        buffer.usePinned {
+          readCount = libssh2_channel_read_ex(channel, 0, it.addressOf(0), buffer.size.convert())
+          if (readCount > 0) {
+            log.info {
+              "readCount: $readCount <${
+                buffer.decodeToString(
+                  0,
+                  readCount.convert()
+                )
+              }>"
+            }
+          } else {
+            if (readCount != LIBSSH2_ERROR_EAGAIN.toLong() && readCount != 0L)
+              error("libssh2_channel_read_ex returned $readCount")
+          }
+        }
+      } while (readCount > 0L)
+
+      if (readCount == LIBSSH2_ERROR_EAGAIN.toLong())
+        session.waitSocket() else break
     }
   }
+
 
   override fun close() {
     log.trace { "Channel::close()" }

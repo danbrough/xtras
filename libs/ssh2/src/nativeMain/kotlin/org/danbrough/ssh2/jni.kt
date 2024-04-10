@@ -20,7 +20,6 @@ private const val JNI_PREFIX = "Java_org_danbrough_ssh2_SSH2JNI"
 @CName("${JNI_PREFIX}_initSSH2")
 fun __initSSH2(env: CPointer<JNIEnvVar>, clazz: jclass, initFlags: jint): jint {
   init()
-  println("doing this bit")
   return libssh2_init(initFlags).also {
     log.trace { "libssh2_init($initFlags) == $it" }
   }

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
+#include <arpa/inet.h>
 
 static int ssh2_init(int flags) {
     int rc = 0;
@@ -25,6 +25,10 @@ static int ssh2_exit() {
 #ifdef _WIN32
     WSACleanup();
 #endif
+}
+
+static in_addr_t inetAddr(const char *cp){
+    return inet_addr(cp);
 }
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session) {

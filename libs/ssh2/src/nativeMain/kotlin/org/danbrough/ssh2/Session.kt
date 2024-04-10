@@ -54,7 +54,6 @@ import org.danbrough.ssh2.cinterops.libssh2_socket_close2
 import org.danbrough.ssh2.cinterops.libssh2_socket_t
 import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
 import org.danbrough.ssh2.cinterops.waitsocket
-import platform.linux.inet_addr
 import platform.posix.AF_INET
 import platform.posix.SOCK_STREAM
 import platform.posix.connect
@@ -83,7 +82,7 @@ class Session internal constructor(@Suppress("MemberVisibilityCanBePrivate") val
       val sockAddress = cValue<sockaddr_in>() {
         sin_family = AF_INET.convert()
         sin_port = htons(config.port.convert())
-        sin_addr.s_addr = inet_addr(config.hostName)
+        sin_addr.s_addr = org.danbrough.ssh2.cinterops.inetAddr(config.hostName)
       }
 
       connect(sock, sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
@@ -275,9 +274,10 @@ class Session internal constructor(@Suppress("MemberVisibilityCanBePrivate") val
   }
 
   fun openChannel(): Channel {
-    var rc = 0
+    var rc: Int
     var channel: CPointer<LIBSSH2_CHANNEL>?
-    val channelType = "session" // Channel type to open. Typically one of session, direct-tcpip, or tcpip-forward.
+    val channelType =
+      "session" // Channel type to open. Typically one of session, direct-tcpip, or tcpip-forward.
     while (true) {
       /*
 session - Session instance as returned by libssh2_session_init_ex

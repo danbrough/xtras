@@ -110,7 +110,7 @@ kotlin {
 
   targets.withType<KotlinNativeTarget> {
     binaries {
-      sharedLib("ssh2")
+      sharedLib("xtras_ssh2")
     }
   }
 }
