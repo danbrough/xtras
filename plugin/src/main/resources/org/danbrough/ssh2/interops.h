@@ -20,7 +20,7 @@ static int ssh2_init(int flags) {
     return libssh2_init(flags);
 }
 
-static int ssh2_exit(){
+static int ssh2_exit() {
     libssh2_exit();
 #ifdef _WIN32
     WSACleanup();
@@ -63,5 +63,10 @@ static LIBSSH2_API int libssh2_channel_exec2(LIBSSH2_CHANNEL *channel, const cha
 
 
 static LIBSSH2_API inline void libssh2_socket_close2(libssh2_socket_t socket) {
-    LIBSSH2_SOCKET_CLOSE(socket);
+#ifdef _WIN32
+    closesocket(socket);
+#else /* !_WIN32 */
+    close(socket);
+#endif /* _WIN32 */
 }
+

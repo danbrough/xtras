@@ -107,26 +107,8 @@ class SSHTests {
     runBlocking {
       var sock: libssh2_socket_t = 0
       var session: CPointer<LIBSSH2_SESSION>? = null
-      var nh: CPointer<LIBSSH2_KNOWNHOSTS>? = null
+      var nh: CPointer<LIBSSH2_KNOWNHOSTS>
       var rc: Int
-
-      /*
-          uint32_t hostaddr;
-    libssh2_socket_t sock;
-    struct sockaddr_in sin;
-    const char *fingerprint;
-    int rc;
-    LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_CHANNEL *channel;
-    int exitcode;
-    char *exitsignal = (char *)"none";
-    ssize_t bytecount = 0;
-    size_t len;
-    LIBSSH2_KNOWNHOSTS *nh;
-    int type;
-       */
-
-
 
       launch {
         memScoped {
@@ -217,7 +199,7 @@ class SSHTests {
           if (rc != 0) error("libssh2_userauth_publickey_fromfile_ex returned $rc")
 
 
-          var channel: CPointer<LIBSSH2_CHANNEL>? = null
+          var channel: CPointer<LIBSSH2_CHANNEL>?
 
           while (true) {
             channel = libssh2_channel_open_ex(

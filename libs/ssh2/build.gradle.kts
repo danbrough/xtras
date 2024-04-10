@@ -72,6 +72,7 @@ kotlin {
     all {
       languageSettings {
         listOf(
+          "kotlin.ExperimentalStdlibApi",
           "kotlin.io.encoding.ExperimentalEncodingApi",
           "kotlin.experimental.ExperimentalNativeApi",
           "kotlinx.cinterop.ExperimentalForeignApi",
@@ -83,6 +84,7 @@ kotlin {
       dependencies {
         implementation(project(":libs:support"))
         implementation(libs.kotlinx.coroutines)
+        implementation(libs.kotlinx.io)
       }
     }
 
@@ -109,11 +111,15 @@ kotlin {
     binaries {
       sharedLib("ssh2")
 
-      listOf("sshExec").forEach { test ->
+      listOf("sshExec","ioTest").forEach { test ->
         executable(test, listOf(NativeBuildType.DEBUG)) {
           entryPoint = "org.danbrough.ssh2.tests.main${test.capitalized()}"
           compilation = compilations["test"]
+
           runTask?.apply {
+            //kotlinx.io uses $TMP for the temporary directory location
+            if (!environment.contains("TMP"))
+              environment("TMP",System.getProperty("java.io.tmpdir"))
             project.properties.forEach { (key, value) ->
               if (key.startsWith("ssh.")) {
                 val envKey = key.replace('.','_').uppercase()
