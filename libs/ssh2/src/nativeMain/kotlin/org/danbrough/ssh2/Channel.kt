@@ -2,8 +2,11 @@ package org.danbrough.ssh2
 
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.allocArray
+import kotlinx.cinterop.cValue
+import kotlinx.cinterop.cValuesOf
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.usePinned
@@ -12,6 +15,8 @@ import org.danbrough.ssh2.cinterops.LIBSSH2_ERROR_EAGAIN
 import org.danbrough.ssh2.cinterops.libssh2_channel_close
 import org.danbrough.ssh2.cinterops.libssh2_channel_exec2
 import org.danbrough.ssh2.cinterops.libssh2_channel_free
+import org.danbrough.ssh2.cinterops.libssh2_channel_get_exit_signal
+import org.danbrough.ssh2.cinterops.libssh2_channel_get_exit_status
 import org.danbrough.ssh2.cinterops.libssh2_channel_read_ex
 import platform.posix.read
 
@@ -28,40 +33,6 @@ class Channel(private val session: Session, private val channel: CPointer<LIBSSH
     if (rc != 0) error("libssh2_channel_exec2($commandline) returned $rc")
   }
 
-  /*
-  for(;;) {
-        ssize_t nread;
-        /* loop until we block */
-        do {
-            char buffer[0x4000];
-            nread = libssh2_channel_read(channel, buffer, sizeof(buffer));
-            if(nread > 0) {
-                ssize_t i;
-                bytecount += nread;
-                fprintf(stderr, "We read:\n");
-                for(i = 0; i < nread; ++i)
-                    fputc(buffer[i], stderr);
-                fprintf(stderr, "\n");
-            }
-            else {
-                if(nread != LIBSSH2_ERROR_EAGAIN)
-                    /* no need to output this for the EAGAIN case */
-                    fprintf(stderr, "libssh2_channel_read returned %ld\n",
-                            (long)nread);
-            }
-        }
-        while(nread > 0);
-
-        /* this is due to blocking that would occur otherwise so we loop on
-           this condition */
-        if(nread == LIBSSH2_ERROR_EAGAIN) {
-            waitsocket(sock, session);
-        }
-        else
-            break;
-    }
-   */
-
   fun readLoop() {
     var readCount = 0L
     memScoped {
@@ -71,13 +42,20 @@ class Channel(private val session: Session, private val channel: CPointer<LIBSSH
           buffer.usePinned {
             readCount = libssh2_channel_read_ex(channel, 0, it.addressOf(0), buffer.size.convert())
             if (readCount > 0) {
-              log.info { "readCount: $readCount <${buffer.decodeToString(0,readCount.convert())}>" }
+              log.info {
+                "readCount: $readCount <${
+                  buffer.decodeToString(
+                    0,
+                    readCount.convert()
+                  )
+                }>"
+              }
             } else {
               if (readCount != LIBSSH2_ERROR_EAGAIN.toLong() && readCount != 0L)
                 error("libssh2_channel_read_ex returned $readCount")
             }
           }
-        } while(readCount > 0L)
+        } while (readCount > 0L)
 
         if (readCount == LIBSSH2_ERROR_EAGAIN.toLong())
           session.waitSocket()
@@ -90,10 +68,18 @@ class Channel(private val session: Session, private val channel: CPointer<LIBSSH
   override fun close() {
     log.trace { "Channel::close()" }
 
-    var rc:Int
-    while(libssh2_channel_close(channel).also { rc = it } == LIBSSH2_ERROR_EAGAIN)
+    var rc: Int
+    while (libssh2_channel_close(channel).also { rc = it } == LIBSSH2_ERROR_EAGAIN)
       session.waitSocket()
     log.trace { "closed channel: rc: $rc" }
+
+
+    if (rc == 0) {
+      libssh2_channel_get_exit_status(channel).also {
+        log.trace { "libssh2_channel_get_exit_status(channel) == $it" }
+      }
+    }
+
     libssh2_channel_free(channel)
 
 

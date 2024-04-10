@@ -9,6 +9,7 @@ import org.danbrough.xtras.logWarn
 import org.danbrough.xtras.openssl.openssl
 import org.danbrough.xtras.ssh2.ssh2
 import org.danbrough.xtras.targetNameMap
+import org.danbrough.xtras.xtrasEnableTestExes
 import org.danbrough.xtras.xtrasJniConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -110,32 +111,9 @@ kotlin {
   targets.withType<KotlinNativeTarget> {
     binaries {
       sharedLib("ssh2")
-
-      listOf("sshExec","ioTest").forEach { test ->
-        executable(test, listOf(NativeBuildType.DEBUG)) {
-          entryPoint = "org.danbrough.ssh2.tests.main${test.capitalized()}"
-          compilation = compilations["test"]
-
-          runTask?.apply {
-            //kotlinx.io uses $TMP for the temporary directory location
-            if (!environment.contains("TMP"))
-              environment("TMP",System.getProperty("java.io.tmpdir"))
-            project.properties.forEach { (key, value) ->
-              if (key.startsWith("ssh.")) {
-                val envKey = key.replace('.','_').uppercase()
-                println("SETTING $envKey to $value")
-                environment(envKey, value!!)
-              }
-            }
-          }
-        }
-      }
-
     }
   }
 }
-
-
 
 
 xtrasTesting()
@@ -143,6 +121,7 @@ xtrasTesting()
 sonatype {
 }
 
+xtrasEnableTestExes("ssh",tests= listOf("sshExec","ioTest"))
 
 xtrasJniConfig(javaVersion = JavaConfig.javaVersion) {
   compileSdk = 34

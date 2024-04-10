@@ -16,7 +16,7 @@ fun mainSshExec(args: Array<String>) {
       ssh.connect(sessionConfig).use { session ->
         session.openChannel().use { channel ->
           log.debug { "opened channel: $channel" }
-          channel.exec("echo The date is `date`")
+          channel.exec("/tmp/test")
           channel.readLoop()
         }
       }
