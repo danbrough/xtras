@@ -27,7 +27,8 @@ static int ssh2_exit() {
 #endif
 }
 
-static in_addr_t inetAddr(const char *cp){
+//Missing from the kotlin MPP android native libraries
+static inline in_addr_t inetAddr(const char *cp){
     return inet_addr(cp);
 }
 
