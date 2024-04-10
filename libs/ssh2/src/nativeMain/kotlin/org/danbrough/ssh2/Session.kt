@@ -275,7 +275,7 @@ class Session internal constructor(@Suppress("MemberVisibilityCanBePrivate") val
 
   fun openChannel(): Channel {
     var rc = 0
-    var channel: CPointer<LIBSSH2_CHANNEL>? = null
+    var channel: CPointer<LIBSSH2_CHANNEL>?
     while (true) {
       channel = libssh2_channel_open_ex(
         session,

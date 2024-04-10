@@ -1,24 +1,17 @@
 package org.danbrough.ssh2
 
-import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.addressOf
-import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.cValue
-import kotlinx.cinterop.cValuesOf
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.usePinned
 import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL
 import org.danbrough.ssh2.cinterops.LIBSSH2_ERROR_EAGAIN
 import org.danbrough.ssh2.cinterops.libssh2_channel_close
-import org.danbrough.ssh2.cinterops.libssh2_channel_exec2
 import org.danbrough.ssh2.cinterops.libssh2_channel_free
-import org.danbrough.ssh2.cinterops.libssh2_channel_get_exit_signal
 import org.danbrough.ssh2.cinterops.libssh2_channel_get_exit_status
+import org.danbrough.ssh2.cinterops.libssh2_channel_process_startup
 import org.danbrough.ssh2.cinterops.libssh2_channel_read_ex
-import platform.posix.read
 
 class Channel(private val session: Session, private val channel: CPointer<LIBSSH2_CHANNEL>) :
   AutoCloseable {
@@ -26,11 +19,18 @@ class Channel(private val session: Session, private val channel: CPointer<LIBSSH
   fun exec(commandline: String) {
     log.info { "exec:() $commandline" }
     var rc: Int
-    while (libssh2_channel_exec2(channel, commandline).also { rc = it } == LIBSSH2_ERROR_EAGAIN)
-      session.waitSocket()
 
-    log.trace { "libssh2_channel_exec2() returned $rc" }
-    if (rc != 0) error("libssh2_channel_exec2($commandline) returned $rc")
+    while (libssh2_channel_process_startup(
+        channel,
+        "exec",
+        "exec".length.convert(),
+        commandline,
+        commandline.length.convert()
+      ).also { rc = it } == LIBSSH2_ERROR_EAGAIN
+    ) session.waitSocket()
+
+    log.trace { "libssh2_channel_process_startup() returned $rc" }
+    if (rc != 0) error("libssh2_channel_process_startup($commandline) returned $rc")
   }
 
   fun readLoop() {

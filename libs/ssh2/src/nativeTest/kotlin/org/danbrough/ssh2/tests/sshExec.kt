@@ -15,10 +15,11 @@ fun mainSshExec(args: Array<String>) {
     runCatching {
       ssh.connect(sessionConfig).use { session ->
         session.openChannel().use { channel ->
-          log.debug { "opened channel: $channel" }
-          channel.exec("/tmp/test")
+          log.debug { "opened channel" }
+          channel.exec("uptime")
           channel.readLoop()
         }
+
       }
     }.exceptionOrNull().also { err ->
       if (err != null) log.error(err) { err.message }

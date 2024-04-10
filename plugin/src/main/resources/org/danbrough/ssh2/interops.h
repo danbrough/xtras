@@ -56,10 +56,6 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session) {
     return rc;
 }
 
-static LIBSSH2_API int libssh2_channel_exec2(LIBSSH2_CHANNEL *channel, const char *command) {
-    return libssh2_channel_process_startup(channel, "exec", sizeof("exec") - 1, command,
-                                           (unsigned int) strlen(command));
-}
 
 
 static LIBSSH2_API inline void libssh2_socket_close2(libssh2_socket_t socket) {
