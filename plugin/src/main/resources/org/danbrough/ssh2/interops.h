@@ -32,6 +32,11 @@ static inline in_addr_t inetAddr(const char *cp){
     return inet_addr(cp);
 }
 
+//Missing from darwin
+static inline uint16_t ssh2_htons(uint16_t hostshort){
+    return htons(hostshort);
+}
+
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session) {
     struct timeval timeout;
     int rc;

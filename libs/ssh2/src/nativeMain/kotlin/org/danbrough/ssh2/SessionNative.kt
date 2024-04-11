@@ -81,7 +81,7 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
 
       val sockAddress = cValue<sockaddr_in>() {
         sin_family = AF_INET.convert()
-        sin_port = htons(config.port.convert())
+        sin_port = org.danbrough.ssh2.cinterops.ssh2_htons(config.port.convert())
         sin_addr.s_addr = org.danbrough.ssh2.cinterops.inetAddr(config.hostName)
       }
 
