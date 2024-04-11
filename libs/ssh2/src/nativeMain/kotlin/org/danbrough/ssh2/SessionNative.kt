@@ -57,7 +57,6 @@ import org.danbrough.ssh2.cinterops.waitsocket
 import platform.posix.AF_INET
 import platform.posix.SOCK_STREAM
 import platform.posix.connect
-import platform.posix.htons
 import platform.posix.shutdown
 import platform.posix.size_tVar
 import platform.posix.sockaddr_in
