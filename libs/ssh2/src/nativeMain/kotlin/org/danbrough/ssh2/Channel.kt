@@ -13,7 +13,7 @@ import org.danbrough.ssh2.cinterops.libssh2_channel_get_exit_status
 import org.danbrough.ssh2.cinterops.libssh2_channel_process_startup
 import org.danbrough.ssh2.cinterops.libssh2_channel_read_ex
 
-class Channel(private val session: Session, private val channel: CPointer<LIBSSH2_CHANNEL>) :
+class Channel(private val session: SessionNative, private val channel: CPointer<LIBSSH2_CHANNEL>) :
   AutoCloseable {
 
   fun exec(commandline: String) {

@@ -28,6 +28,8 @@ xtras {
 object JavaConfig {
   val javaVersion = JavaVersion.VERSION_1_8
   val jvmTarget = JvmTarget.JVM_1_8
+  val kotlinLanguageVersion = KotlinVersion.KOTLIN_2_0
+  val kotlinApiVersion = KotlinVersion.DEFAULT
 }
 
 
@@ -42,8 +44,8 @@ kotlin {
   applyDefaultHierarchyTemplate()
 
   compilerOptions {
-    languageVersion.set(KotlinVersion.KOTLIN_1_9)
-    apiVersion.set(KotlinVersion.DEFAULT)
+    languageVersion = JavaConfig.kotlinLanguageVersion
+    apiVersion = JavaConfig.kotlinApiVersion
   }
 
 

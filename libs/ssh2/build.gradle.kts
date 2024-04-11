@@ -1,32 +1,14 @@
-import com.android.build.gradle.internal.tasks.factory.registerTask
-import org.danbrough.xtras.LibraryExtension
-import org.danbrough.xtras.XTRAS_PACKAGE
-import org.danbrough.xtras.androidLibDir
-import org.danbrough.xtras.capitalized
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.danbrough.xtras.XtrasVersions
 import org.danbrough.xtras.declareSupportedTargets
-import org.danbrough.xtras.envLibraryPathName
-import org.danbrough.xtras.logDebug
-import org.danbrough.xtras.logWarn
 import org.danbrough.xtras.openssl.openssl
 import org.danbrough.xtras.ssh2.ssh2
-import org.danbrough.xtras.targetNameMap
 import org.danbrough.xtras.xtrasEnableTestExes
 import org.danbrough.xtras.xtrasJniConfig
 import org.danbrough.xtras.xtrasTesting
-import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
-import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
-import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
-import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmRun
-import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmRunDsl
-import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
-import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
-import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 plugins {
@@ -40,15 +22,11 @@ plugins {
 group = "org.danbrough.ssh2"
 version = "0.0.1-alpha01"
 
-object JavaConfig {
-  val javaVersion = JavaVersion.VERSION_1_8
-  val jvmTarget = JvmTarget.JVM_1_8
-}
 
 
 java {
-  sourceCompatibility = JavaConfig.javaVersion
-  targetCompatibility = JavaConfig.javaVersion
+  sourceCompatibility = XtrasVersions.javaVersion
+  targetCompatibility = XtrasVersions.javaVersion
 }
 
 xtras {
@@ -69,6 +47,13 @@ kotlin {
   applyDefaultHierarchyTemplate()
   declareSupportedTargets()
 
+
+  compilerOptions {
+    freeCompilerArgs = listOf("-Xexpect-actual-classes")
+
+    languageVersion = XtrasVersions.kotlinLanguageVersion
+    apiVersion = XtrasVersions.kotlinApiVersion
+  }
 
   jvm()
 
@@ -110,6 +95,12 @@ kotlin {
       dependsOn(jniMain)
     }
 
+    jvmTest {
+      dependencies {
+        implementation(kotlin("stdlib"))
+      }
+    }
+
     androidMain {
       dependsOn(jniMain)
     }
@@ -132,7 +123,7 @@ sonatype {
 
 xtrasEnableTestExes("ssh", tests = listOf("sshExec", "ioTest"))
 
-xtrasJniConfig(javaVersion = JavaConfig.javaVersion) {
+xtrasJniConfig(javaVersion = XtrasVersions.javaVersion) {
   compileSdk = 34
 }
 

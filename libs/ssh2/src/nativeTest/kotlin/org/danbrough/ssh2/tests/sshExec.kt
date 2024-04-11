@@ -1,12 +1,8 @@
 package org.danbrough.ssh2.tests
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.danbrough.ssh2.SSH
+import org.danbrough.ssh2.SSHNative
+import org.danbrough.ssh2.createSSH
 import org.danbrough.ssh2.initSessionConfig
 import org.danbrough.ssh2.log
 import org.danbrough.ssh2.sessionConfig
@@ -17,8 +13,9 @@ fun mainSshExec(args: Array<String>) {
   initSessionConfig(args)
   log.debug { "config: $sessionConfig" }
 
-  SSH().use { ssh ->
+  createSSH().use { ssh ->
     runCatching {
+      ssh as SSHNative
       ssh.connect(sessionConfig).use { session ->
         runBlocking {
 

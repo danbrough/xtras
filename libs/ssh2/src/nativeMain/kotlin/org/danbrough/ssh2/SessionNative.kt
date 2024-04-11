@@ -65,7 +65,7 @@ import platform.posix.socket
 import platform.posix.strerror
 import kotlin.io.encoding.Base64
 
-class Session internal constructor(@Suppress("MemberVisibilityCanBePrivate") val config: SessionConfig) :
+class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate") val config: SessionConfig) :
   AutoCloseable {
   private var sock: libssh2_socket_t = 0
   private var session: CPointer<LIBSSH2_SESSION>? = null

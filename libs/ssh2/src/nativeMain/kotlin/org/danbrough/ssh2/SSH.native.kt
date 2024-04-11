@@ -3,9 +3,7 @@ package org.danbrough.ssh2
 import org.danbrough.ssh2.cinterops.ssh2_exit
 import org.danbrough.ssh2.cinterops.ssh2_init
 
-class SSH(private val initFlags: Int = 0) : AutoCloseable {
-  var counter = 0
-
+class SSHNative(initFlags:Int = 0) : SSH{
   init {
     ssh2_init(initFlags).also {
       if (it != 0) error("ssh2_init() returned $it")
@@ -13,13 +11,11 @@ class SSH(private val initFlags: Int = 0) : AutoCloseable {
     }
   }
 
+  fun connect(sessionConfig: SessionConfig): SessionNative = SessionNative(sessionConfig).also(SessionNative::connect)
   override fun close() {
     log.trace { "SSH::close() .. calling ssh2_exit()" }
     ssh2_exit()
   }
-
-  fun connect(sessionConfig: SessionConfig): Session = Session(sessionConfig).also(Session::connect)
-
-  override fun toString() = "SSH[flags=$initFlags,counter:$counter]"
-
 }
+
+actual fun createSSH(): SSH  = SSHNative()

@@ -2,7 +2,14 @@ package org.danbrough.ssh2
 
 fun sshExec() {
   log.info { "sshExec()" }
-  SSH().use { ssh ->
+
+  /**
+   * Must cast to AutoClosable as it's not actualized on JVM
+   * @see https://youtrack.jetbrains.com/issue/KT-55777/Unresolved-kotlin.AutoCloseable-in-JVM
+   */
+
+
+  createSSH().use { ssh ->
     log.error { "SSH: $ssh" }
     val config = sessionConfig
 
