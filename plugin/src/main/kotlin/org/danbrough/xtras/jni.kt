@@ -4,6 +4,7 @@ import com.android.build.gradle.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.JavaExec
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
@@ -76,6 +77,17 @@ fun Project.xtrasJniConfig(namespace:String = group.toString(),compileSdk:Int = 
     }
     tasks.withType<KotlinJvmTest> {
       println("XTRAS_CONFIGURE: task $name depends on ${linkTasks.joinToString(" ") { it.name }}")
+      dependsOn(*linkTasks.toTypedArray())
+      val libPath =
+        linkTasks.flatMap { it.outputs.files.files.filter { file -> file.isDirectory } }
+          .joinToString(File.pathSeparator)
+      project.logDebug("task:$name setting env:${HostManager.host.envLibraryPathName} to $libPath")
+      environment(HostManager.host.envLibraryPathName, libPath)
+    }
+
+    tasks.withType<JavaExec>{
+      println("CONFIGURING JAVAEXEC TASK: $name adding link tasks ${linkTasks.joinToString(",") { it.name }}" )
+
       dependsOn(*linkTasks.toTypedArray())
       val libPath =
         linkTasks.flatMap { it.outputs.files.files.filter { file -> file.isDirectory } }

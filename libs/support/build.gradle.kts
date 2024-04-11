@@ -85,11 +85,6 @@ kotlin {
       }
     }
 
-    val posixMain by creating {
-      dependsOn(commonMain)
-    }
-
-
     jvmMain {
       dependencies {
         api(libs.slf4j.api)

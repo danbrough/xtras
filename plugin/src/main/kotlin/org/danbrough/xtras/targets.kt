@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 fun KotlinMultiplatformExtension.declareSupportedTargets() {
   if (runningInIDE) {
     declareHostTarget()
-    androidNativeX64()
+
 
   } else if (HostManager.hostIsMac) {
     macosX64()

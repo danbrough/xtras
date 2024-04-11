@@ -1,10 +1,14 @@
 package org.danbrough.ssh2
 
-class SSH(loadLibrary: () -> Unit = { SSH.loadLibrary() }) {
+class SSH: JNIObject() {
 
-  companion object {
-    fun loadLibrary() {
-      System.loadLibrary("ssh2")
-    }
+
+  external override fun nativeInit(): Long
+
+  external fun test(ref:Long)
+
+  override fun close() {
+    log.trace { "SSH::close()" }
   }
+
 }

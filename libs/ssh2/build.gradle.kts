@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.tasks.factory.registerTask
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.androidLibDir
@@ -12,10 +13,14 @@ import org.danbrough.xtras.targetNameMap
 import org.danbrough.xtras.xtrasEnableTestExes
 import org.danbrough.xtras.xtrasJniConfig
 import org.danbrough.xtras.xtrasTesting
+import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmRun
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmRunDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
@@ -64,7 +69,6 @@ kotlin {
   applyDefaultHierarchyTemplate()
   declareSupportedTargets()
 
-  jvm()
   androidTarget {
   }
 
@@ -116,14 +120,17 @@ kotlin {
 }
 
 
+//val jvmRuntimeClasspath by configurations.existing
+
 xtrasTesting()
 
 sonatype {
 }
 
-xtrasEnableTestExes("ssh",tests= listOf("sshExec","ioTest"))
+xtrasEnableTestExes("ssh", tests = listOf("sshExec", "ioTest"))
 
 xtrasJniConfig(javaVersion = JavaConfig.javaVersion) {
   compileSdk = 34
 }
+
 
