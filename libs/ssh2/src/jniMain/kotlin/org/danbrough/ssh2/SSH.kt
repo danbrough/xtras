@@ -2,13 +2,13 @@ package org.danbrough.ssh2
 
 class SSH: JNIObject() {
 
+  /**
+   * Create native peer and return stable reference to it
+   */
+  external override fun nativeCreate(): Long
 
-  external override fun nativeInit(): Long
-
-  external fun test(ref:Long)
-
-  override fun close() {
-    log.trace { "SSH::close()" }
-  }
-
+  /**
+   * Destroy the native peer
+   */
+  external override fun nativeDestroy(ref: Long)
 }

@@ -14,7 +14,7 @@ class SSH(private val initFlags: Int = 0) : AutoCloseable {
   }
 
   override fun close() {
-    log.trace { "SSH::close()" }
+    log.trace { "SSH::close() .. calling ssh2_exit()" }
     ssh2_exit()
   }
 

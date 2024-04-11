@@ -69,6 +69,9 @@ kotlin {
   applyDefaultHierarchyTemplate()
   declareSupportedTargets()
 
+
+  jvm()
+
   androidTarget {
   }
 
