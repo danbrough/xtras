@@ -1,6 +1,7 @@
 package org.danbrough.xtras
 
 import org.gradle.api.Project
+import org.gradle.api.tasks.AbstractExecTask
 import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -43,14 +44,14 @@ fun Project.xtrasEnableTestExes(
 ) {
   val kotlin = kotlinExtension as KotlinMultiplatformExtension
 
-
+  
   kotlin.targets.withType<KotlinNativeTarget> {
     binaries {
       tests.forEach { testName ->
         executable(testName, buildTypes) {
           entryPoint = "$`package`.main${testName.capitalized()}"
           compilation = compilations.getByName("test")
-          runTask?.apply {
+          /*runTask?.apply {
             //kotlinx.io uses $TMP for the temporary directory location
             if (!environment.contains("TMP"))
               environment("TMP", System.getProperty("java.io.tmpdir"))
@@ -60,13 +61,13 @@ fun Project.xtrasEnableTestExes(
                 environment(envKey, value!!)
               }
             }
-          }
+          }*/
         }
       }
     }
   }
 
-  tasks.withType<KotlinJvmTest> {
+  tasks.withType<AbstractExecTask<*>> {
     if (!environment.contains("TMP"))
       environment("TMP", System.getProperty("java.io.tmpdir"))
     project.properties.forEach { (key, value) ->
@@ -77,4 +78,3 @@ fun Project.xtrasEnableTestExes(
     }
   }
 }
-  
