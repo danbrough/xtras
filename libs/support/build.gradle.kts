@@ -110,9 +110,12 @@ kotlin {
           defFile(project.file("src/cinterops/jni.def"))
           packageName = "platform.android"
           compilerOpts.add("-I${project.file("src/headers")}")
+
           when (konanTarget.family) {
             Family.LINUX -> "linux"
             Family.MINGW -> "win32"
+            Family.IOS,Family.TVOS,Family.WATCHOS,Family.OSX -> "darwin"
+            
             else -> error("Unhandled target: $konanTarget")
           }.also {
             compilerOpts.add("-I${project.file("src/headers/$it")}")
