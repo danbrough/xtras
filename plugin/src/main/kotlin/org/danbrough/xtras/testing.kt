@@ -1,6 +1,7 @@
 package org.danbrough.xtras
 
 import org.gradle.api.Project
+import org.gradle.api.tasks.AbstractExecTask
 import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -42,8 +43,6 @@ fun Project.xtrasEnableTestExes(
   tests: List<String>
 ) {
   val kotlin = kotlinExtension as KotlinMultiplatformExtension
-
-
 
   kotlin.targets.withType<KotlinNativeTarget> {
     binaries {
