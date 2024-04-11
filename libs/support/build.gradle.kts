@@ -115,7 +115,7 @@ kotlin {
             Family.LINUX -> "linux"
             Family.MINGW -> "win32"
             Family.IOS,Family.TVOS,Family.WATCHOS,Family.OSX -> "darwin"
-            
+
             else -> error("Unhandled target: $konanTarget")
           }.also {
             compilerOpts.add("-I${project.file("src/headers/$it")}")
