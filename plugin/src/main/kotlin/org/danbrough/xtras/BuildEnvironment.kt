@@ -93,7 +93,7 @@ open class BuildEnvironment : Cloneable {
     if (!HostManager.hostIsMingw) put("PATH", basePath.joinToString(File.pathSeparator))
     else put("BASH_ENV", "/etc/profile")
 
-    put("MAKE", "make -j${Runtime.getRuntime().availableProcessors()}")
+    put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")
 
     //put("CFLAGS", "-O3 -pthread -Wno-macro-redefined -Wno-deprecated-declarations")
 
