@@ -1,8 +1,6 @@
 package org.danbrough.ssh2
 
-import kotlinx.cinterop.toKString
 import org.danbrough.xtras.support.getEnv
-import platform.posix.getlogin
 
 
 lateinit var sessionConfig: SessionConfig
@@ -22,7 +20,7 @@ fun initSessionConfig(args: Array<String>) {
       getEnv("SSH_${name.uppercase()}")
 
   sessionConfig = SessionConfig(
-    configProperty("user") ?: getlogin()!!.toKString(),
+    configProperty("user") ?: getEnv("USER")!!,
     configProperty("hostname") ?: "127.0.0.1",
     configProperty("port")?.toInt() ?: 22,
     configProperty("password"),

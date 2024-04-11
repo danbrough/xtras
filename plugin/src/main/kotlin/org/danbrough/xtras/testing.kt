@@ -11,11 +11,12 @@ import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.targets
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 
 
 fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit = {}) =
   tasks.withType<AbstractTestTask> {
-    if (this is Test){
+    if (this is Test) {
       useJUnitPlatform()
     }
     testLogging {
@@ -38,11 +39,14 @@ fun Project.xtrasEnableTestExes(
   configPrefix: String,
   `package`: String = "${group}.tests",
   buildTypes: List<NativeBuildType> = listOf(NativeBuildType.DEBUG),
-  tests:List<String>
+  tests: List<String>
 ) {
-  (kotlinExtension as KotlinMultiplatformExtension).targets.withType<KotlinNativeTarget> {
+  val kotlin = kotlinExtension as KotlinMultiplatformExtension
+
+
+  kotlin.targets.withType<KotlinNativeTarget> {
     binaries {
-      tests.forEach { testName->
+      tests.forEach { testName ->
         executable(testName, buildTypes) {
           entryPoint = "$`package`.main${testName.capitalized()}"
           compilation = compilations.getByName("test")
@@ -61,4 +65,16 @@ fun Project.xtrasEnableTestExes(
       }
     }
   }
+
+  tasks.withType<KotlinJvmTest> {
+    if (!environment.contains("TMP"))
+      environment("TMP", System.getProperty("java.io.tmpdir"))
+    project.properties.forEach { (key, value) ->
+      if (key.startsWith("$configPrefix.")) {
+        val envKey = key.replace('.', '_').uppercase()
+        environment(envKey, value!!)
+      }
+    }
+  }
 }
+  
