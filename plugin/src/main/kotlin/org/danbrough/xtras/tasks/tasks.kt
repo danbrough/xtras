@@ -57,6 +57,8 @@ fun LibraryExtension.registerTasks() {
   taskConfigureSource?.run()
 
   taskCompileSource?.run()
+
+  taskInstallSource?.run()
 }
 
 
@@ -184,11 +186,22 @@ fun LibraryExtension.compileSource(
   dependsOn: SourceTaskName? = SourceTaskName.CONFIGURE,
   block: Exec.(KonanTarget) -> Unit
 ) {
-  taskCompileSource = sourceTask(SourceTaskName.COMPILE, dependsOn) {
-    block(it)
+  taskCompileSource = sourceTask(SourceTaskName.COMPILE, dependsOn) { target->
+    if (taskInstallSource!= null) {
+      finalizedBy(xtrasTaskName(TASK_GROUP_SOURCE, SourceTaskName.INSTALL.name.lowercase(), this@compileSource, target))
+    }
+    block(target)
   }
 }
 
 
-
+@XtraDSL
+fun LibraryExtension.installSource(
+  dependsOn: SourceTaskName? = SourceTaskName.COMPILE,
+  block: Exec.(KonanTarget) -> Unit
+) {
+  taskInstallSource = sourceTask(SourceTaskName.INSTALL, dependsOn) {
+    block(it)
+  }
+}
 

@@ -33,6 +33,7 @@ abstract class LibraryExtension(
   internal var taskPrepareSource: TaskConfig? = null
   internal var taskConfigureSource: TaskConfig? = null
   internal var taskCompileSource: TaskConfig? = null
+  internal var taskInstallSource: TaskConfig? = null
 
   internal var dependencies = mutableListOf<LibraryExtension>()
 
