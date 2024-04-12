@@ -16,3 +16,4 @@ config.properties
 CMakeUserPresets.json
 /upstream
 **.log
+/scripts/mac_sync

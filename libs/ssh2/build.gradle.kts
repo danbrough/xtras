@@ -46,9 +46,7 @@ kotlin {
   withSourcesJar(publish = true)
   applyDefaultHierarchyTemplate()
   declareSupportedTargets()
-  mingwX64()
-
-
+  
   compilerOptions {
     freeCompilerArgs = listOf("-Xexpect-actual-classes")
 
