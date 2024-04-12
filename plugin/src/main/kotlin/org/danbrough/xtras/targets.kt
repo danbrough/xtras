@@ -1,6 +1,5 @@
 package org.danbrough.xtras
 
-import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -20,34 +19,42 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
  *
  */
 fun KotlinMultiplatformExtension.declareSupportedTargets() {
-  if (runningInIDE) {
-    declareHostTarget()
+  linuxX64()
+  linuxArm64()
+  macosX64()
+  //macosArm64()
+  androidNativeX86()
+  androidNativeX64()
+  androidNativeArm64()
+  mingwX64()
+  /*  if (runningInIDE) {
+      declareHostTarget()
 
 
-  } else if (HostManager.hostIsMac) {
-    macosX64()
-    macosArm64()
-    //iosArm64()
-      //iosX64()
-//    iosSimulatorArm64()
+    } else if (HostManager.hostIsMac) {
+      macosX64()
+      macosArm64()
+      //iosArm64()
+        //iosX64()
+  //    iosSimulatorArm64()
 
-    //tvosArm64()
-    //tvosX64()
-    //watchosArm64()
+      //tvosArm64()
+      //tvosX64()
+      //watchosArm64()
 
-    //watchosX64()
-    // watchosX64()
-  } else if (HostManager.hostIsMingw) {
-    mingwX64()
-  } else if (HostManager.hostIsLinux) {
-    mingwX64()
-    androidNativeX86()
-    androidNativeX64()
-    //androidNativeArm32()
-    androidNativeArm64()
-    linuxX64()
-    linuxArm64()
-  } else error("Can't compile anything for host: ${HostManager.host}")
+      //watchosX64()
+      // watchosX64()
+    } else if (HostManager.hostIsMingw) {
+      mingwX64()
+    } else if (HostManager.hostIsLinux) {
+      mingwX64()
+      androidNativeX86()
+      androidNativeX64()
+      //androidNativeArm32()
+      androidNativeArm64()
+      linuxX64()
+      linuxArm64()
+    } else error("Can't compile anything for host: ${HostManager.host}")*/
 }
 
 

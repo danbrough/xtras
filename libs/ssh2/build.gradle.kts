@@ -44,15 +44,16 @@ val ssh2 = ssh2(openssl()) {
 
 kotlin {
   withSourcesJar(publish = true)
-  applyDefaultHierarchyTemplate()
-  declareSupportedTargets()
-  
   compilerOptions {
     freeCompilerArgs = listOf("-Xexpect-actual-classes")
 
     languageVersion = XtrasVersions.kotlinLanguageVersion
     apiVersion = XtrasVersions.kotlinApiVersion
   }
+
+  applyDefaultHierarchyTemplate()
+
+  declareSupportedTargets()
 
   jvm()
 
