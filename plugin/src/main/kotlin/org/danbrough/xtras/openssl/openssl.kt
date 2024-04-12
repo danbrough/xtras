@@ -2,25 +2,23 @@ package org.danbrough.xtras.openssl
 
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.logWarn
-import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.registerGitLibrary
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
-import org.danbrough.xtras.tasks.gitSource
 import org.danbrough.xtras.tasks.installSource
-import org.danbrough.xtras.xtrasRegisterLibrary
+import org.danbrough.xtras.zlib.zlib
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 fun Project.openssl(
+  zlib: LibraryExtension = zlib { },
   block: LibraryExtension.() -> Unit = {},
 ): LibraryExtension =
   registerGitLibrary("openssl") {
+    dependsOn(zlib)
 
     configureSource { target ->
       val makeFile = workingDir.resolve("Makefile")
@@ -52,6 +50,7 @@ fun Project.openssl(
         target.opensslPlatform,
         "no-tests",
         "threads",
+        "zlib",
         "--prefix=${buildDir(target).absolutePath.replace('\\', '/')}",
         "--libdir=lib",
       )

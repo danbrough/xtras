@@ -2,8 +2,6 @@ package org.danbrough.xtras
 
 import org.danbrough.xtras.tasks.gitSource
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.findByType
 
 inline fun <reified T : LibraryExtension> Project.registerGitLibrary(
   extensionName: String,

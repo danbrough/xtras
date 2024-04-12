@@ -1,10 +1,8 @@
 package org.danbrough.xtras
 
-import org.danbrough.xtras.tasks.defaultCInteropsTargetWriter
 import org.danbrough.xtras.tasks.registerTasks
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -34,6 +32,7 @@ abstract class LibraryExtension(
   internal var taskConfigureSource: TaskConfig? = null
   internal var taskCompileSource: TaskConfig? = null
   internal var taskInstallSource: TaskConfig? = null
+
 
   internal var dependencies = mutableListOf<LibraryExtension>()
 

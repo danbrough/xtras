@@ -43,7 +43,7 @@ internal fun LibraryExtension.writeInteropsFile(printerWriter: PrintWriter) {
   printerWriter.use { writer ->
 
     writer.println("package = ${cinteropsConfig.interopsPackage}")
-    if (cinteropsConfig.headers.isNotBlank()){
+    if (cinteropsConfig.headers.isNotBlank()) {
       writer.println(cinteropsConfig.headers)
     }
 
@@ -63,9 +63,9 @@ internal fun LibraryExtension.writeInteropsFile(printerWriter: PrintWriter) {
       writer.println(it.readAllBytes().decodeToString())
     } ?: project.logError("failed to find interops resource: $interops")
 
-    cinteropsConfig.codeFile?.readText()?.also{writer.println(it)}
+    cinteropsConfig.codeFile?.readText()?.also { writer.println(it) }
 
-    cinteropsConfig.code?.also{writer.println(it)}
+    cinteropsConfig.code?.also { writer.println(it) }
   }
 }
 
@@ -76,7 +76,14 @@ private fun LibraryExtension.registerCInteropsTask() =
     val interopsFile = cinteropsConfig.defFile
     inputs.property("cinterops", cinteropsConfig.hashCode())
 
-    project.rootProject.file("plugin/src/main/resources/${this@registerCInteropsTask.group.replace('.', '/')}/interops.h").also {
+    project.rootProject.file(
+      "plugin/src/main/resources/${
+        this@registerCInteropsTask.group.replace(
+          '.',
+          '/'
+        )
+      }/interops.h"
+    ).also {
       if (it.exists()) {
         project.logInfo("$name: adding input file: ${it.absolutePath}")
         inputs.file(it)
@@ -84,8 +91,6 @@ private fun LibraryExtension.registerCInteropsTask() =
         project.logDebug("$name: did not find file: ${it.absolutePath}")
       }
     }
-
-
 
     cinteropsConfig.codeFile?.also {
       inputs.file(it)
@@ -140,12 +145,11 @@ fun LibraryExtension.registerCInteropsTasks() {
 
   project.tasks.withType<CInteropProcess> {
     dependsOn(taskNameCInterops(), taskNamePackageExtract(konanTarget))
-
-    //dependsOn(taskNamePackageExtract(konanTarget))
   }
 
   project.tasks.withType<KotlinNativeHostTest> {
-    val konanTarget = KonanTarget.targetNameMap[targetName] ?: error("Failed to find konanTarget for $targetName")
+    val konanTarget =
+      KonanTarget.targetNameMap[targetName] ?: error("Failed to find konanTarget for $targetName")
 
     val libPath = buildString {
       append(libsDir(konanTarget).resolve("lib").absolutePath)

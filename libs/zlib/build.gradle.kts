@@ -1,6 +1,6 @@
 import org.danbrough.xtras.declareSupportedTargets
-import org.danbrough.xtras.openssl.openssl
 import org.danbrough.xtras.xtrasTesting
+import org.danbrough.xtras.zlib.zlib
 
 
 plugins {
@@ -9,21 +9,13 @@ plugins {
   id("org.danbrough.xtras.sonatype")
 }
 
-group = "org.danbrough.openssl"
-version = "3.2.1-beta01"
+group = "org.danbrough.zlib"
+version = "1.3.1"
 
 
-
-openssl {
+zlib {
   buildEnabled = true
 }
-
-
-/*
-mqtt {
-  dependsOn(ssl)
-}
-*/
 
 
 xtras {

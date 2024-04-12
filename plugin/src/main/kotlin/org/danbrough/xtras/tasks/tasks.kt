@@ -8,7 +8,7 @@ import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.platformName
-import org.danbrough.xtras.projectProperty
+import org.gradle.api.Project
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -134,7 +134,7 @@ fun LibraryExtension.sourceTask(
     group = XTRAS_TASK_GROUP
     environment(xtras.buildEnvironment.getEnvironment(target))
     onlyIf {
-      !packageFile(target).exists()
+      project.forceBuild() || !packageFile(target).exists()
     }
     if (dependsOn != null)
       dependsOn(
@@ -153,7 +153,13 @@ fun LibraryExtension.sourceTask(
     block(target)
 
     if (HostManager.hostIsMingw)
-      commandLine(listOf(xtras.buildEnvironment.binaries.bash,"-cl",commandLine.joinToString(" ")))
+      commandLine(
+        listOf(
+          xtras.buildEnvironment.binaries.bash,
+          "-cl",
+          commandLine.joinToString(" ")
+        )
+      )
 
   }
 }
@@ -186,10 +192,7 @@ fun LibraryExtension.compileSource(
   dependsOn: SourceTaskName? = SourceTaskName.CONFIGURE,
   block: Exec.(KonanTarget) -> Unit
 ) {
-  taskCompileSource = sourceTask(SourceTaskName.COMPILE, dependsOn) { target->
-    if (taskInstallSource!= null) {
-      finalizedBy(xtrasTaskName(TASK_GROUP_SOURCE, SourceTaskName.INSTALL.name.lowercase(), this@compileSource, target))
-    }
+  taskCompileSource = sourceTask(SourceTaskName.COMPILE, dependsOn) { target ->
     block(target)
   }
 }
@@ -205,3 +208,4 @@ fun LibraryExtension.installSource(
   }
 }
 
+fun Project.forceBuild(): Boolean = hasProperty("forceBuild")

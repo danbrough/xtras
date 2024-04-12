@@ -19,14 +19,30 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
  *
  */
 fun KotlinMultiplatformExtension.declareSupportedTargets() {
-  linuxX64()
-  linuxArm64()
-  macosX64()
-  //macosArm64()
-  androidNativeX86()
-  androidNativeX64()
-  androidNativeArm64()
-  mingwX64()
+
+  if (runningInIDE) {
+    if (HostManager.hostIsMac) {
+      macosX64()
+    } else if (HostManager.hostIsLinux) {
+      linuxX64()
+      mingwX64()
+    } else {
+      mingwX64()
+    }
+    androidNativeX64()
+  } else {
+    linuxX64()
+    linuxArm64()
+    if (HostManager.hostIsMac) {
+      macosX64()
+      macosArm64()
+    }
+    mingwX64()
+    androidNativeArm64()
+    androidNativeX64()
+    androidNativeX86()
+  }
+
   /*  if (runningInIDE) {
       declareHostTarget()
 
