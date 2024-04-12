@@ -71,7 +71,7 @@ private fun LibraryExtension.registerPackageCreateTask(target: KonanTarget) {
 
 private fun LibraryExtension.registerPackageExtractTask(target: KonanTarget) {
   project.tasks.register<Exec>(taskNamePackageExtract(target)) {
-    if (buildEnabled) {
+    if (buildEnabled || project.forceBuild()) {
       dependsOn(
         xtrasTaskName(
           TASK_GROUP_PACKAGE,
