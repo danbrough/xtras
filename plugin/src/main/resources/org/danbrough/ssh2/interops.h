@@ -1,9 +1,18 @@
 #include <libssh2.h>
 #include <stddef.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/stat.h>
+#include <stdio.h>
 #include <sys/types.h>
+
+#ifndef _WIN32
 #include <arpa/inet.h>
+#include <sys/socket.h>
+#endif
+
+
+
 
 static int ssh2_init(int flags) {
     int rc = 0;
@@ -28,7 +37,7 @@ static int ssh2_exit() {
 }
 
 //Missing from the kotlin MPP android native libraries
-static inline in_addr_t inetAddr(const char *cp){
+static inline uint32_t inetAddr(const char *cp){
     return inet_addr(cp);
 }
 

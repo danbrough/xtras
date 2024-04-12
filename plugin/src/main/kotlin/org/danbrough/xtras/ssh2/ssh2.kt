@@ -50,7 +50,8 @@ fun Project.ssh2(
 			"--with-libssl-prefix=${ssl.libsDir(target).absolutePath}",
 			//"--enable-examples-build",
 			"--host=${target.hostTriplet}",
-			"--prefix=${buildDir(target).absolutePath}"
+			"--prefix=${buildDir(target).absolutePath}",
+			"--with-libz"
 		)
 
 		commandLine(args)

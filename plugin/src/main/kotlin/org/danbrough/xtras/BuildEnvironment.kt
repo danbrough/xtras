@@ -119,6 +119,7 @@ open class BuildEnvironment : Cloneable {
     var clangArgs: String? = null
 
 
+
     when (target) {
       KonanTarget.LINUX_ARM64 -> {
         clangArgs =
@@ -144,7 +145,7 @@ open class BuildEnvironment : Cloneable {
       KonanTarget.MINGW_X64 -> {
 
 
-        put("CC","gcc")
+        //put("CC","gcc")
         //put("CC", "x86_64-w64-mingw32-gcc")
         //put("AR", "x86_64-w64-mingw32-ar")
         //put("RANLIB", "x86_64-w64-mingw32-ranlib")

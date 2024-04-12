@@ -13,6 +13,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
@@ -25,7 +26,18 @@ fun Project.openssl(
       val makeFile = workingDir.resolve("Makefile")
       outputs.file(makeFile)
 
+
+      if (target.family == Family.ANDROID)
+        environment("ANDROID_NDK_ROOT", xtras.buildEnvironment.androidNdkDir.absolutePath)
+      else if (target.family == Family.MINGW) {
+        environment("CC", "x86_64-w64-mingw32-gcc")
+        environment("AR", "x86_64-w64-mingw32-ar")
+        environment("RANLIB", "x86_64-w64-mingw32-ranlib")
+        environment("RC", "x86_64-w64-mingw32-windres")
+      }
+
       environment("CFLAGS", "-Wno-macro-redefined")
+
       doFirst {
         project.logWarn("RUNNING CONFIGURE WITH ${commandLine.joinToString(" ")} CFLAGS: ${environment["CFLAGS"]}")
       }
@@ -61,7 +73,7 @@ fun Project.openssl(
     }
 
     installSource {
-      commandLine("make","install_sw")
+      commandLine("make", "install_sw")
     }
 
     cinterops {
