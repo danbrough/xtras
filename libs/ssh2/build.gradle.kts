@@ -46,6 +46,7 @@ kotlin {
   withSourcesJar(publish = true)
   applyDefaultHierarchyTemplate()
   declareSupportedTargets()
+  mingwX64()
 
 
   compilerOptions {
