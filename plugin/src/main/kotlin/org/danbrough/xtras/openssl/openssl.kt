@@ -30,10 +30,12 @@ fun Project.openssl(
       if (target.family == Family.ANDROID)
         environment("ANDROID_NDK_ROOT", xtras.buildEnvironment.androidNdkDir.absolutePath)
       else if (target.family == Family.MINGW) {
-        environment("CC", "x86_64-w64-mingw32-gcc")
-        environment("AR", "x86_64-w64-mingw32-ar")
-        environment("RANLIB", "x86_64-w64-mingw32-ranlib")
-        environment("RC", "x86_64-w64-mingw32-windres")
+        if (!HostManager.hostIsMingw) {
+          environment("CC", "x86_64-w64-mingw32-gcc")
+          environment("AR", "x86_64-w64-mingw32-ar")
+          environment("RANLIB", "x86_64-w64-mingw32-ranlib")
+          environment("RC", "x86_64-w64-mingw32-windres")
+        }
       }
 
       environment("CFLAGS", "-Wno-macro-redefined")
