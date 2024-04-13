@@ -217,7 +217,6 @@ open class BuildEnvironment : Cloneable {
 
     androidNdkDir = project.xtrasNdkDir
 
-
     binaries.apply {
       git = project.binaryProperty("git", git)
       wget = project.binaryProperty("wget", wget)
