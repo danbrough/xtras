@@ -135,8 +135,9 @@ open class BuildEnvironment : Cloneable {
       }
 
       KonanTarget.MACOS_X64, KonanTarget.MACOS_ARM64 -> {
+        put("CFLAGS","-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")
         clangArgs =
-          "--target=${target.hostTriplet} -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+          "--target=${target.hostTriplet}"
       }
 
       KonanTarget.WATCHOS_X64, KonanTarget.WATCHOS_ARM64, KonanTarget.IOS_X64, KonanTarget.IOS_ARM64 -> {
