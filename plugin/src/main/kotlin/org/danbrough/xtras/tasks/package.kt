@@ -29,7 +29,7 @@ private fun LibraryExtension.registerPackageProvideTask(target: KonanTarget) {
     if (buildEnabled) dependsOn(taskNamePackageCreate(target))
     val packageFile = packageFile(target)
     onlyIf {
-      project.forceBuild() || !packageFile.exists()
+      forceBuild() || !packageFile.exists()
     }
     outputs.file(packageFile)
   }
@@ -48,7 +48,7 @@ private fun LibraryExtension.registerPackageCreateTask(target: KonanTarget) {
     )
     val archiveFile = packageFile(target)
     onlyIf {
-      project.forceBuild() || !archiveFile.exists()
+      forceBuild() || !archiveFile.exists()
     }
     group = XTRAS_TASK_GROUP
     workingDir(buildDir(target))
@@ -71,7 +71,7 @@ private fun LibraryExtension.registerPackageCreateTask(target: KonanTarget) {
 
 private fun LibraryExtension.registerPackageExtractTask(target: KonanTarget) {
   project.tasks.register<Exec>(taskNamePackageExtract(target)) {
-    if (buildEnabled || project.forceBuild()) {
+    if (buildEnabled || forceBuild()) {
       dependsOn(
         xtrasTaskName(
           TASK_GROUP_PACKAGE,
@@ -89,7 +89,7 @@ private fun LibraryExtension.registerPackageExtractTask(target: KonanTarget) {
     outputs.dir(libsDir)
 
     onlyIf {
-      project.forceBuild() || !libsDir.exists()
+      forceBuild() || !libsDir.exists()
     }
 
     doFirst {
@@ -108,7 +108,7 @@ private fun LibraryExtension.registerPackageDownloadTask(target: KonanTarget) =
   project.tasks.register(taskNamePackageDownload(target)) {
     val packageFile = packageFile(target)
     onlyIf {
-      project.forceBuild() || !packageFile.exists()
+      forceBuild() || !packageFile.exists()
     }
     group = XTRAS_TASK_GROUP
     actions.add {

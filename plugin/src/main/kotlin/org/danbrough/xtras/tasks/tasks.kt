@@ -8,7 +8,6 @@ import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.platformName
-import org.gradle.api.Project
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -134,7 +133,7 @@ fun LibraryExtension.sourceTask(
     group = XTRAS_TASK_GROUP
     environment(xtras.buildEnvironment.getEnvironment(target))
     onlyIf {
-      project.forceBuild() || !packageFile(target).exists()
+      forceBuild() || !packageFile(target).exists()
     }
     if (dependsOn != null)
       dependsOn(
@@ -208,4 +207,4 @@ fun LibraryExtension.installSource(
   }
 }
 
-fun Project.forceBuild(): Boolean = hasProperty("forceBuild")
+fun LibraryExtension.forceBuild(): Boolean = project.hasProperty("$name.forceBuild")

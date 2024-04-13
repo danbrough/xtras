@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 fun Project.zlib(
-  block: LibraryExtension.() -> Unit
+  block: LibraryExtension.() -> Unit = {}
 ) = registerGitLibrary<LibraryExtension>("zlib") {
 
 

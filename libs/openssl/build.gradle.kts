@@ -1,6 +1,7 @@
 import org.danbrough.xtras.declareSupportedTargets
 import org.danbrough.xtras.openssl.openssl
 import org.danbrough.xtras.xtrasTesting
+import org.danbrough.xtras.zlib.zlib
 
 
 plugins {
@@ -12,9 +13,10 @@ plugins {
 group = "org.danbrough.openssl"
 version = "3.2.1-beta01"
 
+val zlibDependency = zlib()
 
 
-openssl {
+openssl(zlibDependency) {
   buildEnabled = true
 }
 
