@@ -20,7 +20,7 @@ fun Project.zlib(
     headers = """
       headers = zlib.h zconf.h
       #linkerOpts = -lz
-      staticLibraries libz.a
+      staticLibraries = libz.a
       """.trimIndent()
   }
 

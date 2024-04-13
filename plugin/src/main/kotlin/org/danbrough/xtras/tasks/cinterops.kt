@@ -29,9 +29,9 @@ val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
   val libDir = libsDir(target).absolutePath
   writer.println(
     """
-         |compilerOpts.${target.name} =  -I$libDir/include
-         |linkerOpts.${target.name} = -L$libDir/lib
-         |libraryPaths.${target.name} =  $libDir/lib
+         |compilerOpts.${target.name} =  -I${"$libDir${File.separatorChar}include".replace('\\','/')}
+         |linkerOpts.${target.name} = -L${"$libDir${File.separatorChar}lib".replace('\\','/')}
+         |libraryPaths.${target.name} =  ${"$libDir${File.separatorChar}lib".replace('\\','/')}
          |""".trimMargin()
   )
 }
