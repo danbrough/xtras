@@ -78,8 +78,6 @@ publishing {
   }
 }
 
-
-
 publishing.publications.all {
   if (this is MavenPublication) {
     pom {
