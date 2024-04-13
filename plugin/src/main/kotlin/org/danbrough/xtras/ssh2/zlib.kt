@@ -64,7 +64,7 @@ fun Project.ssh2(
   }
 
   installSource {
-    commandLine("make", "install_sw")
+    commandLine("make", "install")
   }
 
 

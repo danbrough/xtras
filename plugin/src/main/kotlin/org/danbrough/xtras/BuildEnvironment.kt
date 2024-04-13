@@ -180,10 +180,12 @@ open class BuildEnvironment : Cloneable {
 
 
         //basePath.add(0, androidNdkDir.resolve("bin").absolutePath)
-        put("CC", "${target.hostTriplet}${androidNdkApiVersion}-clang")
-        put("CXX", "${target.hostTriplet}${androidNdkApiVersion}-clang++")
+        put("PREFIX", "${target.hostTriplet}${androidNdkApiVersion}-")
+        put("CC", "clang")
+        put("CXX", "clang++")
         put("AR", "llvm-ar")
         put("RANLIB", "ranlib")
+
 
       }
 
