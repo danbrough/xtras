@@ -32,17 +32,19 @@ fun KotlinMultiplatformExtension.declareSupportedTargets() {
     androidNativeX64()
   } else {
 
+    mingwX64()
+    linuxX64()
+    linuxArm64()
+    androidNativeArm64()
+    androidNativeX64()
+    androidNativeX86()
+
     if (HostManager.hostIsMac) {
       macosX64()
       macosArm64()
-    } else if (HostManager.hostIsLinux) {
-      mingwX64()
-      linuxX64()
-      linuxArm64()
-      androidNativeArm64()
-      androidNativeX64()
-      androidNativeX86()
     }
+
+
   }
 
   /*  if (runningInIDE) {
