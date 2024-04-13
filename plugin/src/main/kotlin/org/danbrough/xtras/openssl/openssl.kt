@@ -55,6 +55,9 @@ fun Project.openssl(
         "--libdir=lib",
       )
 
+      if (target.family == Family.MINGW)
+        args += "no-zlib-dynamic"
+
       if (target.family == Family.ANDROID) {
         args += "-D__ANDROID_API__=${xtras.buildEnvironment.androidNdkApiVersion}"
       }
