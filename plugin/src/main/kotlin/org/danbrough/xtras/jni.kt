@@ -78,7 +78,7 @@ fun Project.xtrasJniConfig(
           && it.binary.buildType == NativeBuildType.DEBUG
     }
     tasks.withType<KotlinJvmTest> {
-      println("XTRAS_CONFIGURE: task $name depends on ${linkTasks.joinToString(" ") { it.name }}")
+      logDebug("xtrasJniConfig: task $name depends on ${linkTasks.joinToString(" ") { it.name }}")
       dependsOn(*linkTasks.toTypedArray())
       val libPath =
         linkTasks.flatMap { it.outputs.files.files.filter { file -> file.isDirectory } }

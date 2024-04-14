@@ -1,7 +1,8 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 
-import org.danbrough.xtras.projectProperty
+import org.danbrough.xtras.XtrasLibraryExtension
+import org.danbrough.xtras.registerXtrasGitLibrary
 import org.danbrough.xtras.xtrasJniConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -17,8 +18,8 @@ plugins {
   id("com.android.library")
 }
 
-group = projectProperty<String>("ssh2.group")
-version = projectProperty<String>("ssh2.version")
+//group = projectProperty<String>("ssh2.group")
+//version = projectProperty<String>("ssh2.version")
 
 xtras {
   kotlinApiVersion = KotlinVersion.KOTLIN_2_0
@@ -26,6 +27,7 @@ xtras {
   jvmTarget = JvmTarget.JVM_17
   javaVersion = JavaVersion.VERSION_17
 }
+
 
 
 kotlin {
@@ -46,6 +48,7 @@ kotlin {
 
   linuxX64()
   mingwX64()
+  androidNativeArm64()
 
   sourceSets {
     all {
@@ -100,7 +103,6 @@ kotlin {
 }
 
 
-//val jvmRuntimeClasspath by configurations.existing
 
 xtrasTesting {
 
@@ -113,7 +115,10 @@ xtrasJniConfig {
   compileSdk = 34
 }
 
+registerXtrasGitLibrary<XtrasLibraryExtension>("ssh2") {
 
+}
+//registerXtrasGitLibrary<LibraryExtension>()
 /*
 
 fun Project.ssh2(
@@ -177,3 +182,4 @@ fun Project.ssh2(
 
 
  */
+

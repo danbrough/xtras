@@ -1,12 +1,25 @@
 package org.danbrough.xtras
 
+import org.danbrough.xtras.tasks.gitSource
+import org.danbrough.xtras.tasks.registerTasks
 import org.gradle.api.Project
 
-abstract class LibraryExtension
 
+@Suppress("MemberVisibilityCanBePrivate")
+abstract class XtrasLibraryExtension(
+  val group: String,
+  val name: String,
+  val version: String,
+  val xtras: XtrasExtension,
+  val project: Project
+) {
+  internal interface SourceConfig
+
+  internal var sourceConfig: SourceConfig? = null
+}
 
 @XtrasDSL
-inline fun <reified T : LibraryExtension> Project.xtrasRegisterLibrary(
+inline fun <reified T : XtrasLibraryExtension> Project.xtrasRegisterLibrary(
   group: String,
   name: String,
   version: String,
@@ -14,7 +27,7 @@ inline fun <reified T : LibraryExtension> Project.xtrasRegisterLibrary(
 ): T = xtrasRegisterLibrary(group, name, version, T::class.java, block)
 
 
-fun <T : LibraryExtension> Project.xtrasRegisterLibrary(
+fun <T : XtrasLibraryExtension> Project.xtrasRegisterLibrary(
   group: String,
   name: String,
   version: String,
@@ -26,19 +39,20 @@ fun <T : LibraryExtension> Project.xtrasRegisterLibrary(
     error("Extension $name is already registered")
   }
 
-  return extensions.create(name, clazz, group, name, version, this).also {
+  return extensions.create(name, clazz, group, name, version, project.xtras, this).also {
     extensions.configure<T>(name) {
       block()
-      /*afterEvaluate {
+
+      afterEvaluate {
         it.registerTasks()
-        it.registerPublications()
+        //TODO: it.registerPublications()
       }
-      */
+
     }
   }
 }
 
-inline fun <reified T : LibraryExtension> Project.registerXtrasGitLibrary(
+inline fun <reified T : XtrasLibraryExtension> Project.registerXtrasGitLibrary(
   extensionName: String,
   group: String = projectProperty<String>("$extensionName.group"),
   version: String = projectProperty<String>("$extensionName.version"),
@@ -51,6 +65,6 @@ inline fun <reified T : LibraryExtension> Project.registerXtrasGitLibrary(
   extensionName,
   version
 ) {
-//TODO  gitSource(url, commit)
+  gitSource(url, commit)
   block()
 }

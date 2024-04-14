@@ -15,6 +15,7 @@ class XtrasPlugin : Plugin<Project> {
 
       val xtras = extensions.create(XTRAS_EXTENSION_NAME, XtrasExtension::class.java).apply {
         nativeTargets.convention(emptyList())
+
       }
 
       afterEvaluate {
@@ -36,9 +37,12 @@ internal fun Project.registerMiscTasks() {
 
   if (kotlin is KotlinMultiplatformExtension) {
     tasks.register("xtrasTargets") {
+      group = XTRAS_TASK_GROUP
+      description = "Lists all of the active kotlin targets"
+
       doFirst {
         kotlin.targets.all {
-          logInfo("target: $this")
+          logInfo("${project.group}.${project.name} -> target: $targetName")
         }
       }
     }

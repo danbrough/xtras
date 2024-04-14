@@ -3,11 +3,10 @@ package org.danbrough.xtras
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.kotlin.konan.target.Architecture
 import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
-val KonanTarget.platformName: String
+val KonanTarget.kotlinTargetName: String
   get() {
     if (family == Family.ANDROID) {
       return when (this) {
@@ -22,13 +21,12 @@ val KonanTarget.platformName: String
   }
 
 
-val KonanTarget.Companion.targetNameMap:Map<String,KonanTarget>
+val KonanTarget.Companion.targetNameMap: Map<String, KonanTarget>
   get() = predefinedTargets.mapKeys { keyEntry ->
-      keyEntry.key.split('_').joinToString(""){
-        it.capitalized()
-      }.decapitalized()
-    }
-
+    keyEntry.key.split('_').joinToString("") {
+      it.capitalized()
+    }.decapitalized()
+  }
 
 
 val KonanTarget.hostTriplet: String
