@@ -18,10 +18,6 @@ plugins {
 group = "org.danbrough.ssh2"
 version = "0.0.1-alpha01"
 
-xtras {
-
-}
-
 
 kotlin {
   withSourcesJar(publish = true)
@@ -33,12 +29,13 @@ kotlin {
 
   applyDefaultHierarchyTemplate()
 
-
   jvm()
 
   androidTarget {
   }
 
+  linuxX64()
+  mingwX64()
 
   sourceSets {
     all {
@@ -54,9 +51,9 @@ kotlin {
 
     val commonMain by getting {
       dependencies {
-        //implementation(project(":libs:support"))
+        implementation(libs.xtras.support) //or implementation(project(":libs:support"))
         implementation(libs.kotlinx.coroutines)
-        implementation(libs.kotlinx.io)
+        //implementation(libs.kotlinx.io)
       }
     }
 

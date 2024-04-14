@@ -1,6 +1,5 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
-import org.danbrough.xtras.XTRAS_PACKAGE
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -14,14 +13,13 @@ plugins {
   id("com.android.library")
 }
 
-group = "$XTRAS_PACKAGE.support"
 version = "0.0.1-beta01"
 
 object JavaConfig {
   val javaVersion = JavaVersion.VERSION_1_8
   val jvmTarget = JvmTarget.JVM_1_8
   val kotlinLanguageVersion = KotlinVersion.KOTLIN_1_9
-  val kotlinApiVersion = KotlinVersion.DEFAULT
+  val kotlinApiVersion = KotlinVersion.KOTLIN_1_9
 }
 
 
@@ -46,7 +44,7 @@ kotlin {
   mingwX64()
   macosArm64()
   macosX64()
-  
+
   androidNativeArm64()
   androidNativeX86()
   androidNativeX64()
@@ -127,7 +125,7 @@ kotlin {
 
 android {
   compileSdk = 34
-  namespace = "$XTRAS_PACKAGE.support"
+  namespace = group.toString()
 
   defaultConfig {
     minSdk = 22

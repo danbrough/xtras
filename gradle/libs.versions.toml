@@ -27,6 +27,7 @@ xtras-version = "0.0.1-alpha02"
 xtras-openssl = "0.0.1-alpha01"
 xtras-mqtt = "0.0.1-alpha01"
 kotlin-logging = "6.0.4"
+xtras-support = "0.0.1-beta01"
 dokka = "1.9.20"
 klog = "0.0.2-beta09"
 kotlinx-io = "0.3.2"
@@ -47,6 +48,7 @@ gradle-android = { module = "com.android.tools.build:gradle", version.ref = "agp
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 dokka-gradle-plugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
+xtras-support = { group = "org.danbrough.xtras", name = "support", version.ref = "xtras-support" }
 xtras-plugin = { group = "org.danbrough.xtras", name = "plugin", version.ref = "xtras-version" }
 xtras-mqtt-plugin = { group = "org.danbrough.xtras", name = "plugin_mqtt", version.ref = "xtras-version" }
 xtras-openssl-plugin = { group = "org.danbrough.xtras", name = "plugin_openssl", version.ref = "xtras-openssl" }
