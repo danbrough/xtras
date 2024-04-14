@@ -3,7 +3,7 @@ package org.danbrough.xtras.tasks
 import org.danbrough.xtras.LibraryExtension
 import org.danbrough.xtras.TaskConfig
 import org.danbrough.xtras.XTRAS_TASK_GROUP
-import org.danbrough.xtras.XtraDSL
+import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logInfo
@@ -121,7 +121,7 @@ fun Exec.processStdout(
 }
 
 
-@XtraDSL
+@XtrasDSL
 fun LibraryExtension.sourceTask(
   name: SourceTaskName,
   dependsOn: SourceTaskName?,
@@ -164,7 +164,7 @@ fun LibraryExtension.sourceTask(
 }
 
 
-@XtraDSL
+@XtrasDSL
 fun LibraryExtension.prepareSource(
   dependsOn: SourceTaskName? = SourceTaskName.EXTRACT,
   block: Exec.(KonanTarget) -> Unit
@@ -175,7 +175,7 @@ fun LibraryExtension.prepareSource(
 }
 
 
-@XtraDSL
+@XtrasDSL
 fun LibraryExtension.configureSource(
   dependsOn: SourceTaskName? = SourceTaskName.EXTRACT,
   block: Exec.(KonanTarget) -> Unit
@@ -186,7 +186,7 @@ fun LibraryExtension.configureSource(
 }
 
 
-@XtraDSL
+@XtrasDSL
 fun LibraryExtension.compileSource(
   dependsOn: SourceTaskName? = SourceTaskName.CONFIGURE,
   block: Exec.(KonanTarget) -> Unit
@@ -197,7 +197,7 @@ fun LibraryExtension.compileSource(
 }
 
 
-@XtraDSL
+@XtrasDSL
 fun LibraryExtension.installSource(
   dependsOn: SourceTaskName? = SourceTaskName.COMPILE,
   block: Exec.(KonanTarget) -> Unit

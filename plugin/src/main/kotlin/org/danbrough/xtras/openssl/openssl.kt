@@ -51,9 +51,12 @@ fun Project.openssl(
         "no-tests",
         "threads",
         "zlib",
+        "--with-zlib-include=${zlib.libsDir(target).resolve("include")}",
+        "--with-zlib-lib=${zlib.libsDir(target).resolve("lib").resolve("libz.a")}",
         "--prefix=${buildDir(target).absolutePath.replace('\\', '/')}",
         "--libdir=lib",
       )
+
 
       if (target.family == Family.MINGW)
         args += "no-zlib-dynamic"

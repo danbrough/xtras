@@ -13,31 +13,31 @@ const val binaryPropertyPrefix = "xtras.bin"
 
 data class Binaries(
 
-  @XtraDSL
+  @XtrasDSL
   var git: String = "git",
 
-  @XtraDSL
+  @XtrasDSL
   var wget: String = "wget",
 
-  @XtraDSL
+  @XtrasDSL
   var tar: String = "tar",
 
-  @XtraDSL
+  @XtrasDSL
   var autoreconf: String = "autoreconf",
 
-  @XtraDSL
+  @XtrasDSL
   var make: String = "make",
 
-  @XtraDSL
+  @XtrasDSL
   var cmake: String = "cmake",
 
-  @XtraDSL
+  @XtrasDSL
   var go: String = "go",
 
-  @XtraDSL
+  @XtrasDSL
   var bash: String = "bash",
 
-  @XtraDSL
+  @XtrasDSL
   var cygpath: String = "cygpath",
 )
 
@@ -65,11 +65,11 @@ open class BuildEnvironment : Cloneable {
     it.environmentForTarget = environmentForTarget
   }
 
-  @XtraDSL
+  @XtrasDSL
   var basePath: List<String> =
     listOf("/bin", "/sbin", "/usr/bin", "/usr/sbin", "/usr/local/bin", "/opt/local/bin")
 
-  @XtraDSL
+  @XtrasDSL
   var androidNdkApiVersion = 21
 
 //
@@ -82,10 +82,10 @@ open class BuildEnvironment : Cloneable {
    * Not applied if null.
    * default: 11
    */
-  @XtraDSL
+  @XtrasDSL
   var javaLanguageVersion: Int? = 11
 
-  @XtraDSL
+  @XtrasDSL
   var defaultEnvironment: Map<String, String> = buildMap {
 
     if (!HostManager.hostIsMingw) put("PATH", basePath.joinToString(File.pathSeparator))
@@ -93,17 +93,16 @@ open class BuildEnvironment : Cloneable {
 
     put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")
 
-    //put("CFLAGS", "-O3 -pthread -Wno-macro-redefined -Wno-deprecated-declarations")
 
     put("KONAN_BUILD", "1")
   }
 
 
-  @XtraDSL
+  @XtrasDSL
   lateinit var androidNdkDir: File
 
 
-  @XtraDSL
+  @XtrasDSL
   var environmentForTarget: MutableMap<String, String>.(KonanTarget) -> Unit = { target ->
 
     if (!HostManager.hostIsMac || !target.family.isAppleFamily) {
@@ -204,7 +203,7 @@ open class BuildEnvironment : Cloneable {
     if (target != null) environmentForTarget(target)
   }
 
-  @XtraDSL
+  @XtrasDSL
   fun binaries(config: Binaries.() -> Unit) {
     binaries.config()
   }

@@ -127,4 +127,3 @@ xtrasJniConfig(javaVersion = XtrasVersions.javaVersion) {
   compileSdk = 34
 }
 
-

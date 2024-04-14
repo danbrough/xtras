@@ -17,8 +17,12 @@ import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.File
 
-fun Project.xtrasJniConfig(namespace:String = group.toString(),compileSdk:Int = 34,javaVersion: JavaVersion = JavaVersion.VERSION_1_8,
-                           block:LibraryExtension.()->Unit = {}) {
+fun Project.xtrasJniConfig(
+  namespace: String = group.toString(),
+  compileSdk: Int = 34,
+  javaVersion: JavaVersion = JavaVersion.VERSION_1_8,
+  block: LibraryExtension.() -> Unit = {}
+) {
   extensions.getByType<LibraryExtension>().apply {
     this.compileSdk = compileSdk
     this.namespace = namespace
@@ -69,7 +73,7 @@ fun Project.xtrasJniConfig(namespace:String = group.toString(),compileSdk:Int = 
    * Configure KotlinJvmTest task executions to find shared libraries
    */
   afterEvaluate {
-    val linkTasks = tasks.filter{
+    val linkTasks = tasks.filter {
       it is KotlinNativeLink &&
           it.binary is SharedLibrary &&
           it.binary.target.konanTarget == HostManager.host
@@ -85,8 +89,8 @@ fun Project.xtrasJniConfig(namespace:String = group.toString(),compileSdk:Int = 
       environment(HostManager.host.envLibraryPathName, libPath)
     }
 
-    tasks.withType<JavaExec>{
-      println("CONFIGURING JAVAEXEC TASK: $name adding link tasks ${linkTasks.joinToString(",") { it.name }}" )
+    tasks.withType<JavaExec> {
+      project.logDebug("configuring JavaExec: $name: Adding link tasks ${linkTasks.joinToString(",") { it.name }}")
 
       dependsOn(*linkTasks.toTypedArray())
       val libPath =

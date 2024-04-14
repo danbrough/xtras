@@ -1,33 +1,33 @@
 package org.danbrough.xtras.env
 
-import org.danbrough.xtras.XtraDSL
+import org.danbrough.xtras.XtrasDSL
 
 data class Binaries(
 
-  @XtraDSL
+  @XtrasDSL
   var git: String = "git",
 
-  @XtraDSL
+  @XtrasDSL
   var wget: String = "wget",
 
-  @XtraDSL
+  @XtrasDSL
   var tar: String = "tar",
 
-  @XtraDSL
+  @XtrasDSL
   var autoreconf: String = "autoreconf",
 
-  @XtraDSL
+  @XtrasDSL
   var make: String = "make",
 
-  @XtraDSL
+  @XtrasDSL
   var cmake: String = "cmake",
 
-  @XtraDSL
+  @XtrasDSL
   var go: String = "go",
 
-  @XtraDSL
+  @XtrasDSL
   var bash: String = "bash",
 
-  @XtraDSL
+  @XtrasDSL
   var cygpath: String = "cygpath",
 )

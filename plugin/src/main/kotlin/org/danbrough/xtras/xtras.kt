@@ -6,7 +6,7 @@ import java.io.File
 import java.util.Locale
 
 @DslMarker
-annotation class XtraDSL
+annotation class XtrasDSL
 
 const val XTRAS_PACKAGE = "org.danbrough.xtras"
 const val XTRAS_REPO_NAME = "Xtras"

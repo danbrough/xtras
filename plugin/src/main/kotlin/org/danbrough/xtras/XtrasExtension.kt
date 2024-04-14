@@ -2,21 +2,20 @@ package org.danbrough.xtras
 
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 abstract class XtrasExtension(val project: Project) {
-  abstract val message: Property<String>
 
   val buildEnvironment by lazy {
     BuildEnvironment().also { it.initialize(project) }
   }
 
-  @XtraDSL
+  @XtrasDSL
+  fun buildEnvironment(block: BuildEnvironment.() -> Unit) {
+    buildEnvironment.block()
+  }
+
+  @XtrasDSL
   abstract val nativeTargets: ListProperty<KonanTarget>
 
 }

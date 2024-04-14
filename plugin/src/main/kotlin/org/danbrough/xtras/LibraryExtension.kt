@@ -36,7 +36,7 @@ abstract class LibraryExtension(
 
   internal var dependencies = mutableListOf<LibraryExtension>()
 
-  @XtraDSL
+  @XtrasDSL
   fun dependsOn(vararg libs: LibraryExtension) {
     dependencies.addAll(libs)
   }
@@ -52,34 +52,34 @@ abstract class LibraryExtension(
 //	@XtraDSL
 //	abstract val buildRequired: Property<KonanTarget.() -> Boolean>
 
-  @XtraDSL
+  @XtrasDSL
   abstract val supportedTargets: ListProperty<KonanTarget>
 
-  @XtraDSL
+  @XtrasDSL
   var sourceDir: (KonanTarget) -> File = {
     project.xtrasSourceDir
       .resolve(name).resolve(it.platformName).resolve(version)
   }
 
-  @XtraDSL
+  @XtrasDSL
   var buildDir: (KonanTarget) -> File = {
     project.xtrasBuildDir
       .resolve(name).resolve(it.platformName).resolve(version)
   }
 
-  @XtraDSL
+  @XtrasDSL
   var packageFile: (KonanTarget) -> File = {
     project.xtrasPackagesDir.resolve(group.replace('.', File.separatorChar))
       .resolve("xtras_${name}_${it.platformName}_${version}.tgz")
   }
 
 
-  @XtraDSL
+  @XtrasDSL
   var artifactName: (KonanTarget) -> String = {
     "package-${name.lowercase()}-${it.platformName.lowercase()}"
   }
 
-  @XtraDSL
+  @XtrasDSL
   var libsDir: (KonanTarget) -> File = {
     project.xtrasLibsDir
       .resolve(name).resolve(it.platformName).resolve(version)
@@ -98,7 +98,7 @@ abstract class LibraryExtension(
     )
   )
 
-  @XtraDSL
+  @XtrasDSL
   fun cinterops(block: CInteropsConfig.() -> Unit) {
     cinteropsConfig.block()
   }
@@ -112,7 +112,7 @@ abstract class LibraryExtension(
 }
 
 
-@XtraDSL
+@XtrasDSL
 inline fun <reified T : LibraryExtension> Project.xtrasRegisterLibrary(
   group: String,
   name: String,
