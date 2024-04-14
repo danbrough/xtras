@@ -1,7 +1,6 @@
 package org.danbrough.xtras
 
 import org.gradle.api.Project
-import org.gradle.api.tasks.AbstractExecTask
 import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -12,11 +11,10 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.targets
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 
 
-fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit = {}) =
+fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit) =
   tasks.withType<AbstractTestTask> {
     if (this is Test) {
       useJUnitPlatform()
@@ -78,7 +76,7 @@ fun Project.xtrasEnableTestExes(
     if (!environment.contains("TMP"))
       environment("TMP", System.getProperty("java.io.tmpdir"))
 
-    systemProperty("args",if (extra.has("args")) extra["args"].toString() else "")
+    systemProperty("args", if (extra.has("args")) extra["args"].toString() else "")
 
     //if (extra.has("args"))
     project.properties.forEach { (key, value) ->

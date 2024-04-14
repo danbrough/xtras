@@ -1,14 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-import org.danbrough.xtras.CInteropsConfig
 import org.danbrough.xtras.XTRAS_PACKAGE
-import org.danbrough.xtras.projectProperty
-import org.danbrough.xtras.xtrasMavenDir
-import org.gradle.jvm.tasks.Jar
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
-import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.KonanTarget
-import kotlin.reflect.KProperty
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform) apply false
@@ -20,7 +12,7 @@ plugins {
 
 
 val xtrasProjectGroup = XTRAS_PACKAGE
-val xtrasProjectVersion:String = libs.versions.xtras.version.get()
+val xtrasProjectVersion: String = libs.versions.xtras.version.get()
 
 
 allprojects {
@@ -28,19 +20,11 @@ allprojects {
   version = xtrasProjectVersion
 
   repositories {
-    maven(xtrasMavenDir)
+    maven("https://maven.danbrough.org")
+    //maven(xtrasPath(XtrasPath.MAVEN))
     mavenCentral()
     google()
     //   maven("https://s01.oss.sonatype.org/content/groups/staging")
   }
 }
 
-tasks.register("thang"){
-  doFirst{
-    val f = properties["file"].toString()
-    println("file is [$f]")
-    File(f).also {
-      println("abspath: ${it.absolutePath}")
-    }
-  }
-}

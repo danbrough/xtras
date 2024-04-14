@@ -13,8 +13,9 @@ class XtrasPlugin : Plugin<Project> {
     target.run {
       logInfo("XtrasPlugin.apply() project:${target.path}")
 
-      val xtras = extensions.create(XTRAS_EXTENSION_NAME, XtrasExtension::class.java)
-      xtras.nativeTargets.convention(emptyList())
+      val xtras = extensions.create(XTRAS_EXTENSION_NAME, XtrasExtension::class.java).apply {
+        nativeTargets.convention(emptyList())
+      }
 
       afterEvaluate {
 

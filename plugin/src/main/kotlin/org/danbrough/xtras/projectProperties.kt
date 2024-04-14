@@ -1,12 +1,12 @@
 package org.danbrough.xtras
 
-import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra
 import java.io.File
 import java.net.URI
 import kotlin.reflect.typeOf
 
-inline fun <reified T> ExtensionAware.projectProperty(
+inline fun <reified T> Project.projectProperty(
   name: String,
   noinline defaultValue: (() -> T)? = null
 ): T =

@@ -1,10 +1,6 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import org.danbrough.xtras.XTRAS_PACKAGE
-import org.danbrough.xtras.declareHostTarget
-import org.danbrough.xtras.declareSupportedTargets
-import org.danbrough.xtras.runningInIDE
-import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -18,17 +14,13 @@ plugins {
   id("com.android.library")
 }
 
-
-xtras {
-  buildEnvironment.binaries {
-    //cmake = "/usr/bin/cmake"
-  }
-}
+group = "$XTRAS_PACKAGE.support"
+version = "0.0.1-beta01"
 
 object JavaConfig {
   val javaVersion = JavaVersion.VERSION_1_8
   val jvmTarget = JvmTarget.JVM_1_8
-  val kotlinLanguageVersion = KotlinVersion.KOTLIN_2_0
+  val kotlinLanguageVersion = KotlinVersion.KOTLIN_1_9
   val kotlinApiVersion = KotlinVersion.DEFAULT
 }
 
@@ -49,8 +41,15 @@ kotlin {
   }
 
 
-  declareSupportedTargets()
-
+  linuxX64()
+  linuxArm64()
+  mingwX64()
+  macosArm64()
+  macosX64()
+  
+  androidNativeArm64()
+  androidNativeX86()
+  androidNativeX64()
 
   jvm {
 /*    compilerOptions {
@@ -114,7 +113,7 @@ kotlin {
           when (konanTarget.family) {
             Family.LINUX -> "linux"
             Family.MINGW -> "win32"
-            Family.IOS,Family.TVOS,Family.WATCHOS,Family.OSX -> "darwin"
+            Family.IOS, Family.TVOS, Family.WATCHOS, Family.OSX -> "darwin"
 
             else -> error("Unhandled target: $konanTarget")
           }.also {
@@ -143,7 +142,6 @@ android {
 }
 
 
-xtrasTesting()
 
 sonatype {
 

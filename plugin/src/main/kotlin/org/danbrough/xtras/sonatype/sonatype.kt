@@ -1,9 +1,10 @@
 package org.danbrough.xtras.sonatype
 
 import org.danbrough.xtras.XTRAS_REPO_NAME
+import org.danbrough.xtras.XtrasPath
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.projectProperty
-import org.danbrough.xtras.xtrasMavenDir
+import org.danbrough.xtras.xtrasPath
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.PublishingExtension
@@ -105,9 +106,10 @@ internal fun Project.configurePublishing() {
         }
       }
 
-      repositories.findByName(XTRAS_REPO_NAME) ?: repositories.maven(xtrasMavenDir) {
-        name = XTRAS_REPO_NAME
-      }
+      repositories.findByName(XTRAS_REPO_NAME)
+        ?: repositories.maven(project.xtrasPath(XtrasPath.MAVEN)) {
+          name = XTRAS_REPO_NAME
+        }
 
       val repoID = sonatype.repoID.get()
 

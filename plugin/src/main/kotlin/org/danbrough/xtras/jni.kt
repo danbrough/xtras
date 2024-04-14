@@ -1,7 +1,6 @@
 package org.danbrough.xtras
 
 import com.android.build.gradle.LibraryExtension
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.JavaExec
@@ -20,7 +19,6 @@ import java.io.File
 fun Project.xtrasJniConfig(
   namespace: String = group.toString(),
   compileSdk: Int = 34,
-  javaVersion: JavaVersion = JavaVersion.VERSION_1_8,
   block: LibraryExtension.() -> Unit = {}
 ) {
   extensions.getByType<LibraryExtension>().apply {
@@ -33,8 +31,8 @@ fun Project.xtrasJniConfig(
     }
 
     compileOptions {
-      sourceCompatibility = javaVersion
-      targetCompatibility = javaVersion
+      sourceCompatibility = project.xtras.javaVersion
+      targetCompatibility = project.xtras.javaVersion
     }
 
     sourceSets["debug"].jniLibs {

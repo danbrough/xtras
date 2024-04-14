@@ -10,7 +10,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 xtras = { id = "org.danbrough.xtras", version.ref = "xtras-version" }
 xtras-openssl = { id = "org.danbrough.xtras.openssl", version.ref = "xtras-openssl" }
 xtras-mqtt = { id = "org.danbrough.xtras.mqtt", version.ref = "xtras-mqtt" }
-kotest-multiplatform = { id = "io.kotest.multiplatform", version = "5.8.0" }
+#kotest-multiplatform = { id = "io.kotest.multiplatform", version = "5.8.0" }
 
 [versions]
 
@@ -20,13 +20,7 @@ agp = "8.4.0-rc02"
 ##⬆= "8.5.0-alpha03"
 ##⬆= "8.5.0-alpha04"
 ##⬆= "8.5.0-alpha05"
-kotlin = "1.9.23"
-##  ⬆ = "2.0.0-Beta1"
-##  ⬆ = "2.0.0-Beta2"
-##  ⬆ = "2.0.0-Beta3"
-##  ⬆ = "2.0.0-Beta4"
-##  ⬆ = "2.0.0-Beta5"
-##  ⬆ = "2.0.0-RC1"
+kotlin = "2.0.0-RC1"
 
 xtrasPackage = "org.danbrough.xtras"
 xtras-version = "0.0.1-alpha02"
@@ -37,8 +31,6 @@ dokka = "1.9.20"
 klog = "0.0.2-beta09"
 kotlinx-io = "0.3.2"
 slf4j-api = "2.0.12"
-##     ⬆ = "2.1.0-alpha0"
-##     ⬆ = "2.1.0-alpha1"
 slf4j-simple = "2.0.12"
 logback-classic = "1.5.4"
 kotlinx-coroutines = "1.8.0"
