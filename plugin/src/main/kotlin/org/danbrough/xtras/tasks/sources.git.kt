@@ -28,34 +28,36 @@ private fun XtrasLibraryExtension.registerGitTagsTask() {
   val config = sourceConfig as GitSourceConfig
   val tagsTaskName = SourceTaskName.TAGS.taskName(this)
   //project.logTrace("registerGitTagsTask(): $tagsTaskName")
-  project.rootProject.tasks.findByName(tagsTaskName) ?: project.rootProject.tasks.register<Exec>(
-    tagsTaskName
-  ) {
-    group = XTRAS_TASK_GROUP
-    description = "Prints out the tags from the remote repository"
+  project.rootProject.run {
+    tasks.findByName(tagsTaskName) ?: tasks.register<Exec>(
+      tagsTaskName
+    ) {
+      group = XTRAS_TASK_GROUP
+      description = "Prints out the tags from the remote repository"
 
-    xtrasCommandLine(
-      xtras.tools.git,
-      "ls-remote",
-      "-q",
-      "--refs",
-      "-t",
-      config.url
-    )
+      xtrasCommandLine(
+        xtras.tools.git,
+        "ls-remote",
+        "-q",
+        "--refs",
+        "-t",
+        config.url
+      )
 
-    val stdout = ByteArrayOutputStream()
-    standardOutput = stdout
-    doLast {
-      InputStreamReader(ByteArrayInputStream(stdout.toByteArray())).use { reader ->
-        reader.readLines().map { it ->
-          it.split("\\s+".toRegex()).let {
-            Pair(
-              it[1].substringAfter("refs/tags/"),
-              it[0]
-            )
+      val stdout = ByteArrayOutputStream()
+      standardOutput = stdout
+      doLast {
+        InputStreamReader(ByteArrayInputStream(stdout.toByteArray())).use { reader ->
+          reader.readLines().map { it ->
+            it.split("\\s+".toRegex()).let {
+              Pair(
+                it[1].substringAfter("refs/tags/"),
+                it[0]
+              )
+            }
+          }.sortedBy { it.first }.forEach {
+            println("TAG: ${it.first}\t${it.second}")
           }
-        }.sortedBy { it.first }.forEach {
-          println("TAG: ${it.first}\t${it.second}")
         }
       }
     }
