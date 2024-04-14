@@ -11,6 +11,9 @@ abstract class XtrasExtension(val project: Project) {
   }
 
   @XtrasDSL
+  var message: String = "Default Message"
+  
+  @XtrasDSL
   fun buildEnvironment(block: BuildEnvironment.() -> Unit) {
     buildEnvironment.block()
   }

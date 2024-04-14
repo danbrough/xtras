@@ -10,16 +10,19 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 abstract class XtrasExtension(val project: Project) {
 
   @XtrasDSL
-  var javaVersion = JavaVersion.VERSION_1_8
+  var message: String = "default message for project: ${project.name}"
 
   @XtrasDSL
-  val jvmTarget = JvmTarget.JVM_1_8
+  var javaVersion = JavaVersion.VERSION_17
+
+  @XtrasDSL
+  var jvmTarget = JvmTarget.JVM_17
 
   @XtrasDSL
   var kotlinLanguageVersion = KotlinVersion.KOTLIN_2_0
 
   @XtrasDSL
-  var kotlinApiVersion = KotlinVersion.DEFAULT
+  var kotlinApiVersion = KotlinVersion.KOTLIN_2_0
 
   @XtrasDSL
   abstract val nativeTargets: ListProperty<KonanTarget>

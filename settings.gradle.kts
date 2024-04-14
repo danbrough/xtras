@@ -17,7 +17,7 @@ rootProject.name = "xtras"
 
 includeBuild("plugin")
 listOf(
-  "support",
+  //"support",
   "ssh2",
 ).forEach {
   include(":libs:$it")
