@@ -6,7 +6,7 @@ import org.gradle.api.Project
 
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class XtrasLibraryExtension(
+abstract class XtrasLibrary(
   val group: String,
   val name: String,
   val version: String,
@@ -19,7 +19,7 @@ abstract class XtrasLibraryExtension(
 }
 
 @XtrasDSL
-inline fun <reified T : XtrasLibraryExtension> Project.xtrasRegisterLibrary(
+inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
   group: String,
   name: String,
   version: String,
@@ -27,7 +27,7 @@ inline fun <reified T : XtrasLibraryExtension> Project.xtrasRegisterLibrary(
 ): T = xtrasRegisterLibrary(group, name, version, T::class.java, block)
 
 
-fun <T : XtrasLibraryExtension> Project.xtrasRegisterLibrary(
+fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
   group: String,
   name: String,
   version: String,
@@ -52,7 +52,7 @@ fun <T : XtrasLibraryExtension> Project.xtrasRegisterLibrary(
   }
 }
 
-inline fun <reified T : XtrasLibraryExtension> Project.registerXtrasGitLibrary(
+inline fun <reified T : XtrasLibrary> Project.registerXtrasGitLibrary(
   extensionName: String,
   group: String = projectProperty<String>("$extensionName.group"),
   version: String = projectProperty<String>("$extensionName.version"),

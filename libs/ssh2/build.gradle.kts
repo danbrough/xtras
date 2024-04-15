@@ -1,7 +1,7 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 
-import org.danbrough.xtras.XtrasLibraryExtension
+import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.registerXtrasGitLibrary
 import org.danbrough.xtras.xtrasJniConfig
 import org.danbrough.xtras.xtrasTesting
@@ -115,7 +115,7 @@ xtrasJniConfig {
   compileSdk = 34
 }
 
-registerXtrasGitLibrary<XtrasLibraryExtension>("ssh2") {
+registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
 
 }
 //registerXtrasGitLibrary<LibraryExtension>()
@@ -182,4 +182,3 @@ fun Project.ssh2(
 
 
  */
-

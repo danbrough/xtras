@@ -1,10 +1,10 @@
 package org.danbrough.xtras.tasks
 
-import org.danbrough.xtras.XtrasLibraryExtension
+import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.logDebug
-import org.gradle.api.tasks.Exec
+import org.gradle.process.ExecSpec
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
@@ -20,10 +20,10 @@ enum class SourceTaskName : TaskName {
 
 interface TaskName {
   val group: TaskGroup
-  fun taskName(library: XtrasLibraryExtension? = null, target: KonanTarget? = null) =
+  fun taskName(library: XtrasLibrary, target: KonanTarget? = null) =
     "xtras${group.name.lowercase().capitalized()}${
       toString().lowercase().capitalized()
-    }${library?.name?.capitalized() ?: ""}${target?.kotlinTargetName ?: ""}"
+    }${library.name.capitalized()}${target?.kotlinTargetName ?: ""}"
 }
 
 enum class PackageTaskName : TaskName {
@@ -32,13 +32,13 @@ enum class PackageTaskName : TaskName {
   override val group: TaskGroup = TaskGroup.PACKAGE
 }
 
-fun XtrasLibraryExtension.registerTasks() {
+fun XtrasLibrary.registerTasks() {
   project.logDebug("$name::registerTasks()")
   when (sourceConfig) {
     is GitSourceConfig -> registerGitSourceTasks()
   }
 }
 
-fun Exec.xtrasCommandLine(vararg args: Any) {
+fun ExecSpec.xtrasCommandLine(vararg args: Any) {
   commandLine(*args)
 }
