@@ -3,6 +3,8 @@ package org.danbrough.xtras
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.getByName
+import org.gradle.process.ExecSpec
+import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.File
 import java.util.Locale
 
@@ -23,3 +25,14 @@ fun String.capitalized() =
   replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
 fun String.decapitalized() = replaceFirstChar { it.lowercase(Locale.getDefault()) }
+
+fun ExecSpec.xtrasCommandLine(vararg args: Any) {
+  commandLine(args.map { if (it is File) it.mixedPath else it })
+}
+
+private val hostIsMingw = HostManager.hostIsMingw
+
+val File.mixedPath: String
+  get() = absolutePath.let {
+    if (hostIsMingw) it.replace("\\", "/") else it
+  }

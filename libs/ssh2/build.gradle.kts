@@ -2,13 +2,16 @@
 
 
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.registerXtrasGitLibrary
+import org.danbrough.xtras.xtrasEnableTestExes
 import org.danbrough.xtras.xtrasJniConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 plugins {
@@ -28,6 +31,8 @@ xtras {
   javaVersion = JavaVersion.VERSION_17
 }
 
+group = projectProperty<String>("ssh2.group")
+version = projectProperty<String>("ssh2.version")
 
 
 kotlin {
@@ -47,6 +52,7 @@ kotlin {
   }
 
   linuxX64()
+  linuxArm64()
   mingwX64()
   androidNativeArm64()
 
@@ -96,12 +102,24 @@ kotlin {
   }
 
   targets.withType<KotlinNativeTarget> {
+
     binaries {
       sharedLib("xtras_ssh2")
+//      if (this@withType.konanTarget == KonanTarget.LINUX_X64) {
+//        executable("execTest") {
+//          entryPoint = "org.danbrough.ssh2.mainExecTest"
+//          org.danbrough.ssh2.mainExecTest
+//          compilation = compilations["test"]
+//        }
+//      }
     }
+
   }
 }
 
+xtrasEnableTestExes("ssh", tests = listOf("execTest")) {
+  it in setOf(KonanTarget.LINUX_X64, KonanTarget.MINGW_X64)
+}
 
 
 xtrasTesting {
@@ -116,8 +134,18 @@ xtrasJniConfig {
 }
 
 registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
+  cinterops {
+    declaration = """
+    #headers = libssh2.h  libssh2_publickey.h  libssh2_sftp.h
+    #linkerOpts = -lssh2
+    
+    """.trimIndent()
 
+    codeFile = project.file("test.h")
+  }
 }
+
+
 //registerXtrasGitLibrary<LibraryExtension>()
 /*
 
@@ -182,15 +210,3 @@ fun Project.ssh2(
 
 
  */
-tasks.register("thang") {
-  var counter = 0
-  actions.add {
-    exec { commandLine("echo", "1:counter: ${counter++}") }
-  }
-  actions.add {
-    exec { commandLine("echo", "2:counter: ${counter++}") }
-  }
-  actions.add {
-    exec { commandLine("echo", "3:counter: ${counter++}") }
-  }
-}

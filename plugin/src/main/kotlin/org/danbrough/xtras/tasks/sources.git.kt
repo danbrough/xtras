@@ -6,6 +6,8 @@ import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.logTrace
+import org.danbrough.xtras.mixedPath
+import org.danbrough.xtras.xtrasCommandLine
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -93,14 +95,15 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
   val srcDir = sourceDir(target)
   project.tasks.register<Exec>(taskName) {
     group = XTRAS_TASK_GROUP
-    description = "Extracts the source code for ${this@registerSourceExtractTask.name} to $srcDir"
+    description =
+      "Extracts the source code for ${this@registerSourceExtractTask.name} to ${srcDir.mixedPath}"
     inputs.property("commit", sourceConfig.hashCode())
     //inputs.dir(downloadsDir)
     outputs.dir(srcDir)
     dependsOn(SourceTaskName.DOWNLOAD.taskName(this@registerSourceExtractTask))
     doFirst {
       if (srcDir.exists()) srcDir.deleteRecursively()
-      project.logDebug("$taskName: cloning $sourceConfig to $srcDir")
+      project.logDebug("$taskName: cloning $sourceConfig to ${srcDir.mixedPath}")
     }
 
     xtrasCommandLine(xtras.tools.git, "clone", downloadsDir, srcDir)

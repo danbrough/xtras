@@ -59,7 +59,8 @@ enum class XtrasPath {
   /**
    * Path to the android ndk
    */
-  NDK;
+  NDK
+  ;
 
   val propertyName: String
     get() = if (this == XTRAS) "xtras.dir" else "xtras.dir.${name.lowercase()}"
@@ -174,6 +175,16 @@ val Project.xtrasLibsDir: File
  */
 val Project.xtrasNdkDir: File
   get() = xtrasPath(XtrasPath.NDK)
+
+
+/**
+ * Path to the msys directory (used on windows).
+ */
+val Project.xtrasMsysDir: File
+  get() = projectProperty<File>("xtras.dir.msys") {
+    File("C:/msys64")
+  }
+
 
 
 

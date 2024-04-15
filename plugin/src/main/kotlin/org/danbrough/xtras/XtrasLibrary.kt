@@ -3,9 +3,11 @@ package org.danbrough.xtras
 import org.danbrough.xtras.tasks.gitSource
 import org.danbrough.xtras.tasks.registerTasks
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 
+typealias TaskConfig = (KonanTarget) -> TaskProvider<*>
 
 @Suppress("MemberVisibilityCanBePrivate")
 @XtrasDSL
@@ -19,6 +21,16 @@ abstract class XtrasLibrary(
   internal interface SourceConfig
 
   internal var sourceConfig: SourceConfig? = null
+
+  internal var cinteropsConfig: CInteropsConfig? = null
+
+  @XtrasDSL
+  fun cinterops(block: CInteropsConfig.() -> Unit) {
+    cinteropsConfig = CInteropsConfig(
+      defFile = localXtrasBuildDir.resolve("cinterops").resolve("${name}_interops.h"),
+      interopsPackage = "${project.group}.cinterops"
+    ).apply(block)
+  }
 
   val downloadsDir: File
     get() = project.xtrasDownloadsDir.resolve(name)
@@ -44,6 +56,11 @@ abstract class XtrasLibrary(
   var libsDir: (KonanTarget) -> File = {
     project.xtrasLibsDir.resolve(name).resolve(version).resolve(it.kotlinTargetName)
   }
+
+  internal var taskPrepareSource: TaskConfig? = null
+  internal var taskConfigureSource: TaskConfig? = null
+  internal var taskCompileSource: TaskConfig? = null
+  internal var taskInstallSource: TaskConfig? = null
 }
 
 @XtrasDSL

@@ -1,17 +1,28 @@
 package org.danbrough.xtras.tasks
 
+import org.danbrough.xtras.TaskConfig
+import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.logDebug
-import org.gradle.process.ExecSpec
-import org.jetbrains.kotlin.konan.target.HostManager
+import org.gradle.api.tasks.Exec
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import java.io.File
 
 
 enum class TaskGroup {
-  SOURCE, PACKAGE;
+  CINTEROPS, SOURCE, PACKAGE;
+
+  override fun toString(): String = name
+}
+
+interface TaskName {
+  val group: TaskGroup
+
+  fun taskName(library: XtrasLibrary, target: KonanTarget? = null) =
+    "xtras${group.toString().lowercase().capitalized()}${
+      toString().lowercase().capitalized()
+    }${library.name.capitalized()}${target?.kotlinTargetName ?: ""}"
 }
 
 enum class SourceTaskName : TaskName {
@@ -20,13 +31,12 @@ enum class SourceTaskName : TaskName {
   override val group: TaskGroup = TaskGroup.SOURCE
 }
 
-interface TaskName {
-  val group: TaskGroup
-  fun taskName(library: XtrasLibrary, target: KonanTarget? = null) =
-    "xtras${group.name.lowercase().capitalized()}${
-      toString().lowercase().capitalized()
-    }${library.name.capitalized()}${target?.kotlinTargetName ?: ""}"
+enum class InteropsTaskName : TaskName {
+  GENERATE;
+
+  override val group: TaskGroup = TaskGroup.CINTEROPS
 }
+
 
 enum class PackageTaskName : TaskName {
   CREATE, EXTRACT, DOWNLOAD, PROVIDE;
@@ -39,15 +49,61 @@ fun XtrasLibrary.registerTasks() {
   when (sourceConfig) {
     is GitSourceConfig -> registerGitSourceTasks()
   }
-}
+  if (cinteropsConfig != null)
+    registerCInteropsTasks()
 
-fun ExecSpec.xtrasCommandLine(vararg args: Any) {
-  commandLine(args.map { if (it is File) it.mixedPath else it })
-}
-
-private val hostIsMingw = HostManager.hostIsMingw
-
-val File.mixedPath: String
-  get() = absolutePath.let {
-    if (hostIsMingw) it.replace("\\", "/") else it
+  fun TaskConfig.run() = xtras.nativeTargets.get().forEach {
+    invoke(it)
   }
+
+  taskPrepareSource?.run()
+
+  taskConfigureSource?.run()
+
+  taskCompileSource?.run()
+
+  taskInstallSource?.run()
+}
+
+@XtrasDSL
+fun XtrasLibrary.prepareSource(
+  dependsOn: SourceTaskName? = SourceTaskName.EXTRACT,
+  block: Exec.(KonanTarget) -> Unit
+) {
+  taskPrepareSource = sourceTask(SourceTaskName.PREPARE, dependsOn) {
+    block(it)
+  }
+}
+
+
+@XtrasDSL
+fun XtrasLibrary.configureSource(
+  dependsOn: SourceTaskName? = SourceTaskName.EXTRACT,
+  block: Exec.(KonanTarget) -> Unit
+) {
+  taskConfigureSource = sourceTask(SourceTaskName.CONFIGURE, dependsOn) {
+    block(it)
+  }
+}
+
+
+@XtrasDSL
+fun XtrasLibrary.compileSource(
+  dependsOn: SourceTaskName? = SourceTaskName.CONFIGURE,
+  block: Exec.(KonanTarget) -> Unit
+) {
+  taskCompileSource = sourceTask(SourceTaskName.COMPILE, dependsOn) { target ->
+    block(target)
+  }
+}
+
+
+@XtrasDSL
+fun XtrasLibrary.installSource(
+  dependsOn: SourceTaskName? = SourceTaskName.COMPILE,
+  block: Exec.(KonanTarget) -> Unit
+) {
+  taskInstallSource = sourceTask(SourceTaskName.INSTALL, dependsOn) {
+    block(it)
+  }
+}

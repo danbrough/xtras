@@ -1,72 +1,88 @@
 package org.danbrough.xtras.tasks
 
+import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasLibrary
-import org.danbrough.xtras.tasks.CInteropsConfig.Companion.defaultCInteropsTargetWriter
-import org.jetbrains.kotlin.konan.target.KonanTarget
-import java.io.File
-import java.io.PrintWriter
-
-typealias CInteropsTargetWriter = XtrasLibrary.(KonanTarget, PrintWriter) -> Unit
-
-data class CInteropsConfig(
-
-  /**
-   * The list of headers to form the stop of the generated def file
-   */
-
-  var declaration: String? = null,
-
-  /**
-   * Specifies the path to a hard-coded def file to use.
-   * All other settings will be ignored.
-   */
-  var defFile: File? = null,
+import org.danbrough.xtras.logDebug
+import org.danbrough.xtras.logInfo
+import org.danbrough.xtras.mixedPath
+import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 
 
-  /**
-   * After the [declaration] this will generate target specific headers for the generated def file.
-   * Default implementation at [defaultCInteropsTargetWriter].
-   */
-  var targetWriter: CInteropsTargetWriter = defaultCInteropsTargetWriter,
+internal fun XtrasLibrary.registerCInteropsTasks() {
+  val config = cinteropsConfig ?: return
 
-  /**
-   * Code to append to the bottom of the def file
-   *
-   */
-  var code: String? = null,
+  project.logInfo("$name::registerCinteropsTasks()")
+  if (!config.isStatic)
+    registerGenerateCInterops()
 
-  /**
-   * Path to hard coded content for the def file to be appended at the bottom.
-   *
-   */
-  var codeFile: File? = null,
-
-  ) {
-  companion object {
-    val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
-      val libDir = libsDir(target).absolutePath
-      writer.println(
-        """
-         |compilerOpts.${target.name} =  -I${
-          "$libDir${org.jetbrains.kotlin.konan.file.File.separatorChar}include".replace(
-            '\\',
-            '/'
-          )
-        }
-         |linkerOpts.${target.name} = -L${
-          "$libDir${org.jetbrains.kotlin.konan.file.File.separatorChar}lib".replace(
-            '\\',
-            '/'
-          )
-        }
-         |libraryPaths.${target.name} =  ${
-          "$libDir${org.jetbrains.kotlin.konan.file.File.separatorChar}lib".replace(
-            '\\',
-            '/'
-          )
-        }
-         |""".trimMargin()
-      )
+  val kotlin = project.kotlinExtension
+  if (kotlin !is KotlinMultiplatformExtension) return
+  kotlin.targets.withType<KotlinNativeTarget> {
+    compilations["main"].cinterops.create(this@registerCInteropsTasks.name) {
+      defFile = config.defFile
     }
   }
 }
+
+private fun XtrasLibrary.registerGenerateCInterops() {
+  val config = cinteropsConfig!!
+  project.logInfo("$name::registerGenerateCInterops()")
+
+  val cinteropsGenerateTaskName = InteropsTaskName.GENERATE.taskName(this)
+  project.tasks.register(cinteropsGenerateTaskName) {
+    group = XTRAS_TASK_GROUP
+    description = "Generates the interops def file at ${config.defFile.mixedPath}"
+
+    config.codeFile?.also {
+      inputs.file(it)
+    }
+
+    inputs.property("config", config.hashCode().toString())
+
+    outputs.file(config.defFile)
+
+    doFirst {
+      config.defFile.parentFile.also {
+        if (!it.exists()) it.mkdirs()
+      }
+    }
+
+    actions.add {
+      config.defFile.printWriter().use { writer ->
+        writer.println("package = ${config.interopsPackage}")
+
+        config.declaration?.also {
+          writer.println(it)
+        }
+
+        xtras.nativeTargets.get().forEach {
+          config.targetWriter(this@registerGenerateCInterops, it, writer)
+        }
+
+        config.code?.also {
+          writer.println("---")
+          writer.println(it)
+        }
+
+        config.codeFile?.also {
+          if (config.code == null) writer.println("---")
+          writer.println(it.readText())
+        }
+      }
+    }
+
+    doLast {
+      project.logDebug("$name: wrote ${config.defFile.mixedPath}")
+    }
+  }
+
+  project.tasks.withType<CInteropProcess> {
+    dependsOn(cinteropsGenerateTaskName)
+  }
+}
+
