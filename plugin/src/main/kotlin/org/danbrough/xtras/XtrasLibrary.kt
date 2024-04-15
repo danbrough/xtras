@@ -3,9 +3,12 @@ package org.danbrough.xtras
 import org.danbrough.xtras.tasks.gitSource
 import org.danbrough.xtras.tasks.registerTasks
 import org.gradle.api.Project
+import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 
 @Suppress("MemberVisibilityCanBePrivate")
+@XtrasDSL
 abstract class XtrasLibrary(
   val group: String,
   val name: String,
@@ -16,6 +19,31 @@ abstract class XtrasLibrary(
   internal interface SourceConfig
 
   internal var sourceConfig: SourceConfig? = null
+
+  val downloadsDir: File
+    get() = project.xtrasDownloadsDir.resolve(name)
+
+  private val localXtrasBuildDir: File = project.layout.buildDirectory.asFile.get().resolve("xtras")
+
+  private val localBuildDir: (dirName: String, target: KonanTarget) -> File = { dirName, target ->
+    localXtrasBuildDir.resolve(dirName).resolve(name).resolve(version)
+      .resolve(target.kotlinTargetName)
+  }
+
+  @XtrasDSL
+  var sourceDir: (KonanTarget) -> File = {
+    localBuildDir("src", it)
+  }
+
+  @XtrasDSL
+  var buildDir: (KonanTarget) -> File = {
+    localBuildDir("build", it)
+  }
+
+  @XtrasDSL
+  var libsDir: (KonanTarget) -> File = {
+    project.xtrasLibsDir.resolve(name).resolve(version).resolve(it.kotlinTargetName)
+  }
 }
 
 @XtrasDSL

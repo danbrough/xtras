@@ -182,3 +182,15 @@ fun Project.ssh2(
 
 
  */
+tasks.register("thang") {
+  var counter = 0
+  actions.add {
+    exec { commandLine("echo", "1:counter: ${counter++}") }
+  }
+  actions.add {
+    exec { commandLine("echo", "2:counter: ${counter++}") }
+  }
+  actions.add {
+    exec { commandLine("echo", "3:counter: ${counter++}") }
+  }
+}

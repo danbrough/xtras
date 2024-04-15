@@ -5,7 +5,9 @@ import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.logDebug
 import org.gradle.process.ExecSpec
+import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 
 enum class TaskGroup {
@@ -40,5 +42,12 @@ fun XtrasLibrary.registerTasks() {
 }
 
 fun ExecSpec.xtrasCommandLine(vararg args: Any) {
-  commandLine(*args)
+  commandLine(args.map { if (it is File) it.mixedPath else it })
 }
+
+private val hostIsMingw = HostManager.hostIsMingw
+
+val File.mixedPath: String
+  get() = absolutePath.let {
+    if (hostIsMingw) it.replace("\\", "/") else it
+  }
