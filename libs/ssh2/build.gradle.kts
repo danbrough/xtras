@@ -7,6 +7,7 @@ import org.danbrough.xtras.mixedPath
 import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.registerXtrasGitLibrary
+import org.danbrough.xtras.subDir
 import org.danbrough.xtras.tasks.SourceTaskName
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
@@ -21,9 +22,9 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
-
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -31,9 +32,6 @@ plugins {
   id("org.danbrough.xtras.sonatype")
   id("com.android.library")
 }
-
-//group = projectProperty<String>("ssh2.group")
-//version = projectProperty<String>("ssh2.version")
 
 xtras {
   kotlinApiVersion = KotlinVersion.KOTLIN_2_0
@@ -164,8 +162,11 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
     codeFile = project.file("test.h")
   }
 
-  prepareSource {
-    xtrasCommandLine("sh", "autoreconf", "-fi")
+  prepareSource {target->
+    val args = if (target.family == Family.MINGW)
+      listOf("sh",project.xtrasMsysDir.subDir("usr","bin","autoreconf"),"-fi")
+    else listOf("autoreconf","-fi")
+    xtrasCommandLine(args)
     outputs.file(workingDir.resolve("configure"))
   }
 
@@ -173,6 +174,7 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
     outputs.file(workingDir.resolve("Makefile"))
 
     val args = mutableListOf(
+      "sh",
       "./configure",
       //"--enable-examples-build",
       "--host=${target.hostTriplet}",
