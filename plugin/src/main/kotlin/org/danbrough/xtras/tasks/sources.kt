@@ -5,7 +5,6 @@ import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.logDebug
-import org.danbrough.xtras.logTrace
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -24,11 +23,11 @@ fun XtrasLibrary.sourceTask(
     dependsOn?.also {
       dependsOn(it.taskName(this@sourceTask, target))
     }
+
     workingDir(sourceDir(target))
     doFirst {
-      environment(loadEnvironment(environment))
-      project.logDebug("$name: running command: ${commandLine.joinToString(" ")}")
-      project.logTrace("environment: $environment")
+      environment(loadEnvironment(environment, target))
+      project.logDebug("$name: running command: ${commandLine.joinToString(" ")} makeflags: ${environment["MAKEFLAGS"]}")
     }
     block(target)
   }

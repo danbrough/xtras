@@ -7,17 +7,35 @@ import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 typealias XtrasEnvironment = MutableMap<String, Any>
-typealias XtrasEnvironmentConfig = XtrasEnvironment.(target: KonanTarget?) -> Unit
+typealias XtrasEnvironmentConfig = XtrasEnvironment.(target: KonanTarget) -> Unit
 
-val XtrasExtension.XTRAS_DEFAULT_ENVIRONMENT: XtrasEnvironmentConfig
+val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
   get() = { target ->
+    if (cleanEnvironment) {
+      project.logWarn("ENVIRONMENT: CLEAR")
+      clear()
+    }
+    if (HostManager.hostIsMingw) {
+      put(
+        "PATH",
+        pathOf(
+          project.xtrasMsysDir.resolve("bin"),
+          project.xtrasMsysDir.resolveAll("usr", "bin"),
+          get("PATH")
+        )
+      )
+    } else {
+      put("PATH", pathOf("/bin", "/usr/bin", "/usr/local/bin", get("PATH")))
+    }
     put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")
-    if (target?.family == Family.ANDROID)
-      ndkEnvironment(this, target)
+
+    project.logTrace("INITIAL_ENVIRONMENT: target: $target")
+    if (target.family == Family.ANDROID)
+      environmentNDK(this, target)
   }
 
 
-private fun XtrasExtension.ndkEnvironment(env: XtrasEnvironment, target: KonanTarget) {
+fun XtrasExtension.environmentNDK(env: XtrasEnvironment, target: KonanTarget) {
 
   val archFolder = when {
     HostManager.hostIsLinux -> "linux-x86_64"
@@ -27,17 +45,19 @@ private fun XtrasExtension.ndkEnvironment(env: XtrasEnvironment, target: KonanTa
   }
 
   env.apply {
+    val ndkPath = pathOf(
+      androidConfig.ndkDir.resolve("bin"),
+      androidConfig.ndkDir.resolve("toolchains/llvm/prebuilt/$archFolder/bin"),
+      get("PATH")
+    )
+    project.logTrace("environmentNDK: NDK_PATH: $ndkPath")
     put(
       "PATH",
-      pathOf(
-        androidConfig.ndkDir.resolve("bin"),
-        androidConfig.ndkDir.resolve("toolchains/llvm/prebuilt/$archFolder/bin"),
-        get("PATH")
-      )
+      ndkPath
     )
 
     //basePath.add(0, androidNdkDir.resolve("bin").absolutePath)
-    put("PREFIX", "${target.hostTriplet}${androidConfig.compileSDKVersion}-")
+    put("PREFIX", "${target.hostTriplet}${androidConfig.ndkApiVersion}-")
     put("CC", "clang")
     put("CXX", "clang++")
     put("AR", "llvm-ar")

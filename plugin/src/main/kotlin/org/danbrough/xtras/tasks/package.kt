@@ -2,6 +2,7 @@
 
 package org.danbrough.xtras.tasks
 
+import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.xtrasCommandLine
 import org.gradle.api.tasks.Exec
@@ -23,6 +24,7 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
       target
     )
   ) {
+    group = XTRAS_TASK_GROUP
     dependsOn(SourceTaskName.INSTALL.taskName(this@registerPackageCreateTask, target))
     val packageFile = packageFile(target)
     onlyIf { !packageFile.exists() }
@@ -44,6 +46,7 @@ private fun XtrasLibrary.registerPackageProvideTask(target: KonanTarget) {
   val packageFile = packageFile(target)
   val taskName = PackageTaskName.PROVIDE.taskName(this@registerPackageProvideTask, target)
   project.tasks.register(taskName) {
+    group = XTRAS_TASK_GROUP
     dependsOn(PackageTaskName.CREATE.taskName(this@registerPackageProvideTask, target))
     outputs.file(packageFile)
     onlyIf { !packageFile.exists() }
@@ -57,6 +60,7 @@ private fun XtrasLibrary.registerPackageExtractTask(target: KonanTarget) {
   val packageFile = packageFile(target)
   val taskName = PackageTaskName.EXTRACT.taskName(this@registerPackageExtractTask, target)
   project.tasks.register<Exec>(taskName) {
+    group = XTRAS_TASK_GROUP
     dependsOn(PackageTaskName.PROVIDE.taskName(this@registerPackageExtractTask, target))
     inputs.file(packageFile)
     outputs.dir(libsDir)

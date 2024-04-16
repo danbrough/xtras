@@ -115,8 +115,6 @@ open class BuildEnvironment : Cloneable {
 
     var clangArgs: String? = null
 
-
-
     when (target) {
       KonanTarget.LINUX_ARM64 -> {
         clangArgs =

@@ -4,10 +4,9 @@
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.mixedPath
-import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.registerXtrasGitLibrary
-import org.danbrough.xtras.subDir
+import org.danbrough.xtras.resolveAll
 import org.danbrough.xtras.tasks.SourceTaskName
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
@@ -22,7 +21,6 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -39,14 +37,6 @@ xtras {
   jvmTarget = JvmTarget.JVM_17
   javaVersion = JavaVersion.VERSION_17
   cleanEnvironment = true
-
-  environment { target ->
-    if (HostManager.hostIsMingw) {
-      put("PATH", pathOf(xtrasMsysDir.resolve("bin")))
-    } else {
-      put("PATH", "/bin:/usr/bin:/usr/local/bin")
-    }
-  }
 }
 
 group = projectProperty<String>("ssh2.group")
@@ -135,8 +125,8 @@ kotlin {
   }
 }
 
-xtrasEnableTestExes("ssh", tests = listOf("execTest")) {
-  it in setOf(KonanTarget.LINUX_X64, KonanTarget.MINGW_X64)
+xtrasEnableTestExes("ssh", tests = listOf("execTest", "sshExec")) {
+  it in setOf(KonanTarget.LINUX_X64, KonanTarget.MINGW_X64, KonanTarget.LINUX_ARM64)
 }
 
 
@@ -160,13 +150,13 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
     
     """.trimIndent()
 
-    codeFile = project.file("test.h")
+    codeFile = project.file("interops.h")
   }
 
-  prepareSource {target->
-    val args = if (target.family == Family.MINGW)
-      listOf("sh",project.xtrasMsysDir.subDir("usr","bin","autoreconf"),"-fi")
-    else listOf("autoreconf","-fi")
+  prepareSource { target ->
+    val args = if (HostManager.hostIsMingw)
+      listOf("sh", project.xtrasMsysDir.resolveAll("usr", "bin", "autoreconf"), "-fi")
+    else listOf("autoreconf", "-fi")
     xtrasCommandLine(args)
     outputs.file(workingDir.resolve("configure"))
   }

@@ -17,14 +17,23 @@ if [ ! -d "$SRC" ]; then
 fi
 
 cd $SRC
-if [ ! -f Makefile ]; then
-  ./configure \
-  --with-libssl-prefix=/home/dan/workspace/xtras/xtras/libs/openssl/mingwX64/3.3.0 \
-  --host=x86_64-w64-mingw32 --prefix=$INSTALL || exit 1
-fi
 
-make -j4  && make install && cp example/*.exe $INSTALL/bin
 
+function mingwX64Test(){
+  if [ ! -f Makefile ]; then
+    ./configure \
+    --with-libssl-prefix=/home/dan/workspace/xtras/xtras/libs/openssl/mingwX64/3.3.0 \
+    --host=x86_64-w64-mingw32 --prefix=$INSTALL || exit 1
+  fi
+
+  make -j4  && make install && cp example/*.exe $INSTALL/bin
+}
+
+function aarch64Test(){
+  if [ ! -f Makefile ]; then
+    ./configure \
+  fi
+}
 
 
 

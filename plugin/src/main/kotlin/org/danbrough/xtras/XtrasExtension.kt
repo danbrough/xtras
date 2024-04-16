@@ -35,13 +35,12 @@ abstract class XtrasExtension(val project: Project) {
     tools.block()
   }
 
-  private var environment: XtrasEnvironmentConfig = XTRAS_DEFAULT_ENVIRONMENT
+  private var environment: XtrasEnvironmentConfig = INITIAL_ENVIRONMENT
 
   @XtrasDSL
   var cleanEnvironment: Boolean = false
 
-  fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget? = null): XtrasEnvironment {
-    if (cleanEnvironment) env.clear()
+  fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget): XtrasEnvironment {
     environment(env, target)
     return env
   }
@@ -59,6 +58,7 @@ abstract class XtrasExtension(val project: Project) {
   data class AndroidConfig(
     var ndkDir: File,
     var compileSDKVersion: Int = 34,
+    var ndkApiVersion: Int = 21
   )
 
   val androidConfig = AndroidConfig(project.xtrasNdkDir)

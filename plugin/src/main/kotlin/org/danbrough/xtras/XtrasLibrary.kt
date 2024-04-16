@@ -87,7 +87,7 @@ abstract class XtrasLibrary(
     }
   }
 
-  fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget? = null): XtrasEnvironment =
+  fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget): XtrasEnvironment =
     environment(env, target).let { env }
 
 }
@@ -126,6 +126,7 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
   }
 }
 
+@XtrasDSL
 inline fun <reified T : XtrasLibrary> Project.registerXtrasGitLibrary(
   extensionName: String,
   group: String = projectProperty<String>("$extensionName.group"),

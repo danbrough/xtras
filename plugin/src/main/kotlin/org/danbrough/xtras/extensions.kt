@@ -47,7 +47,7 @@ fun pathOf(paths: List<Any?>): String =
 
 fun pathOf(vararg paths: Any?): String = pathOf(paths.toList())
 
-fun File.subDir(vararg paths: String): File = subDir(paths.toList())
+fun File.resolveAll(vararg paths: String): File = resolveAll(paths.toList())
 
-fun File.subDir(paths: List<String>): File =
+fun File.resolveAll(paths: List<String>): File =
   paths.fold(this) { file, path -> file.resolve(path) }
