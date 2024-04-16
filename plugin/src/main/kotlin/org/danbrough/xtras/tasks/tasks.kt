@@ -19,7 +19,7 @@ interface TaskName {
   fun taskName(library: XtrasLibrary, target: KonanTarget? = null) =
     "xtras${group.toString().lowercase().capitalized()}${
       toString().lowercase().capitalized()
-    }${library.name.capitalized()}${target?.kotlinTargetName ?: ""}"
+    }${library.name.capitalized()}${target?.kotlinTargetName?.capitalized() ?: ""}"
 }
 
 enum class SourceTaskName : TaskName {

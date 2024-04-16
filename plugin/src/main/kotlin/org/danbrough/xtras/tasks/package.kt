@@ -42,34 +42,27 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
 
 private fun XtrasLibrary.registerPackageProvideTask(target: KonanTarget) {
   val packageFile = packageFile(target)
-  project.tasks.register(
-    PackageTaskName.PROVIDE.taskName(
-      this@registerPackageProvideTask,
-      target
-    )
-  ) {
+  val taskName = PackageTaskName.PROVIDE.taskName(this@registerPackageProvideTask, target)
+  project.tasks.register(taskName) {
     dependsOn(PackageTaskName.CREATE.taskName(this@registerPackageProvideTask, target))
     outputs.file(packageFile)
     onlyIf { !packageFile.exists() }
   }
 }
 
+
 private fun XtrasLibrary.registerPackageExtractTask(target: KonanTarget) {
   if (taskInstallSource == null) return
   val libsDir = libsDir(target)
   val packageFile = packageFile(target)
-  project.tasks.register<Exec>(
-    PackageTaskName.EXTRACT.taskName(
-      this@registerPackageExtractTask,
-      target
-    )
-  ) {
+  val taskName = PackageTaskName.EXTRACT.taskName(this@registerPackageExtractTask, target)
+  project.tasks.register<Exec>(taskName) {
     dependsOn(PackageTaskName.PROVIDE.taskName(this@registerPackageExtractTask, target))
-    //onlyIf { !libsDir.exists() }
     inputs.file(packageFile)
     outputs.dir(libsDir)
     workingDir(libsDir)
     xtrasCommandLine("tar", "xpfz", packageFile)
   }
 }
+
 

@@ -10,4 +10,6 @@ val log = KotlinLogging.logger("SSH_EXEC").also {
 fun mainExecTest(args: Array<String>) {
   log.info { "mainExecTest()" }
   log.trace { "trace test" }
+  log.debug { "debug test" }
+
 }
