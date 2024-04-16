@@ -1,12 +1,9 @@
 package org.danbrough.xtras.tasks
 
-import org.danbrough.xtras.TaskConfig
-import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.logDebug
-import org.gradle.api.tasks.Exec
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
@@ -52,58 +49,17 @@ fun XtrasLibrary.registerTasks() {
   if (cinteropsConfig != null)
     registerCInteropsTasks()
 
-  fun TaskConfig.run() = xtras.nativeTargets.get().forEach {
-    invoke(it)
+  xtras.nativeTargets.get().forEach { target ->
+    taskPrepareSource?.invoke(target)
+
+    taskConfigureSource?.invoke(target)
+
+    taskCompileSource?.invoke(target)
+
+    taskInstallSource?.invoke(target)
+
+    registerPackageTasks(target)
   }
 
-  taskPrepareSource?.run()
-
-  taskConfigureSource?.run()
-
-  taskCompileSource?.run()
-
-  taskInstallSource?.run()
 }
 
-@XtrasDSL
-fun XtrasLibrary.prepareSource(
-  dependsOn: SourceTaskName? = SourceTaskName.EXTRACT,
-  block: Exec.(KonanTarget) -> Unit
-) {
-  taskPrepareSource = sourceTask(SourceTaskName.PREPARE, dependsOn) {
-    block(it)
-  }
-}
-
-
-@XtrasDSL
-fun XtrasLibrary.configureSource(
-  dependsOn: SourceTaskName? = SourceTaskName.EXTRACT,
-  block: Exec.(KonanTarget) -> Unit
-) {
-  taskConfigureSource = sourceTask(SourceTaskName.CONFIGURE, dependsOn) {
-    block(it)
-  }
-}
-
-
-@XtrasDSL
-fun XtrasLibrary.compileSource(
-  dependsOn: SourceTaskName? = SourceTaskName.CONFIGURE,
-  block: Exec.(KonanTarget) -> Unit
-) {
-  taskCompileSource = sourceTask(SourceTaskName.COMPILE, dependsOn) { target ->
-    block(target)
-  }
-}
-
-
-@XtrasDSL
-fun XtrasLibrary.installSource(
-  dependsOn: SourceTaskName? = SourceTaskName.COMPILE,
-  block: Exec.(KonanTarget) -> Unit
-) {
-  taskInstallSource = sourceTask(SourceTaskName.INSTALL, dependsOn) {
-    block(it)
-  }
-}

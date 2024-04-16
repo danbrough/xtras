@@ -2,15 +2,26 @@
 
 
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.hostTriplet
+import org.danbrough.xtras.mixedPath
+import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.registerXtrasGitLibrary
+import org.danbrough.xtras.tasks.SourceTaskName
+import org.danbrough.xtras.tasks.compileSource
+import org.danbrough.xtras.tasks.configureSource
+import org.danbrough.xtras.tasks.installSource
+import org.danbrough.xtras.tasks.prepareSource
+import org.danbrough.xtras.xtrasCommandLine
 import org.danbrough.xtras.xtrasEnableTestExes
 import org.danbrough.xtras.xtrasJniConfig
+import org.danbrough.xtras.xtrasMsysDir
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
@@ -29,6 +40,15 @@ xtras {
   kotlinLanguageVersion = KotlinVersion.KOTLIN_2_0
   jvmTarget = JvmTarget.JVM_17
   javaVersion = JavaVersion.VERSION_17
+  cleanEnvironment = true
+
+  environment { target ->
+    if (HostManager.hostIsMingw) {
+      put("PATH", pathOf(xtrasMsysDir.resolve("bin")))
+    } else {
+      put("PATH", "/bin:/usr/bin:/usr/local/bin")
+    }
+  }
 }
 
 group = projectProperty<String>("ssh2.group")
@@ -143,6 +163,45 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
 
     codeFile = project.file("test.h")
   }
+
+  prepareSource {
+    xtrasCommandLine("sh", "autoreconf", "-fi")
+    outputs.file(workingDir.resolve("configure"))
+  }
+
+  configureSource(dependsOn = SourceTaskName.PREPARE) { target ->
+    outputs.file(workingDir.resolve("Makefile"))
+
+    val args = mutableListOf(
+      "./configure",
+      //"--enable-examples-build",
+      "--host=${target.hostTriplet}",
+      "--prefix=${buildDir(target).mixedPath}",
+      "--with-libz"
+    )
+    xtrasCommandLine(args)
+  }
+
+  compileSource { target ->
+    xtrasCommandLine("make")
+  }
+
+  installSource { target ->
+    xtrasCommandLine("make", "install")
+
+    doLast {
+      copy {
+        from(workingDir.resolve("example/.libs")) {
+          include {
+            @Suppress("UnstableApiUsage")
+            !it.isDirectory && it.permissions.user.execute
+          }
+        }
+        into(buildDir(target).resolve("bin"))
+      }
+    }
+  }
+
 }
 
 

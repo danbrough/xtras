@@ -57,10 +57,39 @@ abstract class XtrasLibrary(
     project.xtrasLibsDir.resolve(name).resolve(version).resolve(it.kotlinTargetName)
   }
 
+  @XtrasDSL
+  var packageFile: (KonanTarget) -> File = { target ->
+    val packageFileName =
+      "xtras_${name}_${version}_${target.kotlinTargetName}.tgz"
+    var file = project.xtrasPackagesDir
+    group.split('.').forEach {
+      file = file.resolve(it)
+    }
+    file.resolve(packageFileName)
+  }
+
   internal var taskPrepareSource: TaskConfig? = null
   internal var taskConfigureSource: TaskConfig? = null
   internal var taskCompileSource: TaskConfig? = null
   internal var taskInstallSource: TaskConfig? = null
+
+  internal var environment: XtrasEnvironmentConfig = {
+    xtras.loadEnvironment(this, it)
+  }
+
+  @XtrasDSL
+  fun environment(block: XtrasEnvironmentConfig) {
+    environment.also { oldEnvironment ->
+      environment = { target ->
+        oldEnvironment(target)
+        block(target)
+      }
+    }
+  }
+
+  fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget? = null): XtrasEnvironment =
+    environment(env, target).let { env }
+
 }
 
 @XtrasDSL

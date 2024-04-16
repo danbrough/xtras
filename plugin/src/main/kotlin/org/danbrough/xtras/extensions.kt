@@ -27,6 +27,10 @@ fun String.capitalized() =
 fun String.decapitalized() = replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
 fun ExecSpec.xtrasCommandLine(vararg args: Any) {
+  commandLine(args.toList())
+}
+
+fun ExecSpec.xtrasCommandLine(args: Iterable<Any>) {
   commandLine(args.map { if (it is File) it.mixedPath else it })
 }
 
@@ -36,3 +40,14 @@ val File.mixedPath: String
   get() = absolutePath.let {
     if (hostIsMingw) it.replace("\\", "/") else it
   }
+
+fun pathOf(paths: List<Any?>): String =
+  paths.filterNotNull()
+    .joinToString(File.pathSeparator) { if (it is File) it.mixedPath else it.toString() }
+
+fun pathOf(vararg paths: Any?): String = pathOf(paths.toList())
+
+fun File.subDir(vararg paths: String): File = subDir(paths.toList())
+
+fun File.subDir(paths: List<String>): File =
+  paths.fold(this) { file, path -> file.resolve(path) }

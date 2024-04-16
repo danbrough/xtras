@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection", "MemberVisibilityCanBePrivate")
+
 package org.danbrough.xtras
 
 import org.gradle.api.JavaVersion
@@ -6,11 +8,9 @@ import org.gradle.api.provider.ListProperty
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 abstract class XtrasExtension(val project: Project) {
-
-  @XtrasDSL
-  var message: String = "default message for project: ${project.name}"
 
   @XtrasDSL
   var javaVersion = JavaVersion.VERSION_17
@@ -35,8 +35,42 @@ abstract class XtrasExtension(val project: Project) {
     tools.block()
   }
 
+  private var environment: XtrasEnvironmentConfig = XTRAS_DEFAULT_ENVIRONMENT
+
+  @XtrasDSL
+  var cleanEnvironment: Boolean = false
+
+  fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget? = null): XtrasEnvironment {
+    if (cleanEnvironment) env.clear()
+    environment(env, target)
+    return env
+  }
+
+  @XtrasDSL
+  fun environment(block: XtrasEnvironmentConfig) {
+    environment.also { oldEnvironment ->
+      environment = { target ->
+        oldEnvironment(target)
+        block(target)
+      }
+    }
+  }
+
+  data class AndroidConfig(
+    var ndkDir: File,
+    var compileSDKVersion: Int = 34,
+  )
+
+  val androidConfig = AndroidConfig(project.xtrasNdkDir)
+
+  @XtrasDSL
+  fun androidConfig(block: AndroidConfig.() -> Unit) {
+    androidConfig.block()
+  }
 
 }
+
+
 
 
 
