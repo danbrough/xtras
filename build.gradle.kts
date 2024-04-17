@@ -2,6 +2,8 @@
 
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.konanDir
+import org.danbrough.xtras.xtrasDir
+import org.danbrough.xtras.xtrasLibsDir
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform) apply false
@@ -32,18 +34,7 @@ allprojects {
 
 tasks.register<Exec>("thang") {
   doFirst {
-    environment.clear()
-    environment("PATH", "/bin:/usr/bin:/usr/local/bin")
-    val home = System.getProperty("user.home")
-    println("HOME is $home")
-    println("running thang with environment: $environment")
-    val depsDir = konanDir.resolve("dependencies")
-    println("konan deps dir: $depsDir")
-    depsDir.listFiles()?.first {
-      it.isDirectory && it.name.startsWith("llvm-")
-    }?.also {
-      println("FOUND LLVM: $it")
-    }
+    println("XTRAS DIR: $xtrasDir libs:$xtrasLibsDir")
   }
   commandLine("sh", "-c", "echo \"the date is `date`\"")
 }
