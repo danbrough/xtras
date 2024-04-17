@@ -119,7 +119,6 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
 
       afterEvaluate {
         it.registerTasks()
-        //TODO: it.registerPublications()
       }
 
     }

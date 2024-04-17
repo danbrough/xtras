@@ -4,6 +4,7 @@ import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.logDebug
+import org.danbrough.xtras.registerBinaryPublication
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
@@ -62,6 +63,8 @@ fun XtrasLibrary.registerTasks() {
     }
 
     registerPackageTasks(target)
+
+    registerBinaryPublication(target)
   }
 
 }
