@@ -13,7 +13,9 @@ val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
   get() = { target ->
     if (cleanEnvironment) {
       project.logWarn("ENVIRONMENT: CLEAR")
+      val home = System.getProperty("user.home")
       clear()
+      put("HOME", home)
     }
     if (HostManager.hostIsMingw) {
       put(

@@ -185,8 +185,11 @@ val Project.xtrasMsysDir: File
     File("C:/msys64")
   }
 
-
-
+val Project.konanDir: File
+  get() = System.getenv("KONAN_DATA_DIR")?.let { File(it) } ?: File(
+    System.getProperty("user.home") ?: "NO_HOME",
+    ".konan"
+  )
 
 
 

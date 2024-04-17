@@ -60,7 +60,7 @@ private fun XtrasLibrary.registerGenerateCInterops() {
           writer.println(it)
         }
 
-        xtras.nativeTargets.get().forEach {
+        xtras.nativeTargets.get().filter(config.targetWriterFilter).forEach {
           config.targetWriter(this@registerGenerateCInterops, it, writer)
         }
 
@@ -83,6 +83,8 @@ private fun XtrasLibrary.registerGenerateCInterops() {
 
   project.tasks.withType<CInteropProcess> {
     dependsOn(cinteropsGenerateTaskName)
+    dependsOn(PackageTaskName.EXTRACT.taskName(this@registerGenerateCInterops, konanTarget))
+    inputs.file(config.defFile)
   }
 }
 

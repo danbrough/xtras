@@ -27,7 +27,7 @@ abstract class XtrasLibrary(
   @XtrasDSL
   fun cinterops(block: CInteropsConfig.() -> Unit) {
     cinteropsConfig = CInteropsConfig(
-      defFile = localXtrasBuildDir.resolve("cinterops").resolve("${name}_interops.h"),
+      defFile = localXtrasBuildDir.resolve("${name}_interops.def"),
       interopsPackage = "${project.group}.cinterops"
     ).apply(block)
   }

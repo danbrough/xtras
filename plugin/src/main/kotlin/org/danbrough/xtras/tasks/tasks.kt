@@ -50,13 +50,16 @@ fun XtrasLibrary.registerTasks() {
     registerCInteropsTasks()
 
   xtras.nativeTargets.get().forEach { target ->
-    taskPrepareSource?.invoke(target)
 
-    taskConfigureSource?.invoke(target)
+    if (!packageFile(target).exists()) {
+      taskPrepareSource?.invoke(target)
 
-    taskCompileSource?.invoke(target)
+      taskConfigureSource?.invoke(target)
 
-    taskInstallSource?.invoke(target)
+      taskCompileSource?.invoke(target)
+
+      taskInstallSource?.invoke(target)
+    }
 
     registerPackageTasks(target)
   }

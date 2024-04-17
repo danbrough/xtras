@@ -40,6 +40,11 @@ data class CInteropsConfig(
   var targetWriter: CInteropsTargetWriter = defaultCInteropsTargetWriter,
 
   /**
+   * Whether a target is included in the [targetWriter] output.
+   */
+  var targetWriterFilter: (KonanTarget) -> Boolean = { true },
+
+  /**
    * Code to append to the bottom of the def file
    *
    */

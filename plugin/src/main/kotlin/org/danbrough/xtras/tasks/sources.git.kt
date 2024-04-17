@@ -98,15 +98,20 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
     description =
       "Extracts the source code for ${this@registerSourceExtractTask.name} to ${srcDir.mixedPath}"
     inputs.property("commit", sourceConfig.hashCode())
+    val commitFile = srcDir.resolve(".commit_${sourceConfig.hashCode()}")
     //inputs.dir(downloadsDir)
-    outputs.dir(srcDir)
+    outputs.file(commitFile)
     dependsOn(SourceTaskName.DOWNLOAD.taskName(this@registerSourceExtractTask))
     doFirst {
-      if (srcDir.exists()) srcDir.deleteRecursively()
+      //if (srcDir.exists()) srcDir.deleteRecursively()
       project.logDebug("$taskName: cloning $sourceConfig to ${srcDir.mixedPath}")
     }
 
     xtrasCommandLine(xtras.tools.git, "clone", downloadsDir, srcDir)
+    
+    doLast {
+      commitFile.createNewFile()
+    }
   }
 }
 

@@ -17,6 +17,7 @@ internal fun XtrasLibrary.registerPackageTasks(target: KonanTarget) {
 
 private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
   if (taskInstallSource == null) return
+  if (packageFile(target).exists()) return
 
   project.tasks.register<Exec>(
     PackageTaskName.CREATE.taskName(
@@ -47,9 +48,9 @@ private fun XtrasLibrary.registerPackageProvideTask(target: KonanTarget) {
   val taskName = PackageTaskName.PROVIDE.taskName(this@registerPackageProvideTask, target)
   project.tasks.register(taskName) {
     group = XTRAS_TASK_GROUP
-    dependsOn(PackageTaskName.CREATE.taskName(this@registerPackageProvideTask, target))
+    if (!packageFile.exists())
+      dependsOn(PackageTaskName.CREATE.taskName(this@registerPackageProvideTask, target))
     outputs.file(packageFile)
-    onlyIf { !packageFile.exists() }
   }
 }
 

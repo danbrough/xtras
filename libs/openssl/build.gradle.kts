@@ -3,8 +3,14 @@
 
 
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.hostTriplet
+import org.danbrough.xtras.konanDir
+import org.danbrough.xtras.mixedPath
+import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.registerXtrasGitLibrary
+import org.danbrough.xtras.resolveAll
+import org.danbrough.xtras.tasks.PackageTaskName
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
 import org.danbrough.xtras.tasks.installSource
@@ -15,7 +21,9 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
@@ -118,6 +126,7 @@ kotlin {
 }*/
 
 
+
 xtrasTesting {
 }
 
@@ -142,18 +151,54 @@ registerXtrasGitLibrary<XtrasLibrary>("openssl") {
         headerFilter = openssl/**
         #headers = openssl/ssl.h openssl/err.h openssl/bio.h openssl/evp.h
         excludeDependentModules = true
-        linkerOpts.linux = -ldl -lc -lm -lssl -lcrypto
+        linkerOpts.linux = -ldl -lc -lm -lssl -lcrypto -L/usr/lib 
         linkerOpts.android = -ldl -lc -lm -lssl -lcrypto
         linkerOpts.macos = -ldl -lc -lm -lssl -lcrypto
         linkerOpts.mingw = -lm -lssl -lcrypto
-        compilerOpts.android = -D__ANDROID_API__=${xtras.androidConfig.ndkApiVersion} 
+        compilerOpts.android = -D__ANDROID_API__=${xtras.androidConfig.ndkApiVersion}  
         compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
         #compilerOpts = -static
+        
         """.trimIndent()
+
+    targetWriterFilter = { target -> target == KonanTarget.LINUX_ARM64 }
+
+    afterEvaluate {
+      tasks.withType<CInteropProcess> {
+        if (konanTarget in setOf(KonanTarget.LINUX_ARM64)) {
+          dependsOn(PackageTaskName.EXTRACT.taskName(this@registerXtrasGitLibrary, konanTarget))
+        }
+      }
+    }
   }
 
-  environment {
+  environment { target ->
     put("MAKEFLAGS", "-j8")
+    put("CFLAGS", "-Wno-unused-command-line-argument")
+
+    if (target == KonanTarget.LINUX_ARM64) {
+      //put("PATH",pathOf(project.xtrasKon))
+
+      val depsDir = project.konanDir.resolve("dependencies")
+      val llvmPrefix = if (HostManager.hostIsLinux) "llvm-" else "apple-llvm"
+      val llvmDir = depsDir.listFiles()?.first {
+        it.isDirectory && it.name.startsWith(llvmPrefix)
+      } ?: error("No directory beginning with \"llvm-\" found in ${depsDir.mixedPath}")
+      put("PATH", pathOf(llvmDir.resolve("bin"), get("PATH")))
+      val clangArgs =
+        "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2")}" +
+            " --sysroot=${
+              depsDir.resolveAll(
+                "aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2",
+                "aarch64-unknown-linux-gnu",
+                "sysroot"
+              )
+            }"
+      put("CLANG_ARGS", clangArgs)
+      put("CC", "clang $clangArgs")
+      put("CXX", "clang++ $clangArgs")
+    }
+
   }
 
   configureSource { target ->

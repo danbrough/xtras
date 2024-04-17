@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 import org.danbrough.xtras.XTRAS_PACKAGE
+import org.danbrough.xtras.konanDir
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform) apply false
@@ -29,3 +30,20 @@ allprojects {
 }
 
 
+tasks.register<Exec>("thang") {
+  doFirst {
+    environment.clear()
+    environment("PATH", "/bin:/usr/bin:/usr/local/bin")
+    val home = System.getProperty("user.home")
+    println("HOME is $home")
+    println("running thang with environment: $environment")
+    val depsDir = konanDir.resolve("dependencies")
+    println("konan deps dir: $depsDir")
+    depsDir.listFiles()?.first {
+      it.isDirectory && it.name.startsWith("llvm-")
+    }?.also {
+      println("FOUND LLVM: $it")
+    }
+  }
+  commandLine("sh", "-c", "echo \"the date is `date`\"")
+}

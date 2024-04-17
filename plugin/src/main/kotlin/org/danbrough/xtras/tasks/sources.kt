@@ -5,6 +5,7 @@ import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.logDebug
+import org.danbrough.xtras.logTrace
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -17,6 +18,7 @@ fun XtrasLibrary.sourceTask(
   block: Exec.(KonanTarget) -> Unit
 ): TaskConfig = { target ->
 
+
   project.tasks.register<Exec>(name.taskName(this, target)) {
     group = XTRAS_TASK_GROUP
 
@@ -28,6 +30,7 @@ fun XtrasLibrary.sourceTask(
     doFirst {
       environment(loadEnvironment(environment, target))
       project.logDebug("$name: running command: ${commandLine.joinToString(" ")} makeflags: ${environment["MAKEFLAGS"]}")
+      project.logTrace("$name: environment: $environment")
     }
     block(target)
   }

@@ -38,7 +38,7 @@ fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit) =
 
 fun Project.xtrasEnableTestExes(
   configPrefix: String,
-  `package`: String = group.toString(),
+  `package`: String,
   buildTypes: List<NativeBuildType> = listOf(NativeBuildType.DEBUG),
   compilationName: String = "test",
   tests: List<String>,
