@@ -35,11 +35,12 @@ abstract class XtrasLibrary(
   val downloadsDir: File
     get() = project.xtrasDownloadsDir.resolve(name)
 
-  private val localXtrasBuildDir: File = project.layout.buildDirectory.asFile.get().resolve("xtras")
+  private val localXtrasBuildDir: File = project.layout.buildDirectory.asFile.get().resolve("xtras").also {
+    project.logError("localXtrasBuildDir for $name is $it")
+  }
 
   private val localBuildDir: (dirName: String, target: KonanTarget) -> File = { dirName, target ->
-    localXtrasBuildDir.resolve(dirName).resolve(name).resolve(version)
-      .resolve(target.kotlinTargetName)
+    localXtrasBuildDir.resolveAll(dirName,name,version,target.kotlinTargetName)
   }
 
   @XtrasDSL

@@ -1,7 +1,9 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 
+import org.danbrough.xtras.XtrasEnvironment
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.environmentKonan
 import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.konanDir
 import org.danbrough.xtras.mixedPath
@@ -155,32 +157,16 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
     codeFile = project.file("interops.h")
   }
 
+
+
   environment { target ->
     put("MAKEFLAGS", "-j6")
-    //put("CFLAGS", "-Wno-unused-command-line-argument")
 
-    if (target == KonanTarget.LINUX_ARM64) {
-      //put("PATH",pathOf(project.xtrasKon))
-
-      val depsDir = project.konanDir.resolve("dependencies")
-      val llvmPrefix = if (HostManager.hostIsLinux) "llvm-" else "apple-llvm"
-      val llvmDir = depsDir.listFiles()?.first {
-        it.isDirectory && it.name.startsWith(llvmPrefix)
-      } ?: error("No directory beginning with \"llvm-\" found in ${depsDir.mixedPath}")
-      put("PATH", pathOf(llvmDir.resolve("bin"), get("PATH")))
-      val clangArgs =
-        "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2")}" +
-            " --sysroot=${
-              depsDir.resolveAll(
-                "aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2",
-                "aarch64-unknown-linux-gnu",
-                "sysroot"
-              )
-            }"
-      put("CLANG_ARGS", clangArgs)
-      put("CC", "clang $clangArgs")
-      put("CXX", "clang++ $clangArgs")
+    if (target == KonanTarget.LINUX_ARM64 || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
+      environmentKonan(this@registerXtrasGitLibrary,target)
     }
+
+    //put("CC","clang")
 
   }
 
@@ -205,7 +191,7 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
     )
 
     if (target == KonanTarget.LINUX_ARM64)
-      args += "--with-libssl-prefix=/home/dan/workspace/xtras/xtras/libs/openssl/3.3.0/linuxArm64"
+      args += "--with-libssl-prefix=/home/dan/workspace/xtras/xtras/libs/openssl/3.3.0/linuxArm64" //TODO fix this
 
     xtrasCommandLine(args)
   }
