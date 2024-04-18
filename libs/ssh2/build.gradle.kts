@@ -14,9 +14,9 @@ import org.danbrough.xtras.tasks.configureSource
 import org.danbrough.xtras.tasks.installSource
 import org.danbrough.xtras.tasks.prepareSource
 import org.danbrough.xtras.xtrasCommandLine
-import org.danbrough.xtras.xtrasEnableTestExes
 import org.danbrough.xtras.xtrasJniConfig
 import org.danbrough.xtras.xtrasMsysDir
+import org.danbrough.xtras.xtrasTestExecutables
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.xtras)
-  //id("org.danbrough.xtras.sonatype")
+  id("org.danbrough.xtras.sonatype")
   id("com.android.library")
   //`maven-publish`
 }
@@ -113,31 +113,33 @@ kotlin {
 
   targets.withType<KotlinNativeTarget> {
 
+
     binaries {
       sharedLib("xtras_ssh2")
-//      if (this@withType.konanTarget == KonanTarget.LINUX_X64) {
-//        executable("execTest") {
-//          entryPoint = "org.danbrough.ssh2.mainExecTest"
-//          org.danbrough.ssh2.mainExecTest
-//          compilation = compilations["test"]
+
+
+//        executable("sshExec") {
+//          entryPoint = "org.danbrough.ssh2.mainSshExec"
+//          compilation = compilations.getByName("test")
 //        }
-//      }
     }
-
   }
+
 }
 
-xtrasEnableTestExes("ssh", group.toString(), tests = listOf("sshExec")) {
-  it in setOf(KonanTarget.LINUX_X64, KonanTarget.LINUX_ARM64, KonanTarget.MINGW_X64)
-}
 
+
+
+
+
+xtrasTestExecutables("ssh", tests = listOf("sshExec"))
 
 xtrasTesting {
 
 }
 
-/*sonatype {
-}*/
+sonatype {
+}
 
 xtrasJniConfig {
   compileSdk = 34
@@ -155,8 +157,6 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
     codeFile = project.file("interops.h")
   }
 
-
-
   environment { target ->
     put("MAKEFLAGS", "-j6")
 
@@ -164,7 +164,7 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
       environmentKonan(this@registerXtrasGitLibrary, target)
     }
 
-    //put("CC","clang")
+//put("CC","clang")
 
   }
 
@@ -182,7 +182,7 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
     val args = mutableListOf(
       "sh",
       "./configure",
-      //"--enable-examples-build",
+//"--enable-examples-build",
       "--host=${target.hostTriplet}",
       "--prefix=${buildDir(target).mixedPath}",
       "--with-libz"
@@ -194,7 +194,7 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
     xtrasCommandLine(args)
   }
 
-  compileSource { target ->
+  compileSource {
     xtrasCommandLine("make")
   }
 

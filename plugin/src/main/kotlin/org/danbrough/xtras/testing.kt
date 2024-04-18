@@ -36,27 +36,14 @@ fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit) =
   }
 
 
-fun Project.xtrasEnableTestExes(
-  configPrefix: String,
-  `package`: String,
-  buildTypes: List<NativeBuildType> = listOf(NativeBuildType.DEBUG),
-  compilationName: String = "test",
-  tests: List<String>,
-  filter: (KonanTarget) -> Boolean = { true }
-) {
-  val kotlin = kotlinExtension as KotlinMultiplatformExtension
-
-  /**
-   * Create and configure native executable binaries for each test.
-   */
-  kotlin.targets.withType<KotlinNativeTarget> {
-    if (filter(konanTarget)) {
+fun Project.xtrasTestExecutables(configPrefix: String, tests: List<String>) {
+  (kotlinExtension as KotlinMultiplatformExtension).targets.withType<KotlinNativeTarget> {
+    if (konanTarget == KonanTarget.MINGW_X64 || konanTarget == KonanTarget.LINUX_X64) {
       binaries {
         tests.forEach { testName ->
-          executable(testName, buildTypes) {
-            entryPoint = "$`package`.main${testName.capitalized()}"
-            //logDebug("configuring executable $testName with entryPoint: $entryPoint in compilation: $compilationName target:$konanTarget")
-            compilation = compilations.getByName(compilationName)
+          executable(testName, buildTypes = setOf(NativeBuildType.DEBUG)) {
+            entryPoint = "${group}.main${testName.capitalized()}"
+            compilation = compilations.getByName("test")
             runTask?.apply {
               //kotlinx.io uses $TMP for the temporary directory location
               args(if (extra.has("args")) extra["args"].toString().split(",") else emptyList())
@@ -75,20 +62,23 @@ fun Project.xtrasEnableTestExes(
     }
   }
 
-  /**
-   * Configure JVM tests as well
-   */
-  tasks.withType<KotlinJvmTest> {
-    if (!environment.contains("TMP"))
-      environment("TMP", System.getProperty("java.io.tmpdir"))
+  afterEvaluate {
 
-    systemProperty("args", if (extra.has("args")) extra["args"].toString() else "")
+    /**
+     * Configure JVM tests as well
+     */
+    tasks.withType<KotlinJvmTest> {
+      if (!environment.contains("TMP"))
+        environment("TMP", System.getProperty("java.io.tmpdir"))
 
-    //if (extra.has("args"))
-    project.properties.forEach { (key, value) ->
-      if (key.startsWith("$configPrefix.")) {
-        val envKey = key.replace('.', '_').uppercase()
-        environment(envKey, value!!)
+      systemProperty("args", if (extra.has("args")) extra["args"].toString() else "")
+
+      //if (extra.has("args"))
+      project.properties.forEach { (key, value) ->
+        if (key.startsWith("$configPrefix.")) {
+          val envKey = key.replace('.', '_').uppercase()
+          environment(envKey, value!!)
+        }
       }
     }
   }

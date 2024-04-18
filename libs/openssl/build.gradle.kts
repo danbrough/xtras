@@ -45,7 +45,6 @@ xtras {
 group = projectProperty<String>("openssl.group")
 version = projectProperty<String>("openssl.version")
 
-
 kotlin {
   withSourcesJar(publish = true)
 
@@ -66,6 +65,8 @@ kotlin {
   linuxArm64()
   mingwX64()
   androidNativeArm64()
+  macosX64()
+  macosArm64()
 
   sourceSets {
     all {

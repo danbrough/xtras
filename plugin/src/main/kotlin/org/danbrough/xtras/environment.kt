@@ -11,12 +11,16 @@ typealias XtrasEnvironmentConfig = XtrasEnvironment.(target: KonanTarget) -> Uni
 
 val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
   get() = { target ->
+    project.logTrace("INITIAL_ENVIRONMENT: target: $target cleanEnvironment: $cleanEnvironment")
+
     if (cleanEnvironment) {
-      project.logWarn("ENVIRONMENT: CLEAR")
       val home = System.getProperty("user.home")
       clear()
       put("HOME", home)
     }
+
+    put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")
+
     if (HostManager.hostIsMingw) {
       put(
         "PATH", pathOf(
@@ -30,12 +34,25 @@ val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
     } else {
       put("PATH", pathOf("/bin", "/usr/bin", "/usr/local/bin", get("PATH")))
     }
-    put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")
 
-    project.logTrace("INITIAL_ENVIRONMENT: target: $target")
+
     if (target.family == Family.ANDROID)
       environmentNDK(this, target)
+    else if (target.family.isAppleFamily)
+      environmentApple(target)
   }
+
+private fun XtrasEnvironment.environmentApple(target: KonanTarget) {
+  put(
+    "CFLAGS",
+    "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  )
+  val clangArgs =
+    "--target=${target.hostTriplet}"
+  put("CLANG_ARGS", clangArgs)
+  put("CC", "clang $clangArgs")
+  put("CXX", "clang++ $clangArgs")
+}
 
 
 fun XtrasExtension.environmentNDK(env: XtrasEnvironment, target: KonanTarget) {
@@ -72,7 +89,7 @@ fun XtrasEnvironment.environmentKonan(library: XtrasLibrary, target: KonanTarget
   //put("PATH",pathOf(project.xtrasKon))
   val depsDir = library.project.konanDir.resolve("dependencies")
   val llvmPrefix = if (HostManager.hostIsLinux || HostManager.hostIsMingw) "llvm-" else "apple-llvm"
-  val llvmDir = depsDir.listFiles()?.firstOrNull() {
+  val llvmDir = depsDir.listFiles()?.firstOrNull {
     it.isDirectory && it.name.startsWith(llvmPrefix)
   } ?: error("No directory beginning with \"llvm-\" found in ${depsDir.mixedPath}")
   put("PATH", pathOf(llvmDir.resolve("bin"), get("PATH")))
