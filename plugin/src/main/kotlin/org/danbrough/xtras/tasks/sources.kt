@@ -31,7 +31,7 @@ fun XtrasLibrary.sourceTask(
     doFirst {
 
       environment(loadEnvironment(environment, target))
-      project.logDebug("$name: running command: ${commandLine.joinToString(" ")} makeflags: ${environment["MAKEFLAGS"]}")
+      project.logDebug("$name: running command: ${commandLine.joinToString(" ")}")
       project.logTrace("$name: environment: $environment")
     }
     block(target)

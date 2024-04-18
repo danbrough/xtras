@@ -64,7 +64,7 @@ internal fun Project.configurePublishing() {
             emptyFileForJavadocTaskName
           ) {
             val outputFile =
-              File(System.getProperty("java.io.tmpdir"), "emptyFileForJavadoc_${project.path}")
+              File(System.getProperty("java.io.tmpdir"), "emptyFileForJavadoc_${project.path.replace(':','_')}")
             actions.add {
               outputFile.writeText("Empty file for javadocs")
             }

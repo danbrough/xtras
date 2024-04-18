@@ -150,7 +150,7 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
   cinterops {
     declaration = """
     headers = libssh2.h  libssh2_publickey.h  libssh2_sftp.h
-    linkerOpts = -lssh2
+    linkerOpts = -lcrypto -lssl -lssh2
     
     """.trimIndent()
 
@@ -160,7 +160,7 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
   environment { target ->
     put("MAKEFLAGS", "-j6")
 
-    if (target == KonanTarget.LINUX_ARM64 || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
+    if (target == KonanTarget.LINUX_ARM64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
       environmentKonan(this@registerXtrasGitLibrary, target)
     }
 
@@ -181,9 +181,12 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
 
     val args = mutableListOf(
       "sh",
-      "./configure",
-//"--enable-examples-build",
-      "--host=${target.hostTriplet}",
+      "./configure"
+    )
+    if (target != KonanTarget.MINGW_X64)
+      args += "--host=${target.hostTriplet}"
+
+    args += listOf(
       "--prefix=${buildDir(target).mixedPath}",
       "--with-libz"
     )

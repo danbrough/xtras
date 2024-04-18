@@ -4,7 +4,7 @@ import kotlinx.coroutines.runBlocking
 
 
 fun mainSshExec(args: Array<String>) {
-  log.info { "mainSshExec()" }
+  log.info { "mainSshExec() mingw64" }
   initSessionConfig(args)
   log.debug { "config: $sessionConfig" }
 
