@@ -66,7 +66,7 @@ import kotlin.io.encoding.Base64
 
 class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate") val config: SessionConfig) :
   AutoCloseable {
-  private var sock: libssh2_socket_t = 0
+  private var sock: libssh2_socket_t = 0U
   private var session: CPointer<LIBSSH2_SESSION>? = null
 
   internal fun connect() {
@@ -78,14 +78,16 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
         error("Failed to create socket")
       log.trace { "created socket" }
 
-      /*val sockAddress = cValue<sockaddr_in>() {
+
+      /*val sockAddress = cValue<sockaddr_in> {
         sin_family = AF_INET.convert()
-        sin_port = org.danbrough.ssh2.cinterops.ssh2_htons(config.port.convert())
-        sin_addr.s_addr = org.danbrough.ssh2.cinterops.inetAddr(config.hostName)
+        sin_port = ssh2_htons(config.port.convert())
+
+        //sin_addr = platform.windows.inet_addr(config.hostName) as in_addr
+        //TODO sin_addr.s_addr = org.danbrough.ssh2.cinterops.inetAddr(config.hostName)
       }*/
 
       val sockAddress = ssh2_sock_address(config.hostName, config.port)
-
 
       connect(sock, sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
         .also {

@@ -7,11 +7,11 @@
 #include <sys/types.h>
 
 #ifndef _WIN32
+
 #include <arpa/inet.h>
 #include <sys/socket.h>
+
 #endif
-
-
 
 
 static int ssh2_init(int flags) {
@@ -37,13 +37,22 @@ static int ssh2_exit() {
 }
 
 //Missing from the kotlin MPP android native libraries
-static inline uint32_t inetAddr(const char *cp){
+static inline uint32_t inetAddr(const char *cp) {
     return inet_addr(cp);
 }
 
 //Missing from darwin
-static inline uint16_t ssh2_htons(uint16_t hostshort){
+static inline uint16_t ssh2_htons(uint16_t hostshort) {
     return htons(hostshort);
+}
+
+
+static struct sockaddr_in ssh2_sock_address(const char *hostaddr, const int port) {
+    struct sockaddr_in sin;
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(22);
+    sin.sin_addr.s_addr = inet_addr(hostaddr);
+    return sin;
 }
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session) {
@@ -74,7 +83,6 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session) {
 
     return rc;
 }
-
 
 
 static LIBSSH2_API inline void libssh2_socket_close2(libssh2_socket_t socket) {
