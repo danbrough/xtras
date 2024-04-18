@@ -21,6 +21,7 @@ fun XtrasLibrary.sourceTask(
 
   project.tasks.register<Exec>(name.taskName(this, target)) {
     group = XTRAS_TASK_GROUP
+    enabled = buildEnabled
 
     dependsOn?.also {
       dependsOn(it.taskName(this@sourceTask, target))
@@ -28,6 +29,7 @@ fun XtrasLibrary.sourceTask(
 
     workingDir(sourceDir(target))
     doFirst {
+
       environment(loadEnvironment(environment, target))
       project.logDebug("$name: running command: ${commandLine.joinToString(" ")} makeflags: ${environment["MAKEFLAGS"]}")
       project.logTrace("$name: environment: $environment")

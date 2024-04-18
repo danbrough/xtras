@@ -6,7 +6,6 @@ import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.logTrace
-import org.danbrough.xtras.mixedPath
 import org.danbrough.xtras.xtrasCommandLine
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
@@ -39,6 +38,7 @@ private fun XtrasLibrary.registerDownloadTask() {
 
   project.run {
     tasks.register(downloadTaskName) {
+      enabled = buildEnabled
       group = XTRAS_TASK_GROUP
       description =
         "Downloads the source code from the remote repository ${config.url} with commit: ${config.commit}"
@@ -95,6 +95,7 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
   val srcDir = sourceDir(target)
   project.tasks.register<Exec>(taskName) {
     group = XTRAS_TASK_GROUP
+    enabled = buildEnabled
     description =
       "Extracts the source code for ${this@registerSourceExtractTask.name} to $srcDir"
     inputs.property("commit", sourceConfig.hashCode())
@@ -108,7 +109,7 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
     }
 
     xtrasCommandLine(xtras.tools.git, "clone", downloadsDir, srcDir.absolutePath)
-    
+
     doLast {
       commitFile.createNewFile()
     }

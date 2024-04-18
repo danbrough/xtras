@@ -1,9 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 import org.danbrough.xtras.XTRAS_PACKAGE
-import org.danbrough.xtras.konanDir
-import org.danbrough.xtras.xtrasDir
-import org.danbrough.xtras.xtrasLibsDir
+import org.danbrough.xtras.xtrasMavenDir
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform) apply false
@@ -23,8 +21,9 @@ allprojects {
   version = xtrasProjectVersion
 
   repositories {
+    maven(xtrasMavenDir)
     maven("https://maven.danbrough.org")
-    //maven(xtrasPath(XtrasPath.MAVEN))
+
     mavenCentral()
     google()
     //   maven("https://s01.oss.sonatype.org/content/groups/staging")
@@ -32,9 +31,26 @@ allprojects {
 }
 
 
-tasks.register<Exec>("thang") {
-  doFirst {
-    println("XTRAS DIR: $xtrasDir libs:$xtrasLibsDir")
+tasks.register("thang") {
+  val mavenID = "org.danbrough.openssl:binaries-openssl-mingwx64:3.3.0"
+  actions.add {
+    val configurationThang =
+      project.configurations.create("configurationThang") {
+
+
+      }
+
+    project.dependencies {
+      configurationThang(mavenID)
+    }
+
+    runCatching {
+      configurationThang.resolvedConfiguration.files.all {
+        println("RESOLIVED: $it")
+        true
+      }
+    }.exceptionOrNull()?.also {
+      println("ERROR: $it")
+    }
   }
-  commandLine("sh", "-c", "echo \"the date is `date`\"")
 }

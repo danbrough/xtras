@@ -1,36 +1,58 @@
 package org.danbrough.xtras
 
+import org.danbrough.xtras.tasks.PackageTaskName
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.kotlin.dsl.apply
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 
 fun XtrasLibrary.registerBinaryPublication(target: KonanTarget) {
-  project.logInfo("registerBinaryPublications() $target")
-  val publishing =
-    project.extensions.findByType<PublishingExtension>() ?: project.apply("maven-publish").let {
-      project.logWarn("applied the maven-publish plugin")
-      project.extensions.findByType<PublishingExtension>()
-    }
-}
-/*
-fun LibraryExtension.registerPublications() {
-  if (!buildEnabled) return
-  project.logInfo("registerPublications()")
-  project.extensions.findByType<PublishingExtension>()!!.run {
-    supportedTargets.get().forEach { target ->
-      val publicationName = "${this@registerPublications.name}${target.platformName.capitalized()}"
+  val publishing = project.extensions.findByType<PublishingExtension>() ?: return
 
-      publications.create<MavenPublication>(publicationName) {
-        artifactId = artifactName(target)
-        version = this@registerPublications.version
-        groupId = this@registerPublications.group
-        val artifactTask = project.tasks.getByName(taskNamePackageCreate(target))
-        artifact(artifactTask.outputs.files.first()).builtBy(artifactTask)
-        //println("PUBLICATION: artifactID:$artifactId group:$groupId version:$version")
-      }
+  val providePackageTaskName = PackageTaskName.PROVIDE.taskName(this, target)
+  val artifactTask = project.tasks.getByName(providePackageTaskName)
+  val publicationName = "${name}Binaries${target.kotlinTargetName.capitalized()}"
+
+  publishing.publications.create<MavenPublication>(publicationName) {
+    artifactId = artifactID(target)
+    version = this@registerBinaryPublication.version
+    groupId = this@registerBinaryPublication.group
+    val file = artifactTask.outputs.files.first()
+    //project.logError("registerBinaryPublication for file: ${file.absolutePath}")
+    artifact(file).builtBy(artifactTask)
+    pom {
+      packaging = "tgz"
     }
   }
 }
-*/
+
+fun XtrasLibrary.resolveBinariesFromMaven(target: KonanTarget): File? {
+  val mavenID = "$group:${artifactID(target)}:$version"
+  project.logDebug("$name::resolveBinariesFromMaven():$target $mavenID")
+
+  val binariesConfiguration =
+    project.configurations.create("configuration${this@resolveBinariesFromMaven.name.capitalized()}Binaries${target.kotlinTargetName.capitalized()}") {
+/*      isVisible = false
+      isTransitive = false
+      isCanBeConsumed = true
+      isCanBeResolved = true*/
+    }
+
+  project.dependencies {
+    binariesConfiguration(mavenID)
+  }
+
+  runCatching {
+    return binariesConfiguration.resolve().first().also {
+      project.logDebug("$name::resolveBinariesFromMaven(): $target found ${it.absolutePath}")
+    }
+  }.exceptionOrNull()?.let {
+    project.logInfo("$name::resolveBinariesFromMaven():$target Failed for $mavenID: ${it.message}")
+  }
+  return null
+}
+

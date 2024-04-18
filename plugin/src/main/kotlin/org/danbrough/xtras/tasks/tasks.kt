@@ -4,7 +4,6 @@ import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.capitalized
 import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.logDebug
-import org.danbrough.xtras.registerBinaryPublication
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
@@ -52,19 +51,17 @@ fun XtrasLibrary.registerTasks() {
 
   xtras.nativeTargets.get().forEach { target ->
 
-    if (!packageFile(target).exists()) {
-      taskPrepareSource?.invoke(target)
+    taskPrepareSource?.invoke(target)
 
-      taskConfigureSource?.invoke(target)
+    taskConfigureSource?.invoke(target)
 
-      taskCompileSource?.invoke(target)
+    taskCompileSource?.invoke(target)
 
-      taskInstallSource?.invoke(target)
-    }
+    taskInstallSource?.invoke(target)
+
 
     registerPackageTasks(target)
 
-    registerBinaryPublication(target)
   }
 
 }

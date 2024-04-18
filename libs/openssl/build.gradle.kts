@@ -140,7 +140,6 @@ xtrasJniConfig {
 registerXtrasGitLibrary<XtrasLibrary>("openssl") {
 
   environment { target ->
-    put("CFLAGS", "-Wno-macro-redefined")
     if (target.family == Family.ANDROID)
       put("ANDROID_NDK_ROOT", xtras.androidConfig.ndkDir)
   }
@@ -174,7 +173,7 @@ registerXtrasGitLibrary<XtrasLibrary>("openssl") {
 
   environment { target ->
     put("MAKEFLAGS", "-j8")
-    put("CFLAGS", "-Wno-unused-command-line-argument")
+    put("CFLAGS", "-Wno-unused-command-line-argument -Wno-macro-redefined")
 
     if (target == KonanTarget.LINUX_ARM64) {
       //put("PATH",pathOf(project.xtrasKon))
@@ -197,8 +196,13 @@ registerXtrasGitLibrary<XtrasLibrary>("openssl") {
       put("CLANG_ARGS", clangArgs)
       put("CC", "clang $clangArgs")
       put("CXX", "clang++ $clangArgs")
+    } else if (target == KonanTarget.MINGW_X64) {
+      /*put("CC", "x86_64-w64-mingw32-gcc")
+      put("AR", "x86_64-w64-mingw32-ar")
+      put("RANLIB", "x86_64-w64-mingw32-ranlib")
+      put("RC", "x86_64-w64-mingw32-windres")*/
+      //put("PREFIX", "x86_64-w64-mingw32-")
     }
-
   }
 
   configureSource { target ->
@@ -216,13 +220,12 @@ registerXtrasGitLibrary<XtrasLibrary>("openssl") {
       "--libdir=lib",
     )
 
-
-    if (target.family == Family.MINGW)
-      args += "no-zlib-dynamic"
-
-    if (target.family == Family.ANDROID) {
+    if (target.family == Family.ANDROID)
       args += "-D__ANDROID_API__=${xtras.androidConfig.ndkApiVersion}"
+    else if (target == KonanTarget.MINGW_X64) {
+      args += "--cross-compile-prefix=x86_64-w64-mingw32-"
     }
+
 
     xtrasCommandLine(args)
   }

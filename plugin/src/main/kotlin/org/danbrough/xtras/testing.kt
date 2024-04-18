@@ -55,7 +55,7 @@ fun Project.xtrasEnableTestExes(
         tests.forEach { testName ->
           executable(testName, buildTypes) {
             entryPoint = "$`package`.main${testName.capitalized()}"
-            logDebug("configuring executable $testName with entryPoint: $entryPoint in compilation: $compilationName target:$konanTarget")
+            //logDebug("configuring executable $testName with entryPoint: $entryPoint in compilation: $compilationName target:$konanTarget")
             compilation = compilations.getByName(compilationName)
             runTask?.apply {
               //kotlinx.io uses $TMP for the temporary directory location

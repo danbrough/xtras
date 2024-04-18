@@ -1,13 +1,10 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 
-import org.danbrough.xtras.XtrasEnvironment
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
 import org.danbrough.xtras.hostTriplet
-import org.danbrough.xtras.konanDir
 import org.danbrough.xtras.mixedPath
-import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.registerXtrasGitLibrary
 import org.danbrough.xtras.resolveAll
@@ -31,8 +28,9 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.xtras)
-  id("org.danbrough.xtras.sonatype")
+  //id("org.danbrough.xtras.sonatype")
   id("com.android.library")
+  //`maven-publish`
 }
 
 xtras {
@@ -138,8 +136,8 @@ xtrasTesting {
 
 }
 
-sonatype {
-}
+/*sonatype {
+}*/
 
 xtrasJniConfig {
   compileSdk = 34
@@ -163,14 +161,14 @@ registerXtrasGitLibrary<XtrasLibrary>("ssh2") {
     put("MAKEFLAGS", "-j6")
 
     if (target == KonanTarget.LINUX_ARM64 || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
-      environmentKonan(this@registerXtrasGitLibrary,target)
+      environmentKonan(this@registerXtrasGitLibrary, target)
     }
 
     //put("CC","clang")
 
   }
 
-  prepareSource { target ->
+  prepareSource {
     val args = if (HostManager.hostIsMingw)
       listOf("sh", project.xtrasMsysDir.resolveAll("usr", "bin", "autoreconf"), "-fi")
     else listOf("autoreconf", "-fi")

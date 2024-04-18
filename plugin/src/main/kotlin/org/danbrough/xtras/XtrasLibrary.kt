@@ -22,6 +22,9 @@ abstract class XtrasLibrary(
 
   internal var sourceConfig: SourceConfig? = null
 
+  @XtrasDSL
+  var buildEnabled: Boolean = project.projectProperty("${name}.buildEnabled") { false }
+
   internal var cinteropsConfig: CInteropsConfig? = null
 
   @XtrasDSL
@@ -35,12 +38,11 @@ abstract class XtrasLibrary(
   val downloadsDir: File
     get() = project.xtrasDownloadsDir.resolve(name)
 
-  private val localXtrasBuildDir: File = project.layout.buildDirectory.asFile.get().resolve("xtras").also {
-    project.logError("localXtrasBuildDir for $name is $it")
-  }
+  private val localXtrasBuildDir: File =
+    project.layout.buildDirectory.asFile.get().resolve("xtras")
 
   private val localBuildDir: (dirName: String, target: KonanTarget) -> File = { dirName, target ->
-    localXtrasBuildDir.resolveAll(dirName,name,version,target.kotlinTargetName)
+    localXtrasBuildDir.resolveAll(dirName, name, version, target.kotlinTargetName)
   }
 
   @XtrasDSL
@@ -56,6 +58,11 @@ abstract class XtrasLibrary(
   @XtrasDSL
   var libsDir: (KonanTarget) -> File = {
     project.xtrasLibsDir.resolve(name).resolve(version).resolve(it.kotlinTargetName)
+  }
+
+  @XtrasDSL
+  var artifactID: (KonanTarget) -> String = {
+    "binaries-${name}-${it.kotlinTargetName.lowercase()}"
   }
 
   @XtrasDSL
@@ -120,6 +127,7 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
 
       afterEvaluate {
         it.registerTasks()
+        xtras.nativeTargets.get().forEach(::registerBinaryPublication)
       }
 
     }
