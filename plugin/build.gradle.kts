@@ -5,8 +5,8 @@ plugins {
   signing
 }
 
-group = xtras.versions.xtrasPackage.get()
-version = xtras.versions.xtras.version.get()
+group = libs.versions.xtrasPackage.get()
+version = libs.versions.xtras.version.get()
 
 repositories {
   mavenCentral()
@@ -14,10 +14,10 @@ repositories {
 }
 
 dependencies {
-  implementation(xtras.kotlin.gradle.plugin)
-  compileOnly(xtras.dokka.gradle.plugin)
+  implementation(libs.kotlin.gradle.plugin)
+  compileOnly(libs.dokka.gradle.plugin)
 
-  compileOnly(xtras.gradle.android)
+  compileOnly(libs.gradle.android)
 }
 
 java {

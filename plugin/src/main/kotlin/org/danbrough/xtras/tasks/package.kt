@@ -18,7 +18,6 @@ internal fun XtrasLibrary.registerPackageTasks(target: KonanTarget) {
 
 private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
   if (taskInstallSource == null) return
-  if (packageFile(target).exists()) return
 
   project.tasks.register<Exec>(
     PackageTaskName.CREATE.taskName(
@@ -41,6 +40,10 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
       "--exclude=**pkgconfig",
       "./"
     )
+    doLast {
+      sourceDir(target).deleteRecursively()
+      buildDir(target).deleteRecursively()
+    }
   }
 }
 

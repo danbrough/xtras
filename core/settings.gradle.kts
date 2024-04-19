@@ -15,6 +15,6 @@ dependencyResolutionManagement {
   }
 }
 
-
-//includeBuild("../support")
+rootProject.name = "core"
+includeBuild("../plugin")
 

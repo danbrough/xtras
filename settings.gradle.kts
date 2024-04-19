@@ -14,12 +14,16 @@ plugins {
 rootProject.name = "xtras"
 
 includeBuild("plugin")
+includeBuild("core")
+
+
 listOf(
-  //"support",
+  "support",
   "openssl",
   "ssh2",
 ).forEach {
   include(":libs:$it")
 }
+
 
 

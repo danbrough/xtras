@@ -20,6 +20,7 @@ agp = "8.4.0-rc02"
 ##⬆= "8.5.0-alpha03"
 ##⬆= "8.5.0-alpha04"
 ##⬆= "8.5.0-alpha05"
+xtras-core = "0.0.1-alpha01"
 kotlin = "2.0.0-RC1"
 
 xtrasPackage = "org.danbrough.xtras"
@@ -39,6 +40,7 @@ kotlinx-coroutines = "1.8.0"
 
 [libraries]
 
+
 io-kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version = "5.8.0" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
@@ -50,6 +52,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 dokka-gradle-plugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
 xtras-support = { group = "org.danbrough.xtras", name = "support", version.ref = "xtras-support" }
 xtras-plugin = { group = "org.danbrough.xtras", name = "plugin", version.ref = "xtras-version" }
+xtras-core = { module = "org.danbrough.xtras:core", version.ref = "xtras-core" }
 xtras-mqtt-plugin = { group = "org.danbrough.xtras", name = "plugin_mqtt", version.ref = "xtras-version" }
 xtras-openssl-plugin = { group = "org.danbrough.xtras", name = "plugin_openssl", version.ref = "xtras-openssl" }
 #kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
