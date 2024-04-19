@@ -105,6 +105,16 @@ fun XtrasEnvironment.environmentKonan(library: XtrasLibrary, target: KonanTarget
               )
             }"
 
+      KonanTarget.MACOS_ARM64 ->
+        "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2")}" +
+            " --sysroot=${
+              depsDir.resolveAll(
+                "aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2",
+                "aarch64-unknown-linux-gnu",
+                "sysroot"
+              )
+            }"
+
       KonanTarget.MINGW_X64 ->
         "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("msys2-mingw-w64-x86_64-2")}" +
             " --sysroot=${

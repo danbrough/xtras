@@ -12,6 +12,7 @@ import org.danbrough.xtras.tasks.configureSource
 import org.danbrough.xtras.tasks.installSource
 import org.danbrough.xtras.tasks.prepareSource
 import org.danbrough.xtras.xtrasCommandLine
+import org.danbrough.xtras.xtrasLibsDir
 import org.danbrough.xtras.xtrasMsysDir
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -33,7 +34,7 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
     environment { target ->
       put("MAKEFLAGS", "-j6")
 
-      if (target == KonanTarget.LINUX_ARM64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
+      if (target == KonanTarget.LINUX_ARM64 || target == KonanTarget.MACOS_ARM64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
         environmentKonan(this@registerXtrasGitLibrary, target)
       }
 
@@ -64,7 +65,11 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
       )
 
       if (target == KonanTarget.LINUX_ARM64)
-        args += "--with-libssl-prefix=/home/dan/workspace/xtras/xtras/libs/openssl/3.3.0/linuxArm64" //TODO fix this
+        args += "--with-libssl-prefix=${xtrasLibsDir}/openssl/3.3.0/linuxArm64" //TODO fix this
+      else if (target == KonanTarget.MACOS_X64)
+        args += "--with-libssl-prefix=${xtrasLibsDir}/openssl/3.3.0/macosX64" //TODO fix this
+      else if (target == KonanTarget.MACOS_ARM64)
+        args += "--with-libssl-prefix=${xtrasLibsDir}/openssl/3.3.0/macosArm64" //TODO fix this
 
       xtrasCommandLine(args)
     }

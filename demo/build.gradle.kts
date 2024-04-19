@@ -12,28 +12,31 @@ plugins {
 }
 
 repositories {
+  maven("https://maven.danbrough.org")
   mavenCentral()
-  maven(xtrasMavenDir)
+  //maven(xtrasMavenDir)
   maven("https://s01.oss.sonatype.org/content/groups/staging")
 
 }
 
 kotlin {
-  declareHostTarget()
   applyDefaultHierarchyTemplate()
 
+  linuxX64()
+  macosX64()
+  macosArm64()
 
-  sourceSets{
-    commonMain{
+
+  sourceSets {
+    commonMain {
       dependencies {
-        implementation("org.danbrough.xtras.openssl:openssl:0.0.1-alpha02")
-        implementation("org.danbrough.xtras:support:0.0.1-alpha02")
-
+        //implementation("org.danbrough.xtras.openssl:openssl:0.0.1-alpha02")
+        implementation("org.danbrough.xtras:support:0.0.1-beta01")
       }
     }
 
-    commonTest{
-      dependencies{
+    commonTest {
+      dependencies {
         implementation(kotlin("test"))
       }
     }

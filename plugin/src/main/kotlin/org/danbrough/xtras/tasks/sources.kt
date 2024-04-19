@@ -29,7 +29,6 @@ fun XtrasLibrary.sourceTask(
 
     workingDir(sourceDir(target))
     doFirst {
-
       environment(loadEnvironment(environment, target))
       project.logDebug("$name: running command: ${commandLine.joinToString(" ")}")
       project.logTrace("$name: environment: $environment")

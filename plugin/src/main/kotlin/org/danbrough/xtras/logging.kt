@@ -36,7 +36,8 @@ private inline fun logToStdout(project: Project): Boolean =
 private var logToGradle: Boolean? = null
 private inline fun logToGradle(project: Project): Boolean =
   logToGradle ?: project.projectProperty(
-    logToGradleProperty){true}
+    logToGradleProperty
+  ) { true }
     .also {
       logToGradle = it
     }
