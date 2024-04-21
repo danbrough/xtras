@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 internal fun XtrasLibrary.registerPackageTasks(target: KonanTarget) {
   registerPackageCreateTask(target)
-  registerPackageProvideTask(target)
+  registerPackageResolveTask(target)
   registerPackageExtractTask(target)
 }
 
@@ -47,14 +47,14 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
   }
 }
 
-private fun XtrasLibrary.registerPackageProvideTask(target: KonanTarget) {
+private fun XtrasLibrary.registerPackageResolveTask(target: KonanTarget) {
   val packageFile = packageFile(target)
-  val taskName = PackageTaskName.PROVIDE.taskName(this@registerPackageProvideTask, target)
+  val taskName = PackageTaskName.RESOLVE.taskName(this@registerPackageResolveTask, target)
   project.tasks.register(taskName) {
     group = XTRAS_TASK_GROUP
     onlyIf { !packageFile.exists() }
     if (buildEnabled && !packageFile.exists())
-      dependsOn(PackageTaskName.CREATE.taskName(this@registerPackageProvideTask, target))
+      dependsOn(PackageTaskName.CREATE.taskName(this@registerPackageResolveTask, target))
     actions.add {
       if (!packageFile.exists()) {
         resolveBinariesFromMaven(target)?.copyTo(packageFile(target))
@@ -76,7 +76,7 @@ private fun XtrasLibrary.registerPackageExtractTask(target: KonanTarget) {
       if (libsDir.exists()) libsDir.deleteRecursively()
       libsDir.mkdirs()
     }
-    dependsOn(PackageTaskName.PROVIDE.taskName(this@registerPackageExtractTask, target))
+    dependsOn(PackageTaskName.RESOLVE.taskName(this@registerPackageExtractTask, target))
     inputs.file(packageFile)
     outputs.dir(libsDir)
     workingDir(libsDir)

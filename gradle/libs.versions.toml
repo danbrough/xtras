@@ -20,6 +20,7 @@ agp = "8.4.0-rc02"
 ##⬆= "8.5.0-alpha03"
 ##⬆= "8.5.0-alpha04"
 ##⬆= "8.5.0-alpha05"
+##⬆= "8.5.0-alpha06"
 xtras-core = "0.0.1-alpha01"
 kotlin = "2.0.0-RC1"
 
@@ -33,13 +34,17 @@ dokka = "1.9.20"
 klog = "0.0.2-beta09"
 kotlinx-io = "0.3.2"
 slf4j-api = "2.0.12"
+##     ⬆ = "2.0.13"
+##     ⬆ = "2.1.0-alpha0"
+##     ⬆ = "2.1.0-alpha1"
 slf4j-simple = "2.0.12"
 logback-classic = "1.5.4"
+##           ⬆ = "1.5.5"
+##           ⬆ = "1.5.6"
 kotlinx-coroutines = "1.8.0"
 ##              ⬆ = "1.8.1-Beta"
 
 [libraries]
-
 
 io-kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version = "5.8.0" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }

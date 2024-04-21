@@ -124,6 +124,12 @@ xtrasJniConfig {
   compileSdk = 34
 }
 
-openssl {
+val ssl = openssl {
+  //buildEnabled = true
 }
 
+tasks.register("printSSL") {
+  doFirst {
+    println("${project.name}: buildEnabled: ${ssl.buildEnabled}")
+  }
+}

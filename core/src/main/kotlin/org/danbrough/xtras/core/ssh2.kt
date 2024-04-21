@@ -2,6 +2,7 @@ package org.danbrough.xtras.core
 
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
+import org.danbrough.xtras.environmentNDK
 import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.mixedPath
 import org.danbrough.xtras.registerXtrasGitLibrary
@@ -15,6 +16,7 @@ import org.danbrough.xtras.xtrasCommandLine
 import org.danbrough.xtras.xtrasLibsDir
 import org.danbrough.xtras.xtrasMsysDir
 import org.gradle.api.Project
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -38,6 +40,10 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
         environmentKonan(this@registerXtrasGitLibrary, target)
       }
 
+      if (target.family == Family.ANDROID) {
+        environmentNDK(xtras, target)
+      }
+
 //put("CC","clang")
     }
 
@@ -56,8 +62,9 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
         "sh",
         "./configure"
       )
-      if (target != KonanTarget.MINGW_X64)
-        args += "--host=${target.hostTriplet}"
+
+      args += "--host=${HostManager.host.hostTriplet}"
+      args += "--target=${target.hostTriplet}"
 
       args += listOf(
         "--prefix=${buildDir(target).mixedPath}",

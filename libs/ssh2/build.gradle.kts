@@ -2,6 +2,7 @@
 
 
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.core.openssl
 import org.danbrough.xtras.core.ssh2
 import org.danbrough.xtras.logError
 import org.danbrough.xtras.projectProperty
@@ -61,8 +62,8 @@ kotlin {
   mingwX64()
   macosX64()
   macosArm64()
-  
-  //androidNativeArm64()
+
+  androidNativeArm64()
 
   sourceSets {
     all {
@@ -143,7 +144,14 @@ rootProject.findProject(":libs:openssl")!!.also {
 
 
 ssh2 {
-  cinterops {
-    codeFile = project.file("interops.h")
+
+}
+
+val ssl = openssl {
+}
+
+tasks.register("printSSL") {
+  doFirst {
+    println("${project.name}: buildEnabled: ${ssl.buildEnabled}")
   }
 }

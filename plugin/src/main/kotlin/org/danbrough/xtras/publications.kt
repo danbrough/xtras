@@ -13,8 +13,8 @@ import java.io.File
 fun XtrasLibrary.registerBinaryPublication(target: KonanTarget) {
   val publishing = project.extensions.findByType<PublishingExtension>() ?: return
 
-  val providePackageTaskName = PackageTaskName.PROVIDE.taskName(this, target)
-  val artifactTask = project.tasks.getByName(providePackageTaskName)
+  val RESOLVEPackageTaskName = PackageTaskName.RESOLVE.taskName(this, target)
+  val artifactTask = project.tasks.getByName(RESOLVEPackageTaskName)
   val publicationName = "${name}Binaries${target.kotlinTargetName.capitalized()}"
 
   publishing.publications.create<MavenPublication>(publicationName) {

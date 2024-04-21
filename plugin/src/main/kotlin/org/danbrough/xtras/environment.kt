@@ -37,7 +37,7 @@ val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
 
 
     if (target.family == Family.ANDROID)
-      environmentNDK(this, target)
+      environmentNDK(this@INITIAL_ENVIRONMENT, target)
     else if (target.family.isAppleFamily)
       environmentApple(target)
   }
@@ -55,7 +55,7 @@ private fun XtrasEnvironment.environmentApple(target: KonanTarget) {
 }
 
 
-fun XtrasExtension.environmentNDK(env: XtrasEnvironment, target: KonanTarget) {
+fun XtrasEnvironment.environmentNDK(xtras: XtrasExtension, target: KonanTarget) {
 
   val archFolder = when {
     HostManager.hostIsLinux -> "linux-x86_64"
@@ -64,25 +64,24 @@ fun XtrasExtension.environmentNDK(env: XtrasEnvironment, target: KonanTarget) {
     else -> error("Unhandled host: ${HostManager.host}")
   }
 
-  env.apply {
-    val ndkPath = pathOf(
-      androidConfig.ndkDir.resolve("bin"),
-      androidConfig.ndkDir.resolve("toolchains/llvm/prebuilt/$archFolder/bin"),
-      get("PATH")
-    )
-    project.logTrace("environmentNDK: NDK_PATH: $ndkPath")
-    put(
-      "PATH",
-      ndkPath
-    )
+  val ndkPath = pathOf(
+    xtras.androidConfig.ndkDir.resolve("bin"),
+    xtras.androidConfig.ndkDir.resolve("toolchains/llvm/prebuilt/$archFolder/bin"),
+    get("PATH")
+  )
+  xtras.project.logTrace("environmentNDK: NDK_PATH: $ndkPath")
+  put(
+    "PATH",
+    ndkPath
+  )
 
-    //basePath.add(0, androidNdkDir.resolve("bin").absolutePath)
-    put("PREFIX", "${target.hostTriplet}${androidConfig.ndkApiVersion}-")
-    put("CC", "clang")
-    put("CXX", "clang++")
-    put("AR", "llvm-ar")
-    put("RANLIB", "ranlib")
-  }
+  //basePath.add(0, androidNdkDir.resolve("bin").absolutePath)
+  put("PREFIX", "${target.hostTriplet}${xtras.androidConfig.ndkApiVersion}-")
+  put("CC", "clang")
+  put("CXX", "clang++")
+  put("AR", "llvm-ar")
+  put("RANLIB", "ranlib")
+
 }
 
 fun XtrasEnvironment.environmentKonan(library: XtrasLibrary, target: KonanTarget) {

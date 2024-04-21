@@ -36,9 +36,13 @@ fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit) =
   }
 
 
-fun Project.xtrasTestExecutables(configPrefix: String, tests: List<String>) {
+fun Project.xtrasTestExecutables(
+  configPrefix: String,
+  tests: List<String>,
+  targetFilter: (KonanTarget) -> Boolean = { true }
+) {
   (kotlinExtension as KotlinMultiplatformExtension).targets.withType<KotlinNativeTarget> {
-    if (konanTarget == KonanTarget.MINGW_X64 || konanTarget == KonanTarget.LINUX_X64) {
+    if (targetFilter(konanTarget)) {
       binaries {
         tests.forEach { testName ->
           executable(testName, buildTypes = setOf(NativeBuildType.DEBUG)) {

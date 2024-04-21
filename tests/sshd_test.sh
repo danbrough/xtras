@@ -31,9 +31,22 @@ function mingwX64Test(){
 
 function aarch64Test(){
   if [ ! -f Makefile ]; then
+    CC=clang
+    DEPSDIR=/home/dan/.konan/dependencies
+    export CLANG_ARGS="--gcc-toolchain=$DEPSDIR/aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2 --sysroot=$DEPSDIR/aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2/aarch64-unknown-linux-gnu/sysroot"
+    export PATH=/home/dan/.konan/dependencies/llvm-11.1.0-linux-x64-essentials/bin:$PATH
+    export CC="clang $CLANG_ARGS"
+    export CXX="clang++ $CLANG_ARGS"
+
     ./configure \
+        --with-libssl-prefix=/home/dan/workspace/xtras/xtras/libs/openssl/linuxArm64/3.3.0 \
+        --target=aarch64-unknown-linux-gnu --prefix=$INSTALL || exit 1
+    mkdir $INSTALL/bin
+    make -j4 && make install and cp/example/.libs/* $INSTALL/bin
   fi
 }
+
+aarch64Test
 
 
 
