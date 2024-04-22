@@ -1,7 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
 import org.danbrough.xtras.XTRAS_PACKAGE
-import org.danbrough.xtras.xtrasMavenDir
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform) apply false
@@ -21,7 +20,7 @@ allprojects {
   version = xtrasProjectVersion
 
   repositories {
-    maven(xtrasMavenDir)
+    //maven(xtrasMavenDir)
     maven("https://maven.danbrough.org")
 
     mavenCentral()
@@ -30,27 +29,3 @@ allprojects {
   }
 }
 
-
-tasks.register("thang") {
-  val mavenID = "org.danbrough.openssl:binaries-openssl-mingwx64:3.3.0"
-  actions.add {
-    val configurationThang =
-      project.configurations.create("configurationThang") {
-
-
-      }
-
-    project.dependencies {
-      configurationThang(mavenID)
-    }
-
-    runCatching {
-      configurationThang.resolvedConfiguration.files.all {
-        println("RESOLIVED: $it")
-        true
-      }
-    }.exceptionOrNull()?.also {
-      println("ERROR: $it")
-    }
-  }
-}

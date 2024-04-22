@@ -4,6 +4,7 @@ package org.danbrough.xtras.tasks
 
 import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.resolveBinariesFromMaven
 import org.danbrough.xtras.xtrasCommandLine
 import org.gradle.api.tasks.Exec
@@ -27,6 +28,7 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
   ) {
     group = XTRAS_TASK_GROUP
     dependsOn(SourceTaskName.INSTALL.taskName(this@registerPackageCreateTask, target))
+    mustRunAfter(PackageTaskName.DOWNLOAD.taskName(this@registerPackageCreateTask, target))
     val packageFile = packageFile(target)
     onlyIf { !packageFile.exists() }
     inputs.dir(buildDir(target))
@@ -47,12 +49,31 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
   }
 }
 
+private fun XtrasLibrary.registerPackageDownloadTask(target: KonanTarget) {
+  val packageFile = packageFile(target)
+  val taskName = PackageTaskName.DOWNLOAD.taskName(this@registerPackageDownloadTask, target)
+  project.tasks.register(taskName) {
+    group = XTRAS_TASK_GROUP
+    onlyIf { !packageFile.exists() }
+    actions.add {
+      resolveBinariesFromMaven(target)?.also {
+        project.logInfo("$name: resolved $it")
+        it.copyTo(packageFile)
+      }
+    }
+
+    outputs.file(packageFile)
+  }
+}
+
 private fun XtrasLibrary.registerPackageResolveTask(target: KonanTarget) {
+  registerPackageDownloadTask(target)
   val packageFile = packageFile(target)
   val taskName = PackageTaskName.RESOLVE.taskName(this@registerPackageResolveTask, target)
   project.tasks.register(taskName) {
     group = XTRAS_TASK_GROUP
     onlyIf { !packageFile.exists() }
+    dependsOn(PackageTaskName.DOWNLOAD.taskName(this@registerPackageResolveTask, target))
     if (buildEnabled && !packageFile.exists())
       dependsOn(PackageTaskName.CREATE.taskName(this@registerPackageResolveTask, target))
     actions.add {

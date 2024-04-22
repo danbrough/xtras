@@ -102,6 +102,7 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
     val commitFile = srcDir.resolve(".commit_${sourceConfig.hashCode()}")
     //inputs.dir(downloadsDir)
     outputs.file(commitFile)
+    onlyIf { !packageFile(target).exists() }
     dependsOn(SourceTaskName.DOWNLOAD.taskName(this@registerSourceExtractTask))
     doFirst {
       if (srcDir.exists()) srcDir.deleteRecursively()

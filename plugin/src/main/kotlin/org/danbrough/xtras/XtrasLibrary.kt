@@ -127,7 +127,10 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
 
       afterEvaluate {
         it.registerTasks()
-        xtras.nativeTargets.get().forEach(::registerBinaryPublication)
+        xtras.nativeTargets.get().forEach {
+          //configureLinkTasks(it)
+          registerBinaryPublication(it)
+        }
       }
 
     }
@@ -151,3 +154,11 @@ inline fun <reified T : XtrasLibrary> Project.registerXtrasGitLibrary(
   gitSource(url, commit)
   block()
 }
+
+/*
+
+private fun XtrasLibrary.configureLinkTasks(target: KonanTarget){
+  project.tasks.withType<KotlinNativeLink>{
+
+  }
+}*/

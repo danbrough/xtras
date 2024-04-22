@@ -4,7 +4,9 @@ import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
 import org.danbrough.xtras.environmentNDK
 import org.danbrough.xtras.hostTriplet
+import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.mixedPath
+import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.registerXtrasGitLibrary
 import org.danbrough.xtras.resolveAll
 import org.danbrough.xtras.tasks.SourceTaskName
@@ -26,7 +28,7 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
     cinterops {
       declaration = """
     headers = libssh2.h  libssh2_publickey.h  libssh2_sftp.h
-    linkerOpts = -lcrypto -lssl -lssh2
+    linkerOpts = -lssh2 
     
     """.trimIndent()
 
@@ -38,9 +40,7 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
 
       if (target == KonanTarget.LINUX_ARM64 || target == KonanTarget.MACOS_ARM64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
         environmentKonan(this@registerXtrasGitLibrary, target)
-      }
-
-      if (target.family == Family.ANDROID) {
+      } else if (target.family == Family.ANDROID) {
         environmentNDK(xtras, target)
       }
 
@@ -63,21 +63,16 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
         "./configure"
       )
 
-      args += "--host=${HostManager.host.hostTriplet}"
-      args += "--target=${target.hostTriplet}"
+
+      args += "--host=${target.hostTriplet}"
+      //args += "--target=${target.hostTriplet}"
 
       args += listOf(
         "--prefix=${buildDir(target).mixedPath}",
         "--with-libz"
       )
 
-      if (target == KonanTarget.LINUX_ARM64)
-        args += "--with-libssl-prefix=${xtrasLibsDir}/openssl/3.3.0/linuxArm64" //TODO fix this
-      else if (target == KonanTarget.MACOS_X64)
-        args += "--with-libssl-prefix=${xtrasLibsDir}/openssl/3.3.0/macosX64" //TODO fix this
-      else if (target == KonanTarget.MACOS_ARM64)
-        args += "--with-libssl-prefix=${xtrasLibsDir}/openssl/3.3.0/macosArm64" //TODO fix this
-
+      args += "--with-libssl-prefix=${xtrasLibsDir}/openssl/${project.projectProperty<String>("openssl.version")}/${target.kotlinTargetName}" //TODO fix this
       xtrasCommandLine(args)
     }
 

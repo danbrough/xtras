@@ -1,10 +1,8 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 
-import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.core.openssl
 import org.danbrough.xtras.core.ssh2
-import org.danbrough.xtras.logError
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.xtrasJniConfig
 import org.danbrough.xtras.xtrasTestExecutables
@@ -13,7 +11,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.konan.target.KonanTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -60,10 +58,15 @@ kotlin {
   linuxX64()
   linuxArm64()
   mingwX64()
-  macosX64()
-  macosArm64()
+
+  if (HostManager.hostIsMac) {
+    macosX64()
+    //macosArm64()
+  }
 
   androidNativeArm64()
+  androidNativeX86()
+  androidNativeX64()
 
   sourceSets {
     all {
@@ -137,13 +140,16 @@ xtrasJniConfig {
   compileSdk = 34
 }
 
-rootProject.findProject(":libs:openssl")!!.also {
+/*rootProject.findProject(":libs:openssl")!!.also {
   val openssl = it.extensions.getByType<XtrasLibrary>()
   logError("LIBS DIR OPENSSL: ${openssl.libsDir(KonanTarget.LINUX_ARM64)}")
-}
+}*/
 
 
 ssh2 {
+  cinterops {
+    isStatic = true
+  }
 
 }
 

@@ -36,7 +36,7 @@ enum class InteropsTaskName : TaskName {
 
 
 enum class PackageTaskName : TaskName {
-  CREATE, EXTRACT, RESOLVE;
+  CREATE, EXTRACT, RESOLVE, DOWNLOAD;
 
   override val group: TaskGroup = TaskGroup.PACKAGE
 }

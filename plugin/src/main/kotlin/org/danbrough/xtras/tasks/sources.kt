@@ -27,6 +27,8 @@ fun XtrasLibrary.sourceTask(
       dependsOn(it.taskName(this@sourceTask, target))
     }
 
+    onlyIf { !packageFile(target).exists() }
+
     workingDir(sourceDir(target))
     doFirst {
       environment(loadEnvironment(environment, target))
