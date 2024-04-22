@@ -104,6 +104,16 @@ fun XtrasEnvironment.environmentKonan(library: XtrasLibrary, target: KonanTarget
               )
             }"
 
+      KonanTarget.LINUX_X64 ->
+        "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2")}" +
+            " --sysroot=${
+              depsDir.resolveAll(
+                "x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2",
+                "x86_64-unknown-linux-gnu",
+                "sysroot"
+              )
+            }"
+
       KonanTarget.MACOS_ARM64 ->
         "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2")}" +
             " --sysroot=${
@@ -124,11 +134,12 @@ fun XtrasEnvironment.environmentKonan(library: XtrasLibrary, target: KonanTarget
               )
             }"
 
+
       else -> error("Unsupported konan target: $target")
     }
   put("CLANG_ARGS", clangArgs)
-  put("CC", "clang")
-  put("CXX", "clang++")
+  put("CC", "clang $clangArgs")
+  put("CXX", "clang++ $clangArgs")
 
 }
 

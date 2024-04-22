@@ -1,5 +1,6 @@
 package org.danbrough.xtras.tasks
 
+import org.danbrough.xtras.CInteropsTargetWriter
 import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.logDebug
@@ -27,6 +28,18 @@ internal fun XtrasLibrary.registerCInteropsTasks() {
       defFile = config.defFile
     }
   }
+}
+
+val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
+  val libDir = libsDir(target).resolve("lib").mixedPath
+  val includeDir = libsDir(target).resolve("include").mixedPath
+  writer.println(
+    """
+         |compilerOpts.${target.name} =  -I$includeDir
+         |linkerOpts.${target.name} = -L$libDir
+         |libraryPaths.${target.name} =  $libDir
+         |""".trimMargin()
+  )
 }
 
 private fun XtrasLibrary.registerGenerateCInterops() {

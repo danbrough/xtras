@@ -1,5 +1,6 @@
 package org.danbrough.xtras
 
+import org.danbrough.xtras.tasks.defaultCInteropsTargetWriter
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 import java.io.PrintWriter
@@ -59,14 +60,3 @@ data class CInteropsConfig(
   )
 
 
-val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
-  val libDir = libsDir(target).resolve("lib").mixedPath
-  val includeDir = libsDir(target).resolve("include").mixedPath
-  writer.println(
-    """
-         |compilerOpts.${target.name} =  -I$includeDir
-         |linkerOpts.${target.name} = -L$libDir
-         |libraryPaths.${target.name} =  $libDir
-         |""".trimMargin()
-  )
-}
