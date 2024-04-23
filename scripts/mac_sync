@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+cd "$(dirname "$0")" && cd ..
+
+rsync -avHSx --exclude=.git --exclude-from=.gitignore  ./ mac:~/workspace/xtras/ 
+rsync -avHSx mac:~/workspace/xtras/xtras/maven/  ./xtras/maven/
+
+#exit 0
+#rsync -avHSx ./xtras/maven/  mac:~/workspace/xtras/xtras/maven/
+#rsync -avHSx mac:~/workspace/xtras/xtras/packages/  ./xtras/packages/
+
+
