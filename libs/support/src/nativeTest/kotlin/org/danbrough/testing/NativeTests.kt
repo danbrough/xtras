@@ -7,6 +7,7 @@ class NativeTests {
   @Test
   fun test1(){
     log.info { "test1()" }
+    println("NativeTests:: test1()")
 
   }
 }
