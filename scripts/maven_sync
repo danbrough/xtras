@@ -2,4 +2,5 @@
 
 cd "$(dirname "$0")" && cd ..
 
-rsync -avHSx ./xtras/maven/ maven@h1:~/m2/
+rsync -avHSx ./xtras/maven/ maven@h1:~/m2/ && rm -rf ./xtras/maven/*
+
