@@ -31,8 +31,6 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
     linkerOpts = -lssh2 
     
     """.trimIndent()
-
-      codeFile = project.file("interops.h")
     }
 
     environment { target ->
@@ -42,6 +40,8 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
         environmentKonan(this@registerXtrasGitLibrary, target)
       } else if (target.family == Family.ANDROID) {
         environmentNDK(xtras, target)
+        put("CC", "${get("PREFIX")}clang")
+        put("CXX", "${get("PREFIX")}clang++")
       }
 
 //put("CC","clang")

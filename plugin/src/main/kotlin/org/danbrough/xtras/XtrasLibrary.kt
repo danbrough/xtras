@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 
 typealias TaskConfig = (KonanTarget) -> TaskProvider<*>
+typealias ExtraLibsDirectory = (KonanTarget) -> File
 
 @Suppress("MemberVisibilityCanBePrivate")
 @XtrasDSL
@@ -23,16 +24,19 @@ abstract class XtrasLibrary(
   internal var sourceConfig: SourceConfig? = null
 
   @XtrasDSL
+  val extraLibsDirs = mutableListOf<ExtraLibsDirectory>()
+
+  @XtrasDSL
   var buildEnabled: Boolean = project.projectProperty("${name}.buildEnabled") { false }
 
   internal var cinteropsConfig: CInteropsConfig? = null
 
   @XtrasDSL
   fun cinterops(block: CInteropsConfig.() -> Unit) {
-    cinteropsConfig = CInteropsConfig(
+    (cinteropsConfig ?: CInteropsConfig(
       defFile = localXtrasBuildDir.resolve("${name}_interops.def"),
       interopsPackage = "${project.group}.cinterops"
-    ).apply(block)
+    ).also { cinteropsConfig = it }).block()
   }
 
   val downloadsDir: File

@@ -46,7 +46,7 @@ fun XtrasLibrary.registerTasks() {
   when (sourceConfig) {
     is GitSourceConfig -> registerGitSourceTasks()
   }
-  if (cinteropsConfig != null)
+  if (cinteropsConfig != null && buildEnabled)
     registerCInteropsTasks()
 
   xtras.nativeTargets.get().forEach { target ->

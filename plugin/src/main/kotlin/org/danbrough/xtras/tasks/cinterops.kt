@@ -35,9 +35,33 @@ val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
   val includeDir = libsDir(target).resolve("include").mixedPath
   writer.println(
     """
-         |compilerOpts.${target.name} =  -I$includeDir
-         |linkerOpts.${target.name} = -L$libDir
-         |libraryPaths.${target.name} =  $libDir
+         |compilerOpts.${target.name} =  -I$includeDir ${
+      extraLibsDirs.joinToString {
+        "-I${
+          it(target).resolve(
+            "include"
+          ).mixedPath
+        } "
+      }
+    }
+         |linkerOpts.${target.name} = -L$libDir ${
+      extraLibsDirs.joinToString {
+        "-L${
+          it(target).resolve(
+            "lib"
+          ).mixedPath
+        } "
+      }
+    }
+         |libraryPaths.${target.name} =  $libDir ${
+      extraLibsDirs.joinToString {
+        "${
+          it(target).resolve(
+            "lib"
+          ).mixedPath
+        } "
+      }
+    }
          |""".trimMargin()
   )
 }

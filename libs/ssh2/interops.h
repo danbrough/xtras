@@ -50,7 +50,7 @@ static inline uint16_t ssh2_htons(uint16_t hostshort) {
 static struct sockaddr_in ssh2_sock_address(const char *hostaddr, const int port) {
     struct sockaddr_in sin;
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(22);
+    sin.sin_port = htons(port);
     sin.sin_addr.s_addr = inet_addr(hostaddr);
     return sin;
 }

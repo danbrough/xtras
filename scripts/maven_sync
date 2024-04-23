@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd "$(dirname "$0")" && cd ..
+
+rsync -avHSx ./xtras/maven/ maven@h1:~/m2/

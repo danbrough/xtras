@@ -3,14 +3,18 @@
 
 import org.danbrough.xtras.core.openssl
 import org.danbrough.xtras.core.ssh2
+import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.projectProperty
+import org.danbrough.xtras.resolveAll
 import org.danbrough.xtras.xtrasJniConfig
+import org.danbrough.xtras.xtrasLibsDir
 import org.danbrough.xtras.xtrasTestExecutables
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
@@ -127,7 +131,9 @@ kotlin {
 
 
 
-xtrasTestExecutables("ssh", tests = listOf("sshExec"))
+xtrasTestExecutables("ssh", tests = listOf("sshExec")) {
+  it.family == Family.LINUX
+}
 
 xtrasTesting {
 
@@ -148,9 +154,16 @@ xtrasJniConfig {
 
 ssh2 {
   cinterops {
-    isStatic = true
+    codeFile = file("interops.h")
   }
 
+  extraLibsDirs += {
+    xtrasLibsDir.resolveAll(
+      "openssl",
+      projectProperty<String>("openssl.version"),
+      it.kotlinTargetName
+    )
+  }
 }
 
 val ssl = openssl {
@@ -161,3 +174,4 @@ tasks.register("printSSL") {
     println("${project.name}: buildEnabled: ${ssl.buildEnabled}")
   }
 }
+

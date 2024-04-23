@@ -1,13 +1,10 @@
 package org.danbrough.xtras.core
 
 import org.danbrough.xtras.XtrasLibrary
-import org.danbrough.xtras.hostTriplet
-import org.danbrough.xtras.konanDir
+import org.danbrough.xtras.environmentKonan
+import org.danbrough.xtras.environmentNDK
 import org.danbrough.xtras.logInfo
-import org.danbrough.xtras.mixedPath
-import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.registerXtrasGitLibrary
-import org.danbrough.xtras.resolveAll
 import org.danbrough.xtras.tasks.PackageTaskName
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
@@ -17,7 +14,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit = {}) =
@@ -50,39 +46,12 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
     }
 
     environment { target ->
-      put("MAKEFLAGS", "-j8")
+
       put("CFLAGS", "-Wno-unused-command-line-argument -Wno-macro-redefined")
       if (target.family == Family.ANDROID)
-        put("ANDROID_NDK_ROOT", xtras.androidConfig.ndkDir)
-
-      if (target == KonanTarget.LINUX_ARM64) {
-        //put("PATH",pathOf(project.xtrasKon))
-
-        val depsDir = project.konanDir.resolve("dependencies")
-        val llvmPrefix = if (HostManager.hostIsLinux) "llvm-" else "apple-llvm"
-        val llvmDir = depsDir.listFiles()?.first {
-          it.isDirectory && it.name.startsWith(llvmPrefix)
-        } ?: error("No directory beginning with \"llvm-\" found in ${depsDir.mixedPath}")
-        put("PATH", pathOf(llvmDir.resolve("bin"), get("PATH")))
-        val clangArgs =
-          "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2")}" +
-              " --sysroot=${
-                depsDir.resolveAll(
-                  "aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2",
-                  "aarch64-unknown-linux-gnu",
-                  "sysroot"
-                )
-              }"
-        put("CLANG_ARGS", clangArgs)
-        put("CC", "clang $clangArgs")
-        put("CXX", "clang++ $clangArgs")
-      } else if (target == KonanTarget.MINGW_X64) {
-        /*put("CC", "x86_64-w64-mingw32-gcc")
-        put("AR", "x86_64-w64-mingw32-ar")
-        put("RANLIB", "x86_64-w64-mingw32-ranlib")
-        put("RC", "x86_64-w64-mingw32-windres")*/
-        //put("PREFIX", "x86_64-w64-mingw32-")
-      }
+        environmentNDK(xtras, target)
+      else if (target.family == Family.LINUX)
+        environmentKonan(this@registerXtrasGitLibrary, target)
     }
 
 
