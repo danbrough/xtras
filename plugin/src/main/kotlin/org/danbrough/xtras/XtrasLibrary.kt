@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 
 typealias TaskConfig = (KonanTarget) -> TaskProvider<*>
-typealias ExtraLibsDirectory = (KonanTarget) -> File
 
 @Suppress("MemberVisibilityCanBePrivate")
 @XtrasDSL
@@ -22,9 +21,6 @@ abstract class XtrasLibrary(
   internal interface SourceConfig
 
   internal var sourceConfig: SourceConfig? = null
-
-  @XtrasDSL
-  val extraLibsDirs = mutableListOf<ExtraLibsDirectory>()
 
   @XtrasDSL
   var buildEnabled: Boolean = project.projectProperty("${name}.buildEnabled") { false }

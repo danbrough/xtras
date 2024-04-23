@@ -30,13 +30,13 @@ internal fun XtrasLibrary.registerCInteropsTasks() {
   }
 }
 
-val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
+val defaultCInteropsTargetWriter: CInteropsTargetWriter = { config, target, writer ->
   val libDir = libsDir(target).resolve("lib").mixedPath
   val includeDir = libsDir(target).resolve("include").mixedPath
   writer.println(
     """
          |compilerOpts.${target.name} =  -I$includeDir ${
-      extraLibsDirs.joinToString {
+      config.extraLibsDirs.joinToString {
         "-I${
           it(target).resolve(
             "include"
@@ -45,7 +45,7 @@ val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
       }
     }
          |linkerOpts.${target.name} = -L$libDir ${
-      extraLibsDirs.joinToString {
+      config.extraLibsDirs.joinToString {
         "-L${
           it(target).resolve(
             "lib"
@@ -54,7 +54,7 @@ val defaultCInteropsTargetWriter: CInteropsTargetWriter = { target, writer ->
       }
     }
          |libraryPaths.${target.name} =  $libDir ${
-      extraLibsDirs.joinToString {
+      config.extraLibsDirs.joinToString {
         "${
           it(target).resolve(
             "lib"
@@ -98,7 +98,7 @@ private fun XtrasLibrary.registerGenerateCInterops() {
         }
 
         xtras.nativeTargets.get().filter(config.targetWriterFilter).forEach {
-          config.targetWriter(this@registerGenerateCInterops, it, writer)
+          config.targetWriter(this@registerGenerateCInterops, config, it, writer)
         }
 
         config.code?.also {

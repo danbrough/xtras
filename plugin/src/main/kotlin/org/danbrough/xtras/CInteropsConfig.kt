@@ -5,7 +5,8 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 import java.io.PrintWriter
 
-typealias CInteropsTargetWriter = XtrasLibrary.(KonanTarget, PrintWriter) -> Unit
+typealias CInteropsTargetWriter = XtrasLibrary.(CInteropsConfig, KonanTarget, PrintWriter) -> Unit
+typealias ExtraLibsDirectory = (KonanTarget) -> File
 
 data class CInteropsConfig(
 
@@ -56,6 +57,9 @@ data class CInteropsConfig(
    *
    */
   var codeFile: File? = null,
+
+
+  var extraLibsDirs: List<ExtraLibsDirectory> = emptyList(),
 
   )
 

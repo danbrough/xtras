@@ -132,7 +132,7 @@ kotlin {
 
 
 xtrasTestExecutables("ssh", tests = listOf("sshExec")) {
-  it.family == Family.LINUX
+  it.family == Family.LINUX || it.family == Family.MINGW || it.family == Family.OSX
 }
 
 xtrasTesting {
@@ -155,15 +155,17 @@ xtrasJniConfig {
 ssh2 {
   cinterops {
     codeFile = file("interops.h")
+
+    extraLibsDirs += {
+      xtrasLibsDir.resolveAll(
+        "openssl",
+        projectProperty<String>("openssl.version"),
+        it.kotlinTargetName
+      )
+    }
   }
 
-  extraLibsDirs += {
-    xtrasLibsDir.resolveAll(
-      "openssl",
-      projectProperty<String>("openssl.version"),
-      it.kotlinTargetName
-    )
-  }
+
 }
 
 val ssl = openssl {
