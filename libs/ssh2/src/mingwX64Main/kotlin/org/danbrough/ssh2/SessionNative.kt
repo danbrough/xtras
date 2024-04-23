@@ -50,7 +50,6 @@ import org.danbrough.ssh2.cinterops.libssh2_session_init_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_last_errno
 import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
 import org.danbrough.ssh2.cinterops.libssh2_socket_close2
-import org.danbrough.ssh2.cinterops.libssh2_socket_t
 import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
 import org.danbrough.ssh2.cinterops.ssh2_sock_address
 import org.danbrough.ssh2.cinterops.waitsocket
@@ -66,15 +65,15 @@ import kotlin.io.encoding.Base64
 
 class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate") val config: SessionConfig) :
   AutoCloseable {
-  private var sock: libssh2_socket_t = 0U
+  private var sock: SshSocket = 0
   private var session: CPointer<LIBSSH2_SESSION>? = null
 
   internal fun connect() {
     memScoped {
       log.info { "SSH.connect() ${config.user}@${config.hostName}:${config.port}" }
 
-      sock = socket(AF_INET, SOCK_STREAM, 0)
-      if (sock == LIBSSH2_INVALID_SOCKET)
+      sock = socket(AF_INET, SOCK_STREAM, 0).convert()
+      if (sock == LIBSSH2_INVALID_SOCKET.toLong())
         error("Failed to create socket")
       log.trace { "created socket" }
 
@@ -87,7 +86,7 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
       val sockAddress = ssh2_sock_address(config.hostName, config.port)
 
 
-      connect(sock, sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
+      connect(sock.convert(), sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
         .also {
           log.trace { "connected returned $it" }
           if (it != 0)
@@ -107,7 +106,7 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
 
       var rc = 0
       do {
-        rc = libssh2_session_handshake(session, sock)
+        rc = libssh2_session_handshake(session, sock.convert())
       } while (rc == LIBSSH2_ERROR_EAGAIN)
       if (rc != 0) error("libssh2_session_handshake(session, sock) failed. returned: $rc")
       log.debug { "handshake complete" }
@@ -123,7 +122,7 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
 
 
   fun waitSocket() {
-    waitsocket(sock, session)
+    waitsocket(sock.convert(), session)
   }
 
   private fun loadKnownHosts(memScope: MemScope, knownHostsFile: String) = memScope.apply {
@@ -334,9 +333,9 @@ or via libssh2_channel_direct_tcpip or libssh2_channel_forward_listen
     libssh2_session_free(session)
     log.trace { "closed session" }
 
-    if (sock != LIBSSH2_INVALID_SOCKET) {
-      shutdown(sock, 2)
-      libssh2_socket_close2(sock)
+    if (sock != LIBSSH2_INVALID_SOCKET.toLong()) {
+      shutdown(sock.convert(), 2)
+      libssh2_socket_close2(sock.convert())
       log.trace { "closed socket" }
     }
   }

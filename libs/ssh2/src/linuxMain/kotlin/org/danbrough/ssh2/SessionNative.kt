@@ -50,7 +50,6 @@ import org.danbrough.ssh2.cinterops.libssh2_session_init_ex
 import org.danbrough.ssh2.cinterops.libssh2_session_last_errno
 import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
 import org.danbrough.ssh2.cinterops.libssh2_socket_close2
-import org.danbrough.ssh2.cinterops.libssh2_socket_t
 import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
 import org.danbrough.ssh2.cinterops.ssh2_sock_address
 import org.danbrough.ssh2.cinterops.waitsocket
@@ -66,7 +65,7 @@ import kotlin.io.encoding.Base64
 
 class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate") val config: SessionConfig) :
   AutoCloseable {
-  private var sock: libssh2_socket_t = 0
+  private var sock: SshSocket = 0
   private var session: CPointer<LIBSSH2_SESSION>? = null
 
   internal fun connect() {
