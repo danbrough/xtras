@@ -12,6 +12,7 @@ plugins {
   id("com.android.library")
 }
 
+group = "org.danbrough"
 version = "0.0.1-beta01"
 
 object JavaConfig {
