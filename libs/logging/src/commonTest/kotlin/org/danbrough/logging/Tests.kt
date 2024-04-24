@@ -1,4 +1,4 @@
-package org.danbrough.xtras.support
+package org.danbrough.logging
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.test.Test
@@ -8,7 +8,7 @@ val log = KotlinLogging.logger("TESTS").also {
 }
 
 class Tests {
-  
+
   @Test
   fun testLog() {
     log.trace { "testLog()" }

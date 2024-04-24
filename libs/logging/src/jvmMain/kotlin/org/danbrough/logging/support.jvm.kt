@@ -1,4 +1,4 @@
-package org.danbrough.xtras.support
+package org.danbrough.logging
 
 import io.github.oshai.kotlinlogging.KLogger
 

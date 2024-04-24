@@ -1,4 +1,4 @@
-package org.danbrough.xtras.support
+package org.danbrough.logging
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.ILoggingEvent
