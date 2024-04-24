@@ -155,10 +155,12 @@ inline fun <reified T : XtrasLibrary> Project.registerXtrasGitLibrary(
   block()
 }
 
+
 /*
 
 private fun XtrasLibrary.configureLinkTasks(target: KonanTarget){
   project.tasks.withType<KotlinNativeLink>{
-
+    this.binary.linkTask.li
   }
-}*/
+}
+*/

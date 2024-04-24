@@ -1,7 +1,7 @@
 package org.danbrough.ssh2
 
 
-class SSHJni : JNIObject(),SSH{
+class SSHJni : JNIObject(), SSH {
 
   external override fun nativeCreate(): Long
 

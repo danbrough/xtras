@@ -50,18 +50,8 @@ kotlin {
   androidNativeX86()
   androidNativeX64()
 
-  jvm {
-/*    compilerOptions {
-      jvmTarget = JavaConfig.jvmTarget
-    }*/
-  }
-
-  androidTarget {
-    /*compilerOptions {
-      jvmTarget = JavaConfig.jvmTarget
-    }*/
-  }
-
+  jvm()
+  androidTarget()
 
   sourceSets {
     all {
@@ -141,7 +131,7 @@ android {
 }
 
 
-xtrasTesting {  }
+xtrasTesting { }
 
 
 sonatype {

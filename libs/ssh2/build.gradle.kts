@@ -14,8 +14,6 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -61,15 +59,15 @@ kotlin {
 
   linuxX64()
   linuxArm64()
-  mingwX64()
-
-  if (HostManager.hostIsMac) {
-    macosX64()
-    //macosArm64()
-  }
+  //mingwX64()
+  /*
+    if (HostManager.hostIsMac) {
+      macosX64()
+      //macosArm64()
+    }*/
 
   androidNativeArm64()
-  androidNativeX86()
+  //androidNativeX86()
   androidNativeX64()
 
   sourceSets {
@@ -86,7 +84,7 @@ kotlin {
 
     val commonMain by getting {
       dependencies {
-        implementation(libs.xtras.support) //or implementation(project(":libs:support"))
+        implementation(project(":libs:support")) //or implementation(project(":libs:support"))
         implementation(libs.kotlinx.coroutines)
         //implementation(project(":libs:openssl"))
         //implementation(libs.kotlinx.io)
@@ -131,9 +129,7 @@ kotlin {
 
 
 
-xtrasTestExecutables("ssh", tests = listOf("sshExec")) {
-  it.family == Family.LINUX || it.family == Family.MINGW || it.family == Family.OSX
-}
+xtrasTestExecutables("ssh", tests = listOf("sshExec"))
 
 xtrasTesting {
 
