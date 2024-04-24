@@ -4,8 +4,6 @@ import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -43,8 +41,8 @@ kotlin {
   linuxX64()
   linuxArm64()
   mingwX64()
-  /*macosArm64()
-  macosX64()*/
+  macosArm64()
+  macosX64()
 
   androidNativeArm64()
   androidNativeX86()
@@ -86,29 +84,6 @@ kotlin {
       dependencies {
         api(libs.slf4j.api)
         api(libs.slf4j.android)
-      }
-    }
-  }
-
-
-  targets.withType<KotlinNativeTarget> {
-    if (konanTarget.family != Family.ANDROID) {
-      compilations["main"].cinterops {
-        create("jni") {
-          defFile(project.file("src/cinterops/jni.def"))
-          packageName = "platform.android"
-          compilerOpts.add("-I${project.file("src/headers")}")
-
-          when (konanTarget.family) {
-            Family.LINUX -> "linux"
-            Family.MINGW -> "win32"
-            Family.IOS, Family.TVOS, Family.WATCHOS, Family.OSX -> "darwin"
-
-            else -> error("Unhandled target: $konanTarget")
-          }.also {
-            compilerOpts.add("-I${project.file("src/headers/$it")}")
-          }
-        }
       }
     }
   }
