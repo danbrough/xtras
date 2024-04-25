@@ -60,7 +60,9 @@ fun Project.xtrasAndroidConfig(
         doFirst {
           logDebug("copying files from $libsDir to $jniLibsDir for ${this@withType.name}")
         }
-        from(libsDir)
+        from(libsDir){
+          include("lib*")
+        }
         into(jniLibsDir)
       }
       finalizedBy(taskCopyName)
@@ -77,8 +79,6 @@ fun Project.xtrasAndroidConfig(
           it.binary.target.konanTarget == HostManager.host
           && it.binary.buildType == NativeBuildType.DEBUG
     }
-
-
 
     val libPath =
       linkTasks.flatMap { it.outputs.files.files.filter { file -> file.isDirectory } }

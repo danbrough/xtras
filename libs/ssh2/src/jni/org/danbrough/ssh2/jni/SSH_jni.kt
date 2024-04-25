@@ -29,7 +29,7 @@ fun sshCreate(env: CPointer<JNIEnvVar>, clazz: jclass, obj: jobject): jlong {
 fun sshDestroy(env: CPointer<JNIEnvVar>, clazz: jclass, ref: jlong) {
   jniInit()
   val sshRef = ref.toCPointer<COpaquePointerVar>()?.asStableRef<SSHNative>()
-  log.trace { "__nativeDestroySSH:: destroying: $sshRef" }
+  log.trace { "__nativeDestroySSH:: destroying: $sshRef " }
   sshRef?.also {
     it.get().close()
     it.dispose()
