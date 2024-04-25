@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
+import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
@@ -39,7 +40,7 @@ fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit) =
 fun Project.xtrasTestExecutables(
   configPrefix: String,
   tests: List<String>,
-  targetFilter: (KonanTarget) -> Boolean = { true }
+  targetFilter: (KonanTarget) -> Boolean = { HostManager.host == it }
 ) {
   (kotlinExtension as KotlinMultiplatformExtension).targets.withType<KotlinNativeTarget> {
     if (targetFilter(konanTarget)) {
