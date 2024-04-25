@@ -28,11 +28,11 @@ object JavaConfig {
   val kotlinApiVersion = KotlinVersion.KOTLIN_1_9
 }
 
-
+/*
 java {
   sourceCompatibility = JavaConfig.javaVersion
   targetCompatibility = JavaConfig.javaVersion
-}
+}*/
 
 
 kotlin {
@@ -120,21 +120,6 @@ kotlin {
   }
 }
 
-/*android {
-  compileSdk = 34
-  namespace = group.toString()
-
-  defaultConfig {
-    minSdk = 22
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-  }
-
-  compileOptions {
-    sourceCompatibility = JavaConfig.javaVersion
-    targetCompatibility = JavaConfig.javaVersion
-  }
-
-}*/
 
 xtrasAndroidConfig { }
 

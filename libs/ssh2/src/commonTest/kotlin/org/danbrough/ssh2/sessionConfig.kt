@@ -27,6 +27,7 @@ fun initSessionConfig(args: Array<String>) {
     configProperty("public_key_file"),
     configProperty("private_key_file"),
     configProperty("known_hosts"),
-    configProperty("auth_method")?.let { SessionConfig.AuthMethod.valueOf(it.uppercase()) },
+    configProperty("auth_method")?.let { SessionConfig.AuthMethod.valueOf(it.uppercase()) }
+      ?: SessionConfig.AuthMethod.KEY,
   )
 }
