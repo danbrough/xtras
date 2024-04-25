@@ -9,7 +9,7 @@ fun sshExec() {
    * Must cast to AutoClosable as it's not actualized on JVM
    * @see https://youtrack.jetbrains.com/issue/KT-55777/Unresolved-kotlin.AutoCloseable-in-JVM
    */
-  sshImpl as AutoCloseable
+  //sshImpl as AutoCloseable
 
   sshImpl.use { ssh ->
     log.error { "SSH: $ssh" }
