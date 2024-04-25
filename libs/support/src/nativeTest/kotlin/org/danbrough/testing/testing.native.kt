@@ -1,4 +1,5 @@
 package org.danbrough.testing
+/*
 
 import io.github.oshai.kotlinlogging.Formatter
 import io.github.oshai.kotlinlogging.KLoggingEvent
@@ -43,4 +44,4 @@ internal val Level.color: String
   }
 
 internal fun String.colored(level: Level) =
-  "${ANSIConstants.ESC_START}${level.color}m$this${ANSIConstants.ESC_START}m"
+  "${ANSIConstants.ESC_START}${level.color}m$this${ANSIConstants.ESC_START}m"*/

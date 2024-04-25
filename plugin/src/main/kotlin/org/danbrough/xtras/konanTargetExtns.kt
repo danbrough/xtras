@@ -107,8 +107,24 @@ val KonanTarget.goArch: String
     Architecture.WASM32 -> "wasm"
   }
 
+/**
+ * Set of [KonanTarget] that support JNI implementations
+ */
+val jniTargets = setOf(
+  KonanTarget.MINGW_X64,
+  KonanTarget.MACOS_X64,
+  KonanTarget.MACOS_ARM64,
+  KonanTarget.LINUX_X64,
+  KonanTarget.LINUX_ARM64,
+  KonanTarget.ANDROID_ARM64,
+  KonanTarget.ANDROID_X64
+)
 
-
+/**
+ * Whether the [KonanTarget] is in [jniTargets]
+ */
+val KonanTarget.supportsJNI: Boolean
+  get() = this in jniTargets
 
 
 

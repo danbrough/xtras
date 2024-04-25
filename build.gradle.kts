@@ -10,22 +10,17 @@ plugins {
   `maven-publish`
 }
 
-
 val xtrasProjectGroup = XTRAS_PACKAGE
 val xtrasProjectVersion: String = libs.versions.xtras.version.get()
-
 
 allprojects {
   group = xtrasProjectGroup
   version = xtrasProjectVersion
 
   repositories {
-    //maven(xtrasMavenDir)
     maven("https://maven.danbrough.org")
-
     mavenCentral()
     google()
-    //   maven("https://s01.oss.sonatype.org/content/groups/staging")
   }
 }
 

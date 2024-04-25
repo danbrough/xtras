@@ -4,12 +4,13 @@
 
 import org.danbrough.xtras.core.openssl
 import org.danbrough.xtras.projectProperty
-import org.danbrough.xtras.xtrasJniConfig
+import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -57,11 +58,11 @@ kotlin {
   linuxArm64()
   mingwX64()
   androidNativeArm64()
-  androidNativeX86()
   androidNativeX64()
-  macosX64()
-  macosArm64()
-
+  if (HostManager.hostIsMac) {
+    macosArm64()
+    macosX64()
+  }
   sourceSets {
     all {
       languageSettings {
@@ -120,8 +121,7 @@ xtrasTesting {
 sonatype {
 }
 
-xtrasJniConfig {
-  compileSdk = 34
+xtrasAndroidConfig {
 }
 
 val ssl = openssl {

@@ -18,7 +18,7 @@ includeBuild("core")
 
 
 listOf(
-  "logging",
+  //"logging",
   "support",
   "openssl",
   "ssh2",

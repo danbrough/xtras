@@ -16,9 +16,9 @@ import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.File
 
-fun Project.xtrasJniConfig(
+fun Project.xtrasAndroidConfig(
   namespace: String = group.toString(),
-  compileSdk: Int = 34,
+  compileSdk: Int = xtras.androidConfig.compileSDKVersion,
   block: LibraryExtension.() -> Unit = {}
 ) {
   extensions.getByType<LibraryExtension>().apply {
@@ -26,7 +26,7 @@ fun Project.xtrasJniConfig(
     this.namespace = namespace
 
     defaultConfig {
-      minSdk = 22
+      minSdk = xtras.androidConfig.minSDKVersion
       testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -77,25 +77,31 @@ fun Project.xtrasJniConfig(
           it.binary.target.konanTarget == HostManager.host
           && it.binary.buildType == NativeBuildType.DEBUG
     }
+
+
+
+    val libPath =
+      linkTasks.flatMap { it.outputs.files.files.filter { file -> file.isDirectory } }
+        .joinToString(File.pathSeparator)
+
+    if (libPath.isBlank()) return@afterEvaluate
+
     tasks.withType<KotlinJvmTest> {
-      logDebug("xtrasJniConfig: task $name depends on ${linkTasks.joinToString(" ") { it.name }}")
-      dependsOn(*linkTasks.toTypedArray())
-      val libPath =
-        linkTasks.flatMap { it.outputs.files.files.filter { file -> file.isDirectory } }
-          .joinToString(File.pathSeparator)
-      project.logDebug("task:$name setting env:${HostManager.host.envLibraryPathName} to $libPath")
-      environment(HostManager.host.envLibraryPathName, libPath)
+      setDependsOn(linkTasks)
+      environment(
+        HostManager.host.envLibraryPathName,
+        pathOf(libPath, environment[HostManager.host.envLibraryPathName])
+      )
+      project.logDebug("task:$name setting env:${HostManager.host.envLibraryPathName} to ${environment[HostManager.host.envLibraryPathName]}")
     }
 
     tasks.withType<JavaExec> {
-      project.logDebug("configuring JavaExec: $name: Adding link tasks ${linkTasks.joinToString(",") { it.name }}")
-
-      dependsOn(*linkTasks.toTypedArray())
-      val libPath =
-        linkTasks.flatMap { it.outputs.files.files.filter { file -> file.isDirectory } }
-          .joinToString(File.pathSeparator)
-      project.logDebug("task:$name setting env:${HostManager.host.envLibraryPathName} to $libPath")
-      environment(HostManager.host.envLibraryPathName, libPath)
+      setDependsOn(linkTasks)
+      environment(
+        HostManager.host.envLibraryPathName,
+        pathOf(libPath, environment[HostManager.host.envLibraryPathName])
+      )
+      project.logDebug("task:$name setting env:${HostManager.host.envLibraryPathName} to ${environment[HostManager.host.envLibraryPathName]}")
     }
   }
 }

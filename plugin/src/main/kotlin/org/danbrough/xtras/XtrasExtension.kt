@@ -58,7 +58,8 @@ abstract class XtrasExtension(val project: Project) {
   data class AndroidConfig(
     var ndkDir: File,
     var compileSDKVersion: Int = 34,
-    var ndkApiVersion: Int = 21
+    var minSDKVersion: Int = 21,
+    var ndkApiVersion: Int = minSDKVersion
   )
 
   val androidConfig = AndroidConfig(project.xtrasNdkDir)

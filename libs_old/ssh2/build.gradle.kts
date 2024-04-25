@@ -5,7 +5,7 @@ import org.danbrough.xtras.declareSupportedTargets
 import org.danbrough.xtras.openssl.openssl
 import org.danbrough.xtras.ssh2.ssh2
 import org.danbrough.xtras.xtrasEnableTestExes
-import org.danbrough.xtras.xtrasJniConfig
+import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -123,7 +123,7 @@ sonatype {
 
 xtrasEnableTestExes("ssh", tests = listOf("sshExec", "ioTest"))
 
-xtrasJniConfig(javaVersion = XtrasVersions.javaVersion) {
+xtrasAndroidConfig(javaVersion = XtrasVersions.javaVersion) {
   compileSdk = 34
 }
 

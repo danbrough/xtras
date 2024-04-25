@@ -6,7 +6,8 @@ import org.danbrough.xtras.core.ssh2
 import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.resolveAll
-import org.danbrough.xtras.xtrasJniConfig
+import org.danbrough.xtras.supportsJNI
+import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasLibsDir
 import org.danbrough.xtras.xtrasTestExecutables
 import org.danbrough.xtras.xtrasTesting
@@ -14,6 +15,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -58,17 +60,14 @@ kotlin {
   }
 
   linuxX64()
+  mingwX64()
   linuxArm64()
-  //mingwX64()
-  /*
-    if (HostManager.hostIsMac) {
-      macosX64()
-      //macosArm64()
-    }*/
-
   androidNativeArm64()
-  //androidNativeX86()
   androidNativeX64()
+  if (HostManager.hostIsMac) {
+    macosArm64()
+    macosX64()
+  }
 
   sourceSets {
     all {
@@ -117,6 +116,8 @@ kotlin {
   }
 
   targets.withType<KotlinNativeTarget> {
+    if (konanTarget.supportsJNI)
+      compilations["main"].defaultSourceSet.kotlin.srcDir(project.file("src").resolve("jni"))
     binaries {
       sharedLib("xtras_ssh2")
 //        executable("sshExec") {
@@ -138,8 +139,7 @@ xtrasTesting {
 sonatype {
 }
 
-xtrasJniConfig {
-  compileSdk = 34
+xtrasAndroidConfig {
 }
 
 /*rootProject.findProject(":libs:openssl")!!.also {

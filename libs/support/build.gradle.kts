@@ -1,11 +1,16 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
+import org.danbrough.xtras.supportsJNI
+import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -43,11 +48,11 @@ kotlin {
   linuxX64()
   linuxArm64()
   mingwX64()
-  /*macosArm64()
-  macosX64()*/
-
+  if (HostManager.hostIsMac) {
+    macosArm64()
+    macosX64()
+  }
   androidNativeArm64()
-  androidNativeX86()
   androidNativeX64()
 
   jvm()
@@ -92,29 +97,30 @@ kotlin {
 
 
   targets.withType<KotlinNativeTarget> {
-    if (konanTarget.family != Family.ANDROID) {
+    if (konanTarget.supportsJNI && konanTarget.family != Family.ANDROID) {
+      /**
+       * Generate the platform.android jni header bindings for targets that aren't android
+       */
       compilations["main"].cinterops {
         create("jni") {
-          defFile(project.file("src/cinterops/jni.def"))
           packageName = "platform.android"
-          compilerOpts.add("-I${project.file("src/headers")}")
-
-          when (konanTarget.family) {
+          val headersDir = project.file("src").resolve("headers")
+          val osDir = when (konanTarget.family) {
             Family.LINUX -> "linux"
             Family.MINGW -> "win32"
             Family.IOS, Family.TVOS, Family.WATCHOS, Family.OSX -> "darwin"
-
             else -> error("Unhandled target: $konanTarget")
-          }.also {
-            compilerOpts.add("-I${project.file("src/headers/$it")}")
-          }
+          }.let { headersDir.resolve(it) }
+          headers(headersDir.resolve("jni.h"), osDir.resolve("jni_md.h"))
+          includeDirs(headersDir, osDir)
+
         }
       }
     }
   }
 }
 
-android {
+/*android {
   compileSdk = 34
   namespace = group.toString()
 
@@ -128,8 +134,9 @@ android {
     targetCompatibility = JavaConfig.javaVersion
   }
 
-}
+}*/
 
+xtrasAndroidConfig { }
 
 xtrasTesting { }
 
