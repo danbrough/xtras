@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 fun mainSshExec(args: Array<String>) {
   log.info { "mainSshExec()" }
   initSessionConfig(args)
+
   log.debug { "config: $sessionConfig" }
 
   createSSH().use { ssh ->
