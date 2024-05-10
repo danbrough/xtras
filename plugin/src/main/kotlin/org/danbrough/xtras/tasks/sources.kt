@@ -6,9 +6,11 @@ import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logTrace
+import org.danbrough.xtras.resolveAll
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.util.Date
 
 
 @XtrasDSL
@@ -17,7 +19,6 @@ fun XtrasLibrary.sourceTask(
   dependsOn: SourceTaskName?,
   block: Exec.(KonanTarget) -> Unit
 ): TaskConfig = { target ->
-
 
   project.tasks.register<Exec>(name.taskName(this, target)) {
     group = XTRAS_TASK_GROUP
@@ -34,6 +35,17 @@ fun XtrasLibrary.sourceTask(
       environment(loadEnvironment(environment, target))
       project.logDebug("$name: running command: ${commandLine.joinToString(" ")}")
       project.logTrace("$name: environment: $environment")
+      val scriptName = "${this@register.name}.sh"
+      val scriptsDir = sourceDir(target).resolveAll("docs","xtras")
+      if (!scriptsDir.exists()) scriptsDir.mkdirs()
+      scriptsDir.resolve(scriptName).printWriter().use {writer->
+        writer.println("# running ${this@register.name} at ${Date()}")
+        writer.println()
+        for (key in environment.keys)
+          writer.println("${key}=${environment[key]}")
+        writer.println()
+        writer.println(commandLine.joinToString(" "))
+      }
     }
     block(target)
   }

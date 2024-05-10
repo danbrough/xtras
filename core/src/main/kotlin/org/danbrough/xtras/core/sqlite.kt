@@ -32,6 +32,9 @@ fun Project.sqlite(extnName: String = "sqlite", block: XtrasLibrary.() -> Unit) 
 		environment { target ->
 			if (target.family == Family.ANDROID) {
 				environmentNDK(xtras, target)
+				put("CXX","${get("PREFIX")}clang++")
+				put("CC","${get("PREFIX")}clang")
+				//environmentKonan(this@registerXtrasGitLibrary, target)
 			} else if (target == KonanTarget.LINUX_ARM64 || target == KonanTarget.MACOS_ARM64 || target == KonanTarget.LINUX_X64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
 				environmentKonan(this@registerXtrasGitLibrary, target)
 			}
@@ -52,10 +55,10 @@ fun Project.sqlite(extnName: String = "sqlite", block: XtrasLibrary.() -> Unit) 
 
 			args += listOf(
 				"--prefix=${buildDir(target).mixedPath}",
-				"--exec-prefix=/mnt/files/sdk/android/ndk/26.3.11579264/toolchains/llvm/prebuilt/linux-x86_64/bin/${environment["PREFIX"]}",
 				"--disable-tcl",
 				"--disable-readline",
 			)
+
 
 			//args += "--with-libssl-prefix=${xtrasLibsDir}/openssl/${project.projectProperty<String>("openssl.version")}/${target.kotlinTargetName}" //TODO fix this
 			xtrasCommandLine(args)
