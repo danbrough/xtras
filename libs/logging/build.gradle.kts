@@ -1,9 +1,16 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
+import org.danbrough.xtras.supportsJNI
+import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -12,7 +19,6 @@ plugins {
   id("com.android.library")
 }
 
-group = "org.danbrough"
 version = "0.0.1-beta01"
 
 object JavaConfig {
@@ -22,11 +28,11 @@ object JavaConfig {
   val kotlinApiVersion = KotlinVersion.KOTLIN_1_9
 }
 
-
+/*
 java {
   sourceCompatibility = JavaConfig.javaVersion
   targetCompatibility = JavaConfig.javaVersion
-}
+}*/
 
 
 kotlin {
@@ -42,11 +48,11 @@ kotlin {
   linuxX64()
   linuxArm64()
   mingwX64()
-  macosArm64()
-  macosX64()
-
+  if (HostManager.hostIsMac) {
+    macosArm64()
+    macosX64()
+  }
   androidNativeArm64()
-  androidNativeX86()
   androidNativeX64()
 
   jvm()
@@ -90,22 +96,8 @@ kotlin {
   }
 }
 
-android {
-  compileSdk = 34
-  namespace = group.toString()
 
-  defaultConfig {
-    minSdk = 22
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-  }
-
-  compileOptions {
-    sourceCompatibility = JavaConfig.javaVersion
-    targetCompatibility = JavaConfig.javaVersion
-  }
-
-}
-
+xtrasAndroidConfig { }
 
 xtrasTesting { }
 

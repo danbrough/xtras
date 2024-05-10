@@ -78,8 +78,10 @@ fun XtrasEnvironment.environmentNDK(xtras: XtrasExtension, target: KonanTarget) 
 
   //basePath.add(0, androidNdkDir.resolve("bin").absolutePath)
   put("PREFIX", "${target.hostTriplet}${xtras.androidConfig.ndkApiVersion}-")
-  put("CC", "clang")
-  put("CXX", "clang++")
+
+    put("CC", "clang")
+    put("CXX", "clang++")
+
   put("AR", "llvm-ar")
   put("RANLIB", "ranlib")
 

@@ -1,14 +1,14 @@
 pluginManagement {
-  repositories {
-    mavenCentral()
-    google()
-    gradlePluginPortal()
-  }
+	repositories {
+		mavenCentral()
+		google()
+		gradlePluginPortal()
+	}
 }
 
 
 plugins {
-  id("de.fayard.refreshVersions") version "0.60.5"
+	id("de.fayard.refreshVersions") version "0.60.5"
 }
 
 rootProject.name = "xtras"
@@ -18,12 +18,14 @@ includeBuild("core")
 
 
 listOf(
-  //"logging",
-  "support",
-  "openssl",
-  "ssh2",
+	"logging",
+	"support",
+	"openssl",
+	"ssh2",
+	"postgres",
+	"sqlite",
 ).forEach {
-  include(":libs:$it")
+	include(":libs:$it")
 }
 
 

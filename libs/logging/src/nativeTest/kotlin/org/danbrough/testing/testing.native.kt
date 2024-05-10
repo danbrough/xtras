@@ -1,6 +1,19 @@
 package org.danbrough.testing
+/*
 
+import io.github.oshai.kotlinlogging.Formatter
+import io.github.oshai.kotlinlogging.KLoggingEvent
+import io.github.oshai.kotlinlogging.KotlinLoggingConfiguration
 import io.github.oshai.kotlinlogging.Level
+
+fun initTesting() {
+  KotlinLoggingConfiguration.logLevel = Level.TRACE
+  KotlinLoggingConfiguration.formatter = object : Formatter {
+    val formatter = KotlinLoggingConfiguration.formatter
+    override fun formatMessage(loggingEvent: KLoggingEvent) =
+      formatter.formatMessage(loggingEvent).colored(loggingEvent.level)
+  }
+}
 
 
 object ANSIConstants {
@@ -31,4 +44,4 @@ internal val Level.color: String
   }
 
 internal fun String.colored(level: Level) =
-  "${ANSIConstants.ESC_START}${level.color}m$this${ANSIConstants.ESC_START}m"
+  "${ANSIConstants.ESC_START}${level.color}m$this${ANSIConstants.ESC_START}m"*/

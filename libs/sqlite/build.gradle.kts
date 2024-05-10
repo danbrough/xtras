@@ -3,6 +3,7 @@
 
 import org.danbrough.xtras.core.openssl
 import org.danbrough.xtras.core.ssh2
+import org.danbrough.xtras.core.sqlite
 import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.resolveAll
@@ -39,8 +40,8 @@ xtras {
   cleanEnvironment = true
 }
 
-group = projectProperty<String>("ssh2.group")
-version = projectProperty<String>("ssh2.version")
+group = projectProperty<String>("sqlite.group")
+version = projectProperty<String>("sqlite.version")
 
 
 kotlin {
@@ -130,8 +131,6 @@ kotlin {
 
 
 
-xtrasTestExecutables("ssh", tests = listOf("sshExec"))
-
 xtrasTesting {
 
 }
@@ -142,34 +141,12 @@ sonatype {
 xtrasAndroidConfig {
 }
 
+ sqlite {
+
+}
+
 /*rootProject.findProject(":libs:openssl")!!.also {
   val openssl = it.extensions.getByType<XtrasLibrary>()
   logError("LIBS DIR OPENSSL: ${openssl.libsDir(KonanTarget.LINUX_ARM64)}")
 }*/
-
-
-ssh2 {
-  cinterops {
-    codeFile = file("interops.h")
-
-    extraLibsDirs += {
-      xtrasLibsDir.resolveAll(
-        "openssl",
-        projectProperty<String>("openssl.version"),
-        it.kotlinTargetName
-      )
-    }
-  }
-
-
-}
-
-val ssl = openssl {
-}
-
-tasks.register("printSSL") {
-  doFirst {
-    println("${project.name}: buildEnabled: ${ssl.buildEnabled}")
-  }
-}
 
