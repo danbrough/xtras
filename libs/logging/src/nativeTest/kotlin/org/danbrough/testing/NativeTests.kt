@@ -8,7 +8,7 @@ class NativeTests {
   fun test1(){
     log.info { "test1()" }
     println("NativeTests:: test1()")
-    log.debug { "jlong: ${platform.android.jlong}" }
+//    log.debug { "jlong: ${platform.android.jlong}" }
 
   }
 }
