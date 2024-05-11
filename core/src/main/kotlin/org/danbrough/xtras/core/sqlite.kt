@@ -18,6 +18,7 @@ import org.danbrough.xtras.xtrasCommandLine
 import org.danbrough.xtras.xtrasLibsDir
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
@@ -40,8 +41,9 @@ fun Project.sqlite(extnName: String = "sqlite", block: XtrasLibrary.() -> Unit) 
 				environmentKonan(this@registerXtrasGitLibrary, target)
 			}
 
-			if (target.family == Family.LINUX) {
+			if (target.family == Family.MINGW && HostManager.hostIsLinux) {
 				put("PATH", pathOf("/usr/x86_64-w64-mingw32/bin", get("PATH")))
+
 			}
 		}
 
@@ -71,6 +73,16 @@ fun Project.sqlite(extnName: String = "sqlite", block: XtrasLibrary.() -> Unit) 
 
 
 		compileSource {
+			if (it == KonanTarget.MINGW_X64 && HostManager.hostIsLinux) {
+				doFirst {
+					listOf("lemon", "mkkeywordhash", "mksourceid", "src-verify").forEach { exe->
+						exec {
+							this.workingDir = this@compileSource.workingDir
+							commandLine("ln", "-s", exe,"${exe}.exe")
+						}
+					}
+				}
+			}
 			xtrasCommandLine("make")
 		}
 
