@@ -53,12 +53,12 @@ private fun XtrasLibrary.registerDownloadTask() {
       if (!repoDir.resolve("HEAD").exists()) {
         actions.add {
           exec {
-            xtrasCommandLine(xtras.tools.git, "init", "--bare", repoDir)
+            xtrasCommandLine("git", "init", "--bare", repoDir)
             logTrace("running ${commandLine.joinToString(" ")}")
           }
           exec {
             workingDir(repoDir)
-            xtrasCommandLine(xtras.tools.git, "remote", "add", "origin", config.url)
+            xtrasCommandLine("git", "remote", "add", "origin", config.url)
             logTrace("running ${commandLine.joinToString(" ")}")
           }
         }
@@ -109,7 +109,7 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
       project.logDebug("$taskName: cloning $sourceConfig to $srcDir")
     }
 
-    xtrasCommandLine(xtras.tools.git, "clone", downloadsDir, srcDir.absolutePath)
+    xtrasCommandLine("git", "clone", downloadsDir, srcDir)
 
     doLast {
       commitFile.createNewFile()
@@ -128,7 +128,7 @@ private fun XtrasLibrary.registerGitTagsTask() {
     description = "Prints out the tags from the remote repository"
 
     xtrasCommandLine(
-      xtras.tools.git,
+      "git",
       "ls-remote",
       "-q",
       "--refs",
