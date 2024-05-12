@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 typealias XtrasEnvironment = MutableMap<String, Any>
 typealias XtrasEnvironmentConfig = XtrasEnvironment.(target: KonanTarget) -> Unit
@@ -14,7 +15,7 @@ val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
 	get() = { target ->
 		project.logTrace("INITIAL_ENVIRONMENT: target: $target")
 
-		put("HOME", System.getProperty("user.home"))
+		put("HOME", project.unixPath(File(System.getProperty("user.home"))))
 
 
 		put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")

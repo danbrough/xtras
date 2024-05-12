@@ -2,6 +2,7 @@ package org.danbrough.xtras.tasks
 
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.resolveAll
+import org.danbrough.xtras.unixPath
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -58,9 +59,9 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
 		workingDir = srcDir
 		commandLine(
-			"bash",
+			"sh",
 			"-c",
-			"source ${envFile.absolutePath};echo \"The date is `date` message:\$MESSAGE\""
+			"source ${project.unixPath(envFile)};echo The message is:\$MESSAGE"
 		)
 
 		doFirst {
@@ -73,8 +74,5 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 			logWriter.println(it)
 			logWriter.flush()
 		}
-
-
-
 	}
 }
