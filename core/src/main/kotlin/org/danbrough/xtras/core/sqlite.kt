@@ -33,12 +33,12 @@ fun Project.sqlite(extnName: String = "sqlite", block: XtrasLibrary.() -> Unit) 
 
 		environment { target ->
 			if (target.family == Family.ANDROID) {
-				environmentNDK(xtras, target)
+				environmentNDK(xtras, target,this@sqlite)
 				put("CXX", "${get("PREFIX")}clang++")
 				put("CC", "${get("PREFIX")}clang")
 				//environmentKonan(this@registerXtrasGitLibrary, target)
 			} else if (target == KonanTarget.LINUX_ARM64 || target == KonanTarget.MACOS_ARM64 || target == KonanTarget.LINUX_X64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
-				environmentKonan(this@registerXtrasGitLibrary, target)
+				environmentKonan(this@registerXtrasGitLibrary, target,this@sqlite)
 			}
 
 			if (target.family == Family.MINGW && HostManager.hostIsLinux) {
@@ -87,7 +87,7 @@ fun Project.sqlite(extnName: String = "sqlite", block: XtrasLibrary.() -> Unit) 
 		}
 
 
-		installSource { target ->
+		installSource {
 			xtrasCommandLine("make", "install")
 
 			/*doLast {

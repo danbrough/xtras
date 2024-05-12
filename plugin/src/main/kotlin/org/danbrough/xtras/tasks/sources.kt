@@ -43,7 +43,8 @@ fun XtrasLibrary.sourceTask(
 
 
 		doFirst {
-			environment(loadEnvironment(environment, target))
+			environment(loadEnvironment(target))
+
 			project.logDebug("$name: running command: ${commandLine.joinToString(" ")}")
 			project.logTrace("$name: environment: $environment")
 			val scriptName = "${this@register.name}.sh"

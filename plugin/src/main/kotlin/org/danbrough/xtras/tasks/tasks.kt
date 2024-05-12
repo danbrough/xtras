@@ -54,14 +54,14 @@ fun XtrasLibrary.registerTasks() {
   xtras.nativeTargets.get().forEach { target ->
 
     registerBuildTask(target)
-
+/*
     taskPrepareSource?.invoke(target)
 
     taskConfigureSource?.invoke(target)
 
     taskCompileSource?.invoke(target)
 
-    taskInstallSource?.invoke(target)
+    taskInstallSource?.invoke(target)*/
 
     registerPackageTasks(target)
 

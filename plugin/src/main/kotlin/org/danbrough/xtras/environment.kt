@@ -2,6 +2,7 @@
 
 package org.danbrough.xtras
 
+import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -11,19 +12,16 @@ typealias XtrasEnvironmentConfig = XtrasEnvironment.(target: KonanTarget) -> Uni
 
 val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
 	get() = { target ->
-		project.logTrace("INITIAL_ENVIRONMENT: target: $target cleanEnvironment: $cleanEnvironment")
+		project.logTrace("INITIAL_ENVIRONMENT: target: $target")
 
-		if (cleanEnvironment) {
-			val home = System.getProperty("user.home")
-			clear()
-			put("HOME", home)
-		}
+		put("HOME", System.getProperty("user.home"))
+
 
 		put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")
 
 		if (HostManager.hostIsMingw) {
 			put(
-				"PATH", pathOf(
+				"PATH", project.pathOf(
 					project.xtrasMsysDir.resolveAll("mingw64", "bin"),
 					project.xtrasMsysDir.resolveAll("usr", "local", "bin"),
 					project.xtrasMsysDir.resolveAll("usr", "bin"),
@@ -32,12 +30,12 @@ val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
 				)
 			)
 		} else {
-			put("PATH", pathOf("/bin", "/usr/bin", "/usr/local/bin", get("PATH")))
+			put("PATH", project.pathOf("/bin", "/usr/bin", "/usr/local/bin", get("PATH")))
 		}
 
 
 		if (target.family == Family.ANDROID)
-			environmentNDK(this@INITIAL_ENVIRONMENT, target)
+			environmentNDK(this@INITIAL_ENVIRONMENT, target, project)
 		else if (target.family.isAppleFamily)
 			environmentApple(target)
 	}
@@ -55,7 +53,7 @@ private fun XtrasEnvironment.environmentApple(target: KonanTarget) {
 }
 
 
-fun XtrasEnvironment.environmentNDK(xtras: XtrasExtension, target: KonanTarget) {
+fun XtrasEnvironment.environmentNDK(xtras: XtrasExtension, target: KonanTarget, project: Project) {
 	put("ANDROID_NDK_ROOT", xtras.androidConfig.ndkDir)
 
 	val archFolder = when {
@@ -65,7 +63,7 @@ fun XtrasEnvironment.environmentNDK(xtras: XtrasExtension, target: KonanTarget) 
 		else -> error("Unhandled host: ${HostManager.host}")
 	}
 
-	val ndkPath = pathOf(
+	val ndkPath = project.pathOf(
 		xtras.androidConfig.ndkDir.resolve("bin"),
 		xtras.androidConfig.ndkDir.resolve("toolchains/llvm/prebuilt/$archFolder/bin"),
 		get("PATH")
@@ -87,14 +85,14 @@ fun XtrasEnvironment.environmentNDK(xtras: XtrasExtension, target: KonanTarget) 
 
 }
 
-fun XtrasEnvironment.environmentKonan(library: XtrasLibrary, target: KonanTarget) {
+fun XtrasEnvironment.environmentKonan(library: XtrasLibrary, target: KonanTarget,project: Project) {
 	//put("PATH",pathOf(project.xtrasKon))
 	val depsDir = library.project.konanDir.resolve("dependencies")
 	val llvmPrefix = if (HostManager.hostIsLinux || HostManager.hostIsMingw) "llvm-" else "apple-llvm"
 	val llvmDir = depsDir.listFiles()?.firstOrNull {
 		it.isDirectory && it.name.startsWith(llvmPrefix)
 	} ?: error("No directory beginning with \"llvm-\" found in ${depsDir.mixedPath}")
-	put("PATH", pathOf(llvmDir.resolve("bin"), get("PATH")))
+	put("PATH", project.pathOf(llvmDir.resolve("bin"), get("PATH")))
 	val clangArgs =
 		when (target) {
 			KonanTarget.LINUX_ARM64 ->
@@ -129,16 +127,14 @@ fun XtrasEnvironment.environmentKonan(library: XtrasLibrary, target: KonanTarget
 						}"
 
 
-
-
-/*			KonanTarget.ANDROID_ARM64 ->
-				"--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("target-toolchain-2-linux-android_ndk")}" +
-						" --sysroot=${
-							depsDir.resolveAll(
-								"target-toolchain-2-linux-android_ndk",
-								"aarch64-linux-android",
-							)
-						}"*/
+			/*			KonanTarget.ANDROID_ARM64 ->
+							"--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("target-toolchain-2-linux-android_ndk")}" +
+									" --sysroot=${
+										depsDir.resolveAll(
+											"target-toolchain-2-linux-android_ndk",
+											"aarch64-linux-android",
+										)
+									}"*/
 
 
 			else -> error("Unsupported konan target: $target")

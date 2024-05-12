@@ -49,9 +49,9 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
       put("CFLAGS", "-Wno-unused-command-line-argument -Wno-macro-redefined")
       if (target.family == Family.ANDROID)
-        environmentNDK(xtras, target)
+        environmentNDK(xtras, target,project)
       else if (target.family == Family.LINUX)
-        environmentKonan(this@registerXtrasGitLibrary, target)
+        environmentKonan(this@registerXtrasGitLibrary, target,project)
     }
 
 

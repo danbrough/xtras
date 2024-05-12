@@ -37,9 +37,9 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
       put("MAKEFLAGS", "-j6")
 
       if (target == KonanTarget.LINUX_ARM64 || target == KonanTarget.MACOS_ARM64 || target == KonanTarget.LINUX_X64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
-        environmentKonan(this@registerXtrasGitLibrary, target)
+        environmentKonan(this@registerXtrasGitLibrary, target,this@ssh2)
       } else if (target.family == Family.ANDROID) {
-        environmentNDK(xtras, target)
+        environmentNDK(xtras, target,this@ssh2)
         put("CC", "${get("PREFIX")}clang")
         put("CXX", "${get("PREFIX")}clang++")
       }

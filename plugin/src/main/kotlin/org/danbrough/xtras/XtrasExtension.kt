@@ -29,8 +29,6 @@ abstract class XtrasExtension(val project: Project) {
 
   private var environment: XtrasEnvironmentConfig = INITIAL_ENVIRONMENT
 
-  @XtrasDSL
-  var cleanEnvironment: Boolean = false
 
   fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget): XtrasEnvironment {
     environment(env, target)
