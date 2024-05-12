@@ -50,6 +50,14 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
 				writer.println("MESSAGE=\"Hello world\nat ${Date()}\"")
 			}
+
+			buildScript.printWriter().use { writer->
+				writer.println("#!/bin/sh")
+				writer.println()
+				writer.println("source ${project.unixPath(envFile)}")
+				writer.println("echo the message is \$MESSAGE")
+
+			}
 		}
 		outputs.file(envFile)
 	}
@@ -59,9 +67,9 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
 		workingDir = srcDir
 		commandLine(
-			"sh",
+			xtras.sh,
 			"-c",
-			"source ${project.unixPath(envFile)};echo The message is:\$MESSAGE"
+			project.unixPath(buildScript)
 		)
 
 		doFirst {

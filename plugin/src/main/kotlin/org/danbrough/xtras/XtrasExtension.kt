@@ -59,6 +59,11 @@ abstract class XtrasExtension(val project: Project) {
     androidConfig.block()
   }
 
+  @XtrasDSL
+  var sh:File = project.projectProperty("xtras.sh"){
+    project.xtrasMsysDir.resolveAll("usr","bin","sh")
+  }
+
 }
 
 
