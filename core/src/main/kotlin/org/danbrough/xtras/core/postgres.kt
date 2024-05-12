@@ -1,4 +1,5 @@
 package org.danbrough.xtras.core
+/*
 
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
@@ -13,7 +14,6 @@ import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
 import org.danbrough.xtras.tasks.installSource
 import org.danbrough.xtras.tasks.prepareSource
-import org.danbrough.xtras.xtrasCommandLine
 import org.danbrough.xtras.xtrasLibsDir
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
@@ -69,7 +69,8 @@ fun Project.postgres(extnName: String = "postgres", block: XtrasLibrary.() -> Un
 		installSource {
 			xtrasCommandLine("make", "install")
 
-			/*doLast {
+			*/
+/*doLast {
 				copy {
 					from(workingDir.resolve("example/.libs")) {
 						include {
@@ -79,8 +80,9 @@ fun Project.postgres(extnName: String = "postgres", block: XtrasLibrary.() -> Un
 					}
 					into(buildDir(target).resolve("bin"))
 				}
-			}*/
+			}*//*
+
 		}
 
 		block()
-	}
+	}*/

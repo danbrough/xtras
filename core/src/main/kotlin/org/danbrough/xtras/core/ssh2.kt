@@ -1,4 +1,5 @@
 package org.danbrough.xtras.core
+/*
 
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
@@ -100,3 +101,4 @@ fun Project.ssh2(extnName: String = "ssh2", block: XtrasLibrary.() -> Unit) =
   }
 
 
+*/

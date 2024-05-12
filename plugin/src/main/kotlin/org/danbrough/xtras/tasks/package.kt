@@ -6,8 +6,10 @@ import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.resolveBinariesFromMaven
-import org.danbrough.xtras.xtrasCommandLine
+import org.danbrough.xtras.unixPath
+
 import org.gradle.api.tasks.Exec
+import org.gradle.kotlin.dsl.environment
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -27,6 +29,7 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
     )
   ) {
     group = XTRAS_TASK_GROUP
+    environment(loadEnvironment())
     dependsOn(SourceTaskName.INSTALL.taskName(this@registerPackageCreateTask, target))
     mustRunAfter(PackageTaskName.DOWNLOAD.taskName(this@registerPackageCreateTask, target))
     val packageFile = packageFile(target)
@@ -34,13 +37,8 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
     inputs.dir(buildDir(target))
     workingDir(buildDir(target))
     outputs.file(packageFile)
-    xtrasCommandLine(
-      "tar",
-      "cvpfz",
-      packageFile,
-      "--exclude=**share",
-      "--exclude=**pkgconfig",
-      "./"
+    commandLine("sh","-c",
+      "tar cvpfz ${project.unixPath(packageFile)} --exclude=**share --exclude=**pkgconfig ./"
     )
     doLast {
       sourceDir(target).deleteRecursively()
@@ -70,6 +68,7 @@ private fun XtrasLibrary.registerPackageResolveTask(target: KonanTarget) {
   registerPackageDownloadTask(target)
   val packageFile = packageFile(target)
   val taskName = PackageTaskName.RESOLVE.taskName(this@registerPackageResolveTask, target)
+
   project.tasks.register(taskName) {
     group = XTRAS_TASK_GROUP
     onlyIf { !packageFile.exists() }
@@ -92,6 +91,7 @@ private fun XtrasLibrary.registerPackageExtractTask(target: KonanTarget) {
   val packageFile = packageFile(target)
   val taskName = PackageTaskName.EXTRACT.taskName(this@registerPackageExtractTask, target)
   project.tasks.register<Exec>(taskName) {
+    environment(loadEnvironment())
     group = XTRAS_TASK_GROUP
     doFirst {
       if (libsDir.exists()) libsDir.deleteRecursively()
@@ -101,7 +101,7 @@ private fun XtrasLibrary.registerPackageExtractTask(target: KonanTarget) {
     inputs.file(packageFile)
     outputs.dir(libsDir)
     workingDir(libsDir)
-    xtrasCommandLine("tar", "xpfz", packageFile)
+    commandLine("sh","-c","tar xpfz  ${project.unixPath(packageFile)}")
   }
 }
 

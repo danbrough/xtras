@@ -96,7 +96,7 @@ abstract class XtrasLibrary(
 	}
 
 	fun loadEnvironment(
-		target: KonanTarget,
+		target: KonanTarget?=null,
 		env: XtrasEnvironment = mutableMapOf()
 	): XtrasEnvironment =
 		environment(env, target).let { env }

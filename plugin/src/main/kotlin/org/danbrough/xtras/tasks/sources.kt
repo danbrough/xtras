@@ -8,6 +8,7 @@ import org.danbrough.xtras.logDebug
 import org.danbrough.xtras.logTrace
 import org.danbrough.xtras.resolveAll
 import org.gradle.api.tasks.Exec
+import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.BufferedReader
@@ -40,10 +41,10 @@ fun XtrasLibrary.sourceTask(
 
 		workingDir(sourceDir(target))
 
-
+		environment(loadEnvironment(target))
 
 		doFirst {
-			environment(loadEnvironment(target))
+
 
 			project.logDebug("$name: running command: ${commandLine.joinToString(" ")}")
 			project.logTrace("$name: environment: $environment")
@@ -60,14 +61,20 @@ fun XtrasLibrary.sourceTask(
 			}
 		}
 
-		var logWriter: PrintWriter? = null
+		val logWriter: PrintWriter by lazy {
+			workingDir.resolveAll("xtras", "${this@register.name}.log").printWriter()
+		}
+
 		processStdout {
-			val writer =
-				logWriter ?: workingDir.resolveAll("xtras", "${this@register.name}.log").printWriter()
-					.also { logWriter = it }
 			println(it)
-			writer.println(it)
-			writer.flush()
+			logWriter.println(it)
+			logWriter.flush()
+		}
+
+		processStderr {
+			println(it)
+			logWriter.println(it)
+			logWriter.flush()
 		}
 
 
@@ -161,6 +168,22 @@ fun Exec.processStdout(
 	doFirst {
 		val pin = PipedInputStream()
 		this@processStdout.standardOutput = PipedOutputStream(pin)
+		Thread {
+			InputStreamReader(pin).useLines { lines ->
+				lines.forEach { line ->
+					processLine(line)
+				}
+			}
+		}.start()
+	}
+}
+
+fun Exec.processStderr(
+	processLine: (String) -> Unit = { println(it) }
+) {
+	doFirst {
+		val pin = PipedInputStream()
+		this@processStderr.errorOutput = PipedOutputStream(pin)
 		Thread {
 			InputStreamReader(pin).useLines { lines ->
 				lines.forEach { line ->

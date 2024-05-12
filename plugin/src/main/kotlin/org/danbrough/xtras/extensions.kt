@@ -26,14 +26,6 @@ fun String.capitalized() =
 
 fun String.decapitalized() = replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
-fun ExecSpec.xtrasCommandLine(vararg args: Any) {
-	commandLine(args.toList())
-}
-
-fun ExecSpec.xtrasCommandLine(args: Iterable<Any>) {
-	commandLine(args.map { if (it is File) it.mixedPath else it })
-}
-
 private val hostIsMingw = HostManager.hostIsMingw
 
 val File.mixedPath: String

@@ -9,11 +9,11 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 
 typealias XtrasEnvironment = MutableMap<String, Any>
-typealias XtrasEnvironmentConfig = XtrasEnvironment.(target: KonanTarget) -> Unit
+typealias XtrasEnvironmentConfig = XtrasEnvironment.(target: KonanTarget?) -> Unit
 
 val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
 	get() = { target ->
-		project.logTrace("INITIAL_ENVIRONMENT: target: $target")
+		//project.logTrace("INITIAL_ENVIRONMENT: target: $target")
 
 		put("HOME", project.unixPath(File(System.getProperty("user.home"))))
 
@@ -34,11 +34,12 @@ val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
 			put("PATH", project.pathOf("/bin", "/usr/bin", "/usr/local/bin", get("PATH")))
 		}
 
-
-		if (target.family == Family.ANDROID)
-			environmentNDK(this@INITIAL_ENVIRONMENT, target, project)
-		else if (target.family.isAppleFamily)
-			environmentApple(target)
+		if (target != null) {
+			if (target.family == Family.ANDROID)
+				environmentNDK(this@INITIAL_ENVIRONMENT, target, project)
+			else if (target.family.isAppleFamily)
+				environmentApple(target)
+		}
 	}
 
 private fun XtrasEnvironment.environmentApple(target: KonanTarget) {

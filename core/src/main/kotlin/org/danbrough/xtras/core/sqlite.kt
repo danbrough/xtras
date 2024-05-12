@@ -1,4 +1,5 @@
 package org.danbrough.xtras.core
+/*
 
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
@@ -90,7 +91,8 @@ fun Project.sqlite(extnName: String = "sqlite", block: XtrasLibrary.() -> Unit) 
 		installSource {
 			xtrasCommandLine("make", "install")
 
-			/*doLast {
+			*/
+/*doLast {
 				copy {
 					from(workingDir.resolve("example/.libs")) {
 						include {
@@ -100,8 +102,9 @@ fun Project.sqlite(extnName: String = "sqlite", block: XtrasLibrary.() -> Unit) 
 					}
 					into(buildDir(target).resolve("bin"))
 				}
-			}*/
+			}*//*
+
 		}
 
 		block()
-	}
+	}*/

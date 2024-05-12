@@ -9,7 +9,6 @@ import org.danbrough.xtras.tasks.PackageTaskName
 import org.danbrough.xtras.tasks.compileSource
 import org.danbrough.xtras.tasks.configureSource
 import org.danbrough.xtras.tasks.installSource
-import org.danbrough.xtras.xtrasCommandLine
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
@@ -48,44 +47,37 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
     environment { target ->
 
       put("CFLAGS", "-Wno-unused-command-line-argument -Wno-macro-redefined")
-      if (target.family == Family.ANDROID)
-        environmentNDK(xtras, target,project)
-      else if (target.family == Family.LINUX)
-        environmentKonan(this@registerXtrasGitLibrary, target,project)
+      if (target != null) {
+        if (target.family == Family.ANDROID)
+          environmentNDK(xtras, target, project)
+        else if (target.family == Family.LINUX)
+          environmentKonan(this@registerXtrasGitLibrary, target, project)
+      }
     }
 
 
     configureSource { target ->
       outputs.file(workingDir.resolve("Makefile"))
 
-      val args = mutableListOf(
-        "./Configure",
-        target.opensslPlatform,
-        "no-tests",
-        "threads",
-        "zlib",
-//      "--with-zlib-include=${zlib.libsDir(target).resolve("include")}",
-//      "--with-zlib-lib=${zlib.libsDir(target).resolve("lib").resolve("libz.a")}",
-        "--prefix=${buildDir(target)}",
-        "--libdir=lib",
-      )
+      var command ="./Configure ${target.opensslPlatform} no-tests threads zlib --prefix=${buildDir(target)} --libdir=lib"
+
 
       if (target.family == Family.ANDROID)
-        args += "-D__ANDROID_API__=${xtras.androidConfig.ndkApiVersion}"
+        command += "-D__ANDROID_API__=${xtras.androidConfig.ndkApiVersion}"
       else if (target == KonanTarget.MINGW_X64) {
-        args += "--cross-compile-prefix=x86_64-w64-mingw32-"
+        command += "--cross-compile-prefix=x86_64-w64-mingw32-"
       }
 
 
-      xtrasCommandLine(args)
+      commandLine(xtras.sh,"-c",command)
     }
 
     compileSource {
-      xtrasCommandLine("make")
+      commandLine(xtras.sh,"-c","make")
     }
 
     installSource {
-      xtrasCommandLine("make", "install_sw")
+      commandLine(xtras.sh,"-c","make")
     }
 
     block()

@@ -1,6 +1,7 @@
 package org.danbrough.xtras.tasks
 
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.logError
 import org.danbrough.xtras.resolveAll
 import org.danbrough.xtras.unixPath
 import org.gradle.api.tasks.Exec
@@ -26,6 +27,7 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
 	val scriptsDir by xtrasDir("scripts")
 	val logsDir by xtrasDir("logs")
+
 	val logWriter by lazy {
 		PrintWriter(logsDir.resolve("${buildTaskName}.log"))
 	}
@@ -39,7 +41,8 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 	}
 
 
-	val genTask = project.tasks.register(genEnvTaskName) {
+	project.tasks.register(genEnvTaskName) {
+		dependsOn(SourceTaskName.EXTRACT.taskName(this@registerBuildTask, target))
 		doFirst {
 			envFile.printWriter().use { writer ->
 				loadEnvironment(target).also { env ->
@@ -47,30 +50,25 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 						writer.println("$key=\"${env[key]}\"")
 					}
 				}
-
-				writer.println("MESSAGE=\"Hello world\nat ${Date()}\"")
 			}
 
 			buildScript.printWriter().use { writer->
 				writer.println("#!/bin/sh")
 				writer.println()
 				writer.println("source ${project.unixPath(envFile)}")
-				writer.println("echo the message is \$MESSAGE")
-
 			}
 		}
 		outputs.file(envFile)
 	}
 
 	project.tasks.register<Exec>(buildTaskName) {
-		dependsOn(SourceTaskName.EXTRACT.taskName(this@registerBuildTask, target), genTask)
+
+		dependsOn(genEnvTaskName)
+
+		environment(loadEnvironment(target))
 
 		workingDir = srcDir
-		commandLine(
-			xtras.sh,
-			"-c",
-			project.unixPath(buildScript)
-		)
+
 
 		doFirst {
 			logWriter.println("# ${this@register.name}: running ${commandLine.joinToString(" ")}")
@@ -81,6 +79,20 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 			println(it)
 			logWriter.println(it)
 			logWriter.flush()
+		}
+		processStderr {
+			println("ERROR: $it")
+			logWriter.println("ERROR: $it")
+			logWriter.flush()
+		}
+
+		commandLine(
+			xtras.sh,
+			project.unixPath(buildScript)
+		)
+
+		doLast {
+			logWriter.close()
 		}
 	}
 }

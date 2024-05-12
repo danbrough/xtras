@@ -7,6 +7,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 
@@ -30,7 +31,7 @@ abstract class XtrasExtension(val project: Project) {
   private var environment: XtrasEnvironmentConfig = INITIAL_ENVIRONMENT
 
 
-  fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget): XtrasEnvironment {
+  fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget?): XtrasEnvironment {
     environment(env, target)
     return env
   }
@@ -60,8 +61,10 @@ abstract class XtrasExtension(val project: Project) {
   }
 
   @XtrasDSL
-  var sh:File = project.projectProperty("xtras.sh"){
-    project.xtrasMsysDir.resolveAll("usr","bin","sh")
+  var sh: File = project.projectProperty("xtras.sh") {
+    if (HostManager.hostIsMingw)
+      project.xtrasMsysDir.resolveAll("usr", "bin", "sh")
+    else File("/bin/sh")
   }
 
 }
