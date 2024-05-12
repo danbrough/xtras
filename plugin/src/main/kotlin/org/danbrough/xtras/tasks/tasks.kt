@@ -23,7 +23,7 @@ interface TaskName {
 }
 
 enum class SourceTaskName : TaskName {
-  TAGS, DOWNLOAD, EXTRACT, PREPARE, CONFIGURE, COMPILE, INSTALL;
+  TAGS, DOWNLOAD, EXTRACT, PREPARE, CONFIGURE, COMPILE, INSTALL,BUILD;
 
   override val group: TaskGroup = TaskGroup.SOURCE
 }
@@ -43,13 +43,17 @@ enum class PackageTaskName : TaskName {
 
 fun XtrasLibrary.registerTasks() {
   project.logDebug("$name::registerTasks()")
+
   when (sourceConfig) {
     is GitSourceConfig -> registerGitSourceTasks()
   }
+
   if (cinteropsConfig != null && buildEnabled)
     registerCInteropsTasks()
 
   xtras.nativeTargets.get().forEach { target ->
+
+    registerBuildTask(target)
 
     taskPrepareSource?.invoke(target)
 
@@ -59,10 +63,10 @@ fun XtrasLibrary.registerTasks() {
 
     taskInstallSource?.invoke(target)
 
-
     registerPackageTasks(target)
 
   }
-
 }
+
+
 

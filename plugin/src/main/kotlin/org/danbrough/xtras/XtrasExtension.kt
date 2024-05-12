@@ -27,14 +27,6 @@ abstract class XtrasExtension(val project: Project) {
   @XtrasDSL
   abstract val nativeTargets: ListProperty<KonanTarget>
 
-  @XtrasDSL
-  val tools = Tools(ToolsDelegate(project))
-
-  @XtrasDSL
-  fun tools(block: Tools.() -> Unit) {
-    tools.block()
-  }
-
   private var environment: XtrasEnvironmentConfig = INITIAL_ENVIRONMENT
 
   @XtrasDSL

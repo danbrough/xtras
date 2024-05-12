@@ -67,7 +67,7 @@ private fun XtrasLibrary.registerDownloadTask() {
       actions.add {
         exec {
           workingDir(repoDir)
-          xtrasCommandLine(xtras.tools.git, "fetch", "--depth", "1", "origin", config.commit)
+          xtrasCommandLine("git", "fetch", "--depth", "1", "origin", config.commit)
           logTrace("running: ${commandLine.joinToString(" ")}")
         }
 
@@ -82,7 +82,7 @@ private fun XtrasLibrary.registerDownloadTask() {
         exec {
           workingDir(repoDir)
           val commit = commitFile.readText()
-          xtrasCommandLine(xtras.tools.git, "reset", "--soft", commit)
+          xtrasCommandLine("git", "reset", "--soft", commit)
           logTrace("running: ${commandLine.joinToString(" ")}")
         }
       }
