@@ -35,6 +35,15 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
       targetWriterFilter = { target -> target == KonanTarget.LINUX_ARM64 }
 
+      buildCommand { target->
+        writer.println("""
+          [ ! -f Makefile ] && ./Configure ${target.opensslPlatform} no-tests threads zlib --prefix=${buildDir(target)} --libdir=lib
+          make
+          make install_sw
+          exit 0
+        """.trimIndent())
+      }
+
       afterEvaluate {
         tasks.withType<CInteropProcess> {
           if (konanTarget in setOf(KonanTarget.LINUX_ARM64)) {
@@ -56,7 +65,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
     }
 
 
-    configureSource { target ->
+/*    configureSource { target ->
       outputs.file(workingDir.resolve("Makefile"))
 
       var command ="./Configure ${target.opensslPlatform} no-tests threads zlib --prefix=${buildDir(target)} --libdir=lib"
@@ -78,7 +87,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
     installSource {
       commandLine(xtras.sh,"-c","make")
-    }
+    }*/
 
     block()
   }

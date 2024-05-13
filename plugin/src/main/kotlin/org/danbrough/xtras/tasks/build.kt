@@ -1,6 +1,8 @@
 package org.danbrough.xtras.tasks
 
+import org.danbrough.xtras.ScriptCommandContext
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.logError
 import org.danbrough.xtras.resolveAll
 import org.danbrough.xtras.unixPath
@@ -13,86 +15,86 @@ import java.util.Date
 
 fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
-	val srcDir = sourceDir(target)
+  val srcDir = sourceDir(target)
 
-	fun xtrasDir(name: String): Lazy<File> = lazy {
-		srcDir.resolveAll("xtras", name).also {
-			if (!it.exists()) it.mkdirs()
-		}
-	}
+  val xtrasDir =srcDir.resolve("xtras")
 
 
-	val buildTaskName = SourceTaskName.BUILD.taskName(this, target)
-	val genEnvTaskName = "${buildTaskName}_env"
 
-	val scriptsDir by xtrasDir("scripts")
-	val logsDir by xtrasDir("logs")
+  val buildTaskName = SourceTaskName.BUILD.taskName(this, target)
+  val genEnvTaskName = "${buildTaskName}_env"
 
-	val logWriter by lazy {
-		PrintWriter(logsDir.resolve("${buildTaskName}.log"))
-	}
+  val scriptsDir= xtrasDir.resolve("scripts")
+  val logsDir= xtrasDir.resolve("logs")
 
-	val envFile by lazy {
-		scriptsDir.resolve("env.sh")
-	}
+  val logWriter by lazy {
+    PrintWriter(logsDir.also { it.mkdirs() }.resolve("${buildTaskName}.log"))
+  }
 
-	val buildScript by lazy {
-		scriptsDir.resolve("build.sh")
-	}
+  val envFile = scriptsDir.resolve("env.sh")
 
 
-	project.tasks.register(genEnvTaskName) {
-		dependsOn(SourceTaskName.EXTRACT.taskName(this@registerBuildTask, target))
-		doFirst {
-			envFile.printWriter().use { writer ->
-				loadEnvironment(target).also { env ->
-					env.keys.forEach { key ->
-						writer.println("$key=\"${env[key]}\"")
-					}
-				}
-			}
-
-			buildScript.printWriter().use { writer->
-				writer.println("#!/bin/sh")
-				writer.println()
-				writer.println("source ${project.unixPath(envFile)}")
-			}
-		}
-		outputs.file(envFile)
-	}
-
-	project.tasks.register<Exec>(buildTaskName) {
-
-		dependsOn(genEnvTaskName)
-
-		environment(loadEnvironment(target))
-
-		workingDir = srcDir
+  val buildScript =
+    scriptsDir.resolve("build.sh")
 
 
-		doFirst {
-			logWriter.println("# ${this@register.name}: running ${commandLine.joinToString(" ")}")
-			logWriter.println()
-		}
+  project.tasks.register(genEnvTaskName) {
+    dependsOn(SourceTaskName.EXTRACT.taskName(this@registerBuildTask, target))
+    doFirst {
+      scriptsDir.mkdirs()
+      envFile.printWriter().use { writer ->
+        loadEnvironment(target).also { env ->
+          env.keys.forEach { key ->
+            writer.println("export $key=\"${env[key]}\"")
+          }
+        }
+      }
 
-		processStdout {
-			println(it)
-			logWriter.println(it)
-			logWriter.flush()
-		}
-		processStderr {
-			println("ERROR: $it")
-			logWriter.println("ERROR: $it")
-			logWriter.flush()
-		}
 
-		commandLine(
-			xtras.sh,
-			project.unixPath(buildScript)
-		)
+      buildScript.printWriter().use { writer ->
+        writer.println("#!/bin/sh")
+        writer.println()
+        writer.println("source ${project.unixPath(envFile)}")
 
-		doLast {
-			logWriter.close()
-		}
-	}
+        buildCommand!!.invoke(ScriptCommandContext(writer), target)
+      }
+    }
+    //outputs.file(envFile)
+  }
+
+  project.tasks.register<Exec>(buildTaskName) {
+
+    dependsOn(genEnvTaskName)
+
+    //environment(loadEnvironment(target))
+
+    workingDir = srcDir
+
+
+    doFirst {
+      logWriter.println("# ${this@register.name}: running ${commandLine.joinToString(" ")}")
+      logWriter.println()
+    }
+
+    processStdout {
+      println(it)
+      logWriter.println(it)
+      logWriter.flush()
+    }
+    processStderr {
+      println("ERROR: $it")
+      logWriter.println("ERROR: $it")
+      logWriter.flush()
+    }
+
+    commandLine(
+      xtras.sh,
+      project.unixPath(buildScript)
+    )
+
+    doLast {
+      logWriter.close()
+      workingDir.resolve("xtras").copyRecursively(buildDir(target).resolve("xtras"), true)
+    }
+  }
 }

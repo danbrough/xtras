@@ -20,7 +20,6 @@ internal fun XtrasLibrary.registerPackageTasks(target: KonanTarget) {
 }
 
 private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
-  if (taskInstallSource == null) return
 
   project.tasks.register<Exec>(
     PackageTaskName.CREATE.taskName(
@@ -30,7 +29,7 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
   ) {
     group = XTRAS_TASK_GROUP
     environment(loadEnvironment())
-    dependsOn(SourceTaskName.INSTALL.taskName(this@registerPackageCreateTask, target))
+    dependsOn(SourceTaskName.BUILD.taskName(this@registerPackageCreateTask, target))
     mustRunAfter(PackageTaskName.DOWNLOAD.taskName(this@registerPackageCreateTask, target))
     val packageFile = packageFile(target)
     onlyIf { !packageFile.exists() }
@@ -86,7 +85,7 @@ private fun XtrasLibrary.registerPackageResolveTask(target: KonanTarget) {
 }
 
 private fun XtrasLibrary.registerPackageExtractTask(target: KonanTarget) {
-  if (taskInstallSource == null) return
+
   val libsDir = libsDir(target)
   val packageFile = packageFile(target)
   val taskName = PackageTaskName.EXTRACT.taskName(this@registerPackageExtractTask, target)
