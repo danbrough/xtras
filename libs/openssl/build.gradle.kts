@@ -54,20 +54,16 @@ kotlin {
   }
 
   if (HostManager.hostIsLinux) {
+    mingwX64()
     linuxX64()
     linuxArm64()
+    androidNativeArm64()
+    androidNativeX64()
   } else if (HostManager.hostIsMac){
     macosX64()
     macosArm64()
   }
-/*
-  mingwX64()
-  androidNativeArm64()
-  androidNativeX64()
-  if (HostManager.hostIsMac) {
-    macosArm64()
-    macosX64()
-  }*/
+
   sourceSets {
     all {
       languageSettings {

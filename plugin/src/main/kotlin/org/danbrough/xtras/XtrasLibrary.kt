@@ -89,6 +89,9 @@ abstract class XtrasLibrary(
   internal var taskInstallSource: TaskConfig? = null
 
   internal var environment: XtrasEnvironmentConfig = {
+    if (it != null){
+      put(ENV_BUILD_DIR,project.unixPath(buildDir(it)))
+    }
     xtras.loadEnvironment(this, it)
   }
 

@@ -39,6 +39,8 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
 
   project.tasks.register(genEnvTaskName) {
+    onlyIf { !packageFile(target).exists() }
+
     dependsOn(SourceTaskName.EXTRACT.taskName(this@registerBuildTask, target))
     doFirst {
       scriptsDir.mkdirs()
@@ -63,7 +65,7 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
   }
 
   project.tasks.register<Exec>(buildTaskName) {
-
+    onlyIf { !packageFile(target).exists() }
     dependsOn(genEnvTaskName)
 
     //environment(loadEnvironment(target))

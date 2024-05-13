@@ -1,9 +1,11 @@
 package org.danbrough.xtras.core
 
+import org.danbrough.xtras.ENV_BUILD_DIR
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
 import org.danbrough.xtras.environmentNDK
 import org.danbrough.xtras.logInfo
+import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.registerXtrasGitLibrary
 import org.danbrough.xtras.tasks.PackageTaskName
 import org.danbrough.xtras.tasks.compileSource
@@ -37,7 +39,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
       buildCommand { target->
         writer.println("""
-          [ ! -f Makefile ] && ./Configure ${target.opensslPlatform} no-tests threads zlib --prefix=${buildDir(target)} --libdir=lib
+          [ ! -f Makefile ] && ./Configure ${target.opensslPlatform} no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
           make
           make install_sw
           exit 0
@@ -61,6 +63,11 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
           environmentNDK(xtras, target, project)
         else if (target.family == Family.LINUX)
           environmentKonan(this@registerXtrasGitLibrary, target, project)
+        else if (target.family == Family.MINGW){
+          put("CC","x86_64-w64-mingw32-gcc")
+          put("RC", "x86_64-w64-mingw32-windres")
+        }
+
       }
     }
 
