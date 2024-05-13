@@ -46,13 +46,13 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
         """.trimIndent())
       }
 
-      afterEvaluate {
+/*      afterEvaluate {
         tasks.withType<CInteropProcess> {
           if (konanTarget in setOf(KonanTarget.LINUX_ARM64)) {
             dependsOn(PackageTaskName.EXTRACT.taskName(this@registerXtrasGitLibrary, konanTarget))
           }
         }
-      }
+      }*/
     }
 
     environment { target ->

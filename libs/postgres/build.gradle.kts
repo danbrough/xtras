@@ -32,7 +32,6 @@ xtras {
   kotlinLanguageVersion = KotlinVersion.KOTLIN_2_0
   jvmTarget = JvmTarget.JVM_17
   javaVersion = JavaVersion.VERSION_17
-  cleanEnvironment = true
 }
 
 

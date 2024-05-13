@@ -1,6 +1,7 @@
 package org.danbrough.xtras.core
-/*
 
+
+import org.danbrough.xtras.ENV_BUILD_DIR
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
 import org.danbrough.xtras.environmentNDK
@@ -30,14 +31,25 @@ fun Project.postgres(extnName: String = "postgres", block: XtrasLibrary.() -> Un
 		}
 
 		environment { target ->
-			if (target.family == Family.ANDROID) {
-				environmentNDK(xtras, target,this@postgres)
-			} else if (target == KonanTarget.LINUX_ARM64 || target == KonanTarget.MACOS_ARM64 || target == KonanTarget.LINUX_X64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
-				environmentKonan(this@registerXtrasGitLibrary, target,this@postgres)
+			if (target != null) {
+				if (target.family == Family.ANDROID) {
+					environmentNDK(xtras, target, this@postgres)
+				} else if (target == KonanTarget.LINUX_ARM64 || target == KonanTarget.MACOS_ARM64 || target == KonanTarget.LINUX_X64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
+					environmentKonan(this@registerXtrasGitLibrary, target, this@postgres)
+				}
 			}
 		}
 
 
+		buildCommand {target->
+			writer.println("""
+				[ ! -f GNUmakefile ] && ./configure --host=${target.hostTriplet} --prefix=$${ENV_BUILD_DIR} --without-readline --without-icu
+				make
+				make install
+			""".trimIndent())
+
+		}
+/*
 		configureSource(dependsOn = SourceTaskName.EXTRACT) { target ->
 			outputs.file(workingDir.resolve("Makefile"))
 
@@ -60,29 +72,9 @@ fun Project.postgres(extnName: String = "postgres", block: XtrasLibrary.() -> Un
 			args += "--with-libssl-prefix=${xtrasLibsDir}/openssl/${project.projectProperty<String>("openssl.version")}/${target.kotlinTargetName}" //TODO fix this
 			xtrasCommandLine(args)
 		}
-
-		compileSource {
-			xtrasCommandLine("make")
-		}
+*/
 
 
-		installSource {
-			xtrasCommandLine("make", "install")
-
-			*/
-/*doLast {
-				copy {
-					from(workingDir.resolve("example/.libs")) {
-						include {
-							@Suppress("UnstableApiUsage")
-							!it.isDirectory && it.permissions.user.execute
-						}
-					}
-					into(buildDir(target).resolve("bin"))
-				}
-			}*//*
-
-		}
 
 		block()
-	}*/
+	}
