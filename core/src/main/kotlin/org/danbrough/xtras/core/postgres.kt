@@ -34,7 +34,7 @@ fun Project.postgres(extnName: String = "postgres", block: XtrasLibrary.() -> Un
 			if (target != null) {
 				if (target.family == Family.ANDROID) {
 					environmentNDK(xtras, target, this@postgres)
-				} else if (target == KonanTarget.LINUX_ARM64 || target == KonanTarget.MACOS_ARM64 || target == KonanTarget.LINUX_X64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
+				} else if (target == KonanTarget.LINUX_ARM64 || target == KonanTarget.LINUX_X64) {// || ((target == KonanTarget.MINGW_X64) && HostManager.hostIsMingw)) {
 					environmentKonan(this@registerXtrasGitLibrary, target, this@postgres)
 				}
 			}
@@ -43,7 +43,17 @@ fun Project.postgres(extnName: String = "postgres", block: XtrasLibrary.() -> Un
 
 		buildCommand {target->
 			writer.println("""
-				[ ! -f GNUmakefile ] && ./configure --host=${target.hostTriplet} --prefix=$${ENV_BUILD_DIR} --without-readline --without-icu
+				[ ! -f GNUmakefile ] && ./configure --host=${target.hostTriplet} --prefix=${'$'}${ENV_BUILD_DIR} \
+				--without-readline --without-icu --with-system-tzdata=/usr/sbin/zic 
+			""".trimIndent())
+
+
+
+			if (target == KonanTarget.MINGW_X64){
+				writer.println("ln -s ./src/timezone/zic.exe  ./src/timezone/zic")
+			}
+
+			writer.println("""
 				make
 				make install
 			""".trimIndent())

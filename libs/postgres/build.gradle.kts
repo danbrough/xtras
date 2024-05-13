@@ -55,12 +55,12 @@ kotlin {
   }
 
   linuxX64()
-  linuxArm64()
-  mingwX64()
-  androidNativeArm64()
-  androidNativeX64()
+//  linuxArm64()
+//  mingwX64()
+//  androidNativeArm64()
+//  androidNativeX64()
   if (HostManager.hostIsMac) {
-    macosArm64()
+    //macosArm64()
     macosX64()
   }
   sourceSets {
