@@ -56,6 +56,9 @@ kotlin {
   if (HostManager.hostIsLinux) {
     linuxX64()
     linuxArm64()
+  } else if (HostManager.hostIsMac){
+    macosX64()
+    macosArm64()
   }
 /*
   mingwX64()
