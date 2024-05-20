@@ -27,12 +27,6 @@ buildscript {
   }
 }
 
-xtras {
-  kotlinApiVersion = KotlinVersion.KOTLIN_2_0
-  kotlinLanguageVersion = KotlinVersion.KOTLIN_2_0
-  jvmTarget = JvmTarget.JVM_17
-  javaVersion = JavaVersion.VERSION_17
-}
 
 
 group = projectProperty<String>("postgres.group")

@@ -15,6 +15,7 @@ xtras-mqtt = { id = "org.danbrough.xtras.mqtt", version.ref = "xtras-mqtt" }
 [versions]
 
 agp = "8.4.0"
+##⬆= "8.4.1"
 ##⬆= "8.5.0-alpha01"
 ##⬆= "8.5.0-alpha02"
 ##⬆= "8.5.0-alpha03"
@@ -24,6 +25,9 @@ agp = "8.4.0"
 ##⬆= "8.5.0-alpha07"
 ##⬆= "8.5.0-alpha08"
 ##⬆= "8.5.0-beta01"
+##⬆= "8.5.0-beta02"
+##⬆= "8.6.0-alpha01"
+##⬆= "8.6.0-alpha02"
 xtras-core = "0.0.1-alpha01"
 kotlin ="2.0.0-RC3"
 

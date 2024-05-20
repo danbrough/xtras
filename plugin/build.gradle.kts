@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
   `kotlin-dsl`
   `java-gradle-plugin`
@@ -11,6 +13,17 @@ version = libs.versions.xtras.version.get()
 repositories {
   mavenCentral()
   google()
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
+
+kotlin {
+  compilerOptions {
+    this.jvmTarget = JvmTarget.JVM_11
+  }
 }
 
 dependencies {

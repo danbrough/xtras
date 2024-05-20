@@ -14,10 +14,10 @@ import java.io.File
 abstract class XtrasExtension(val project: Project) {
 
   @XtrasDSL
-  var javaVersion = JavaVersion.VERSION_17
+  var javaVersion = JavaVersion.VERSION_11
 
   @XtrasDSL
-  var jvmTarget = JvmTarget.JVM_17
+  var jvmTarget = JvmTarget.JVM_11
 
   @XtrasDSL
   var kotlinLanguageVersion = KotlinVersion.KOTLIN_2_0

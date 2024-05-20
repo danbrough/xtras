@@ -22,8 +22,8 @@ listOf(
 	"support",
 	"openssl",
 //	"ssh2",
-	"postgres",
-	//"sqlite",
+	//"postgres",
+	"sqlite",
 ).forEach {
 	include(":libs:$it")
 }

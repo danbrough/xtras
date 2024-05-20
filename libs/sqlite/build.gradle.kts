@@ -2,7 +2,6 @@
 
 
 import org.danbrough.xtras.core.openssl
-import org.danbrough.xtras.core.ssh2
 import org.danbrough.xtras.core.sqlite
 import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.projectProperty
@@ -37,7 +36,6 @@ xtras {
   kotlinLanguageVersion = KotlinVersion.KOTLIN_2_0
   jvmTarget = JvmTarget.JVM_17
   javaVersion = JavaVersion.VERSION_17
-  cleanEnvironment = true
 }
 
 group = projectProperty<String>("sqlite.group")
@@ -141,7 +139,7 @@ sonatype {
 xtrasAndroidConfig {
 }
 
- sqlite {
+sqlite {
 
 }
 
