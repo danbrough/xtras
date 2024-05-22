@@ -1,15 +1,13 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+@file:Suppress("SpellCheckingInspection")
 
 
+import org.danbrough.xtras.core.jwt
+import org.danbrough.xtras.core.jansson
 import org.danbrough.xtras.core.openssl
-import org.danbrough.xtras.core.ssh2
-import org.danbrough.xtras.kotlinTargetName
+import org.danbrough.xtras.core.postgres
 import org.danbrough.xtras.projectProperty
-import org.danbrough.xtras.resolveAll
-import org.danbrough.xtras.supportsJNI
 import org.danbrough.xtras.xtrasAndroidConfig
-import org.danbrough.xtras.xtrasLibsDir
-import org.danbrough.xtras.xtrasTestExecutables
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -22,7 +20,7 @@ plugins {
   alias(libs.plugins.xtras)
   id("org.danbrough.xtras.sonatype")
   id("com.android.library")
-  //`maven-publish`
+  `maven-publish`
 }
 
 buildscript {
@@ -32,9 +30,9 @@ buildscript {
 }
 
 
-group = projectProperty<String>("ssh2.group")
-version = projectProperty<String>("ssh2.version")
 
+group = projectProperty<String>("jwt.group")
+version = projectProperty<String>("jwt.version")
 
 kotlin {
   withSourcesJar(publish = true)
@@ -53,15 +51,14 @@ kotlin {
   }
 
   linuxX64()
-  //mingwX64()
-  linuxArm64()
-  androidNativeArm64()
-  androidNativeX64()
+//  linuxArm64()
+//  mingwX64()
+//  androidNativeArm64()
+//  androidNativeX64()
   if (HostManager.hostIsMac) {
-    macosArm64()
+    //macosArm64()
     macosX64()
   }
-
   sourceSets {
     all {
       languageSettings {
@@ -76,9 +73,8 @@ kotlin {
 
     val commonMain by getting {
       dependencies {
-        implementation(project(":libs:support")) //or implementation(project(":libs:support"))
-        implementation(libs.kotlinx.coroutines)
-        //implementation(project(":libs:openssl"))
+        implementation(libs.xtras.support) //or implementation(project(":libs:support"))
+        //implementation(libs.kotlinx.coroutines)
         //implementation(libs.kotlinx.io)
       }
     }
@@ -109,24 +105,13 @@ kotlin {
   }
 
   targets.withType<KotlinNativeTarget> {
-    if (konanTarget.supportsJNI)
-      compilations["main"].defaultSourceSet.kotlin.srcDir(project.file("src").resolve("jni"))
     binaries {
-      sharedLib("xtras_ssh2")
-//        executable("sshExec") {
-//          entryPoint = "org.danbrough.ssh2.mainSshExec"
-//          compilation = compilations.getByName("test")
-//        }
+      sharedLib("xtras_jwt")
     }
   }
 }
 
-
-
-xtrasTestExecutables("ssh", tests = listOf("sshExec"))
-
 xtrasTesting {
-
 }
 
 sonatype {
@@ -135,35 +120,12 @@ sonatype {
 xtrasAndroidConfig {
 }
 
-/*rootProject.findProject(":libs:openssl")!!.also {
-  val openssl = it.extensions.getByType<XtrasLibrary>()
-  logError("LIBS DIR OPENSSL: ${openssl.libsDir(KonanTarget.LINUX_ARM64)}")
-}*/
-
-val ssl = openssl {
+val sslLib = openssl {
+  //buildEnabled = true
 }
-
-
-ssh2(ssl) {
-  cinterops {
-    codeFile = file("interops.h")
-
-/*    extraLibsDirs += {
-      xtrasLibsDir.resolveAll(
-        "openssl",
-        projectProperty<String>("openssl.version"),
-        it.kotlinTargetName
-      )
-    }*/
-  }
-
+val janssonLib = jansson{
 
 }
+jwt(sslLib,janssonLib) {
 
-
-tasks.register("printSSL") {
-  doFirst {
-    println("${project.name}: buildEnabled: ${ssl.buildEnabled}")
-  }
 }
-

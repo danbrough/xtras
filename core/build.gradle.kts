@@ -1,5 +1,6 @@
 import org.danbrough.xtras.XTRAS_PACKAGE
 import org.danbrough.xtras.xtrasDeclareXtrasRepository
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   `kotlin-dsl`
@@ -21,6 +22,5 @@ dependencies {
   implementation(libs.kotlin.gradle.plugin)
   implementation(libs.xtras.plugin)
 }
-
 
 xtrasDeclareXtrasRepository()
