@@ -38,7 +38,6 @@ xtras-mqtt = "0.0.1-alpha01"
 kotlin-logging = "6.0.9"
 xtras-support = "0.0.1-beta01"
 dokka = "1.9.20"
-klog = "0.0.2-beta09"
 kotlinx-io = "0.3.2"
 slf4j-api ="2.0.13"
 ##    ⬆ = "2.1.0-alpha0"
@@ -46,6 +45,7 @@ slf4j-api ="2.0.13"
 slf4j-simple = "2.0.12"
 logback-classic ="1.5.6"
 kotlinx-coroutines ="1.8.1"
+klog = "0.0.3-beta01"
 
 [libraries]
 
@@ -71,3 +71,4 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
 slf4j-android = { module = "org.slf4j:slf4j-android", version = "1.7.36" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
+klog-core = { module = "org.danbrough.klog:core", version.ref = "klog" }

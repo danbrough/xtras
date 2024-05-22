@@ -13,14 +13,15 @@ import java.io.File
 fun XtrasLibrary.registerBinaryPublication(target: KonanTarget) {
   val publishing = project.extensions.findByType<PublishingExtension>() ?: return
 
-  val RESOLVEPackageTaskName = PackageTaskName.RESOLVE.taskName(this, target)
-  val artifactTask = project.tasks.getByName(RESOLVEPackageTaskName)
+  val resolvePackageTaskName = PackageTaskName.RESOLVE.taskName(this, target)
+  val artifactTask = project.tasks.getByName(resolvePackageTaskName)
   val publicationName = "${name}Binaries${target.kotlinTargetName.capitalized()}"
 
   publishing.publications.create<MavenPublication>(publicationName) {
     artifactId = artifactID(target)
     version = this@registerBinaryPublication.version
     groupId = this@registerBinaryPublication.group
+
     val file = artifactTask.outputs.files.first()
     //project.logError("registerBinaryPublication for file: ${file.absolutePath}")
     artifact(file).builtBy(artifactTask)

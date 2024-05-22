@@ -7,7 +7,7 @@ local.properties
 .cache
 .bash_history
 .ssh
-/tmp
+**/tmp
 /bak
 /xtras
 config.properties

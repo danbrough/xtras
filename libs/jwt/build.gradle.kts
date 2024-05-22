@@ -76,6 +76,7 @@ kotlin {
         implementation(libs.xtras.support) //or implementation(project(":libs:support"))
         //implementation(libs.kotlinx.coroutines)
         //implementation(libs.kotlinx.io)
+        implementation(libs.klog.core)
       }
     }
 

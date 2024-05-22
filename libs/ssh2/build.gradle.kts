@@ -35,6 +35,12 @@ buildscript {
 group = projectProperty<String>("ssh2.group")
 version = projectProperty<String>("ssh2.version")
 
+xtras {
+  androidConfig {
+    ndkApiVersion = 23
+    minSDKVersion = 23
+  }
+}
 
 kotlin {
   withSourcesJar(publish = true)
@@ -148,22 +154,16 @@ ssh2(ssl) {
   cinterops {
     codeFile = file("interops.h")
 
-/*    extraLibsDirs += {
-      xtrasLibsDir.resolveAll(
-        "openssl",
-        projectProperty<String>("openssl.version"),
-        it.kotlinTargetName
-      )
-    }*/
+    /*    extraLibsDirs += {
+          xtrasLibsDir.resolveAll(
+            "openssl",
+            projectProperty<String>("openssl.version"),
+            it.kotlinTargetName
+          )
+        }*/
   }
 
 
 }
 
-
-tasks.register("printSSL") {
-  doFirst {
-    println("${project.name}: buildEnabled: ${ssl.buildEnabled}")
-  }
-}
 
