@@ -77,6 +77,7 @@ kotlin {
         //implementation(libs.kotlinx.coroutines)
         //implementation(libs.kotlinx.io)
         implementation(libs.klog.core)
+        implementation(libs.kotlinx.io)
       }
     }
 
