@@ -17,11 +17,11 @@ import org.danbrough.jwt.cinterops.JWT_ALG_TERM
 import org.danbrough.jwt.cinterops.jwt_alg
 
 
-
 import kotlinx.cinterop.MemScope
 import kotlinx.cinterop.memScoped
+
 val JwtAlg.algorithm: jwt_alg
-	get() = when(this){
+	get() = when (this) {
 		JwtAlg.NONE -> JWT_ALG_NONE
 		JwtAlg.HS256 -> JWT_ALG_HS256
 		JwtAlg.HS384 -> JWT_ALG_HS384
@@ -54,9 +54,13 @@ actual fun <R> JWTScope.decode(
 	alg: JwtAlg,
 	secret: UByteArray,
 	block: JWTDecode.() -> R
-): R = JWTDecode(this, token, alg, secret).block()
+): R = jwtScope(block) {
+	JWTDecode(it, token, alg, secret)
+}
 
 
-actual typealias JWTScope = MemScope
+actual class JWTScope(val memScope: MemScope)
 
-actual fun <R> jwt(block: JWTScope.() -> R): R = memScoped(block)
+actual fun <R> jwt(block: JWTScope.() -> R): R = memScoped {
+	JWTScope(this).block()
+}

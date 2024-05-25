@@ -168,7 +168,7 @@ class NativeTests {
 				issuedAtNow()
 				token()
 			}
-			
+
 			log.debug { "final token: $token" }
 
 			decode(token, alg, secret) {

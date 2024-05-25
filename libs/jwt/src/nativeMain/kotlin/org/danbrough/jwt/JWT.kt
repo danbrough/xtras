@@ -22,6 +22,7 @@ abstract class JWT(private val mScope: MemScope) {
 	abstract val jwt: CPointer<jwt_t>
 	fun <R> memScoped(block: MemScope.() -> R): R = mScope.block()
 	open fun release() {
+		log.error { "release()" }
 		jwt_free(jwt)
 	}
 
