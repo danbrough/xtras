@@ -10,6 +10,7 @@ expect fun <R> jwtEncode(block: JWTEncode.()->R): R
 
 
 
-expect fun <R> jwtDecode(token:String,alg: JwtAlg,secret:UByteArray,block: JWTDecode.()->R): R
+@OptIn(ExperimentalUnsignedTypes::class)
+expect fun <R> jwtDecode(token:String, alg: JwtAlg, secret:UByteArray, block: JWTDecode.()->R): R
 
 

@@ -59,3 +59,10 @@ actual fun <R> jwtDecode(
 	jwtScope(block) {
 		JWTDecode(it, token, alg, secret)
 	}
+
+fun <R> MemScope.jwtDecode(
+	token: String,
+	alg: JwtAlg,
+	secret: UByteArray,
+	block: JWTDecode.() -> R
+): R = JWTDecode(this, token, alg, secret).block()

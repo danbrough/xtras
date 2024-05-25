@@ -19,7 +19,11 @@ actual class JWTDecode(mScope: MemScope, val token: String,val jwtAlg: JwtAlg,va
 		jwt_decode(pJwt.ptr, token, cSecret, secret.size).also {
 			if (it != 0) error("jwt_decode => $it")
 		}
+		memScoped {
+
+		}
 		pJwt.value!!
+
 	}
 
 
