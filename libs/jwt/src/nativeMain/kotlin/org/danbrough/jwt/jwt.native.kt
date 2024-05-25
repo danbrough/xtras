@@ -17,6 +17,9 @@ import org.danbrough.jwt.cinterops.JWT_ALG_TERM
 import org.danbrough.jwt.cinterops.jwt_alg
 
 
+
+import kotlinx.cinterop.MemScope
+import kotlinx.cinterop.memScoped
 val JwtAlg.algorithm: jwt_alg
 	get() = when(this){
 		JwtAlg.NONE -> JWT_ALG_NONE
@@ -36,4 +39,23 @@ val JwtAlg.algorithm: jwt_alg
 	}
 
 
+internal fun <R, S : JWT> jwtScope(block: S.() -> R, creator: (MemScope) -> S): R = memScoped {
+	val jwt = creator(this)
+	runCatching {
+		jwt.block()
+	}.also { jwt.release() }.getOrThrow()
+}
 
+
+actual fun <R> jwtEncode(block: JWTEncode.() -> R): R = jwtScope(block, ::JWTEncode)
+
+
+actual fun <R> jwtDecode(
+	token: String,
+	alg: JwtAlg,
+	secret: UByteArray,
+	block: JWTDecode.() -> R
+): R =
+	jwtScope(block) {
+		JWTDecode(it, token, alg, secret)
+	}
