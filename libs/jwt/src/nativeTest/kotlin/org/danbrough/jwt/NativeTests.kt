@@ -144,7 +144,7 @@ class NativeTests {
 		}
 	}
 
-	fun basicTest(){
+	fun basicTest() {
 		log.debug { "secret size: ${secret_512.size}" }
 		val tok = generateToken()
 		log.debug { "got token: $tok" }
@@ -159,18 +159,21 @@ class NativeTests {
 		val alg = JwtAlg.HS512
 		val secret = secret_512
 
-		val token = jwtEncode {
-			log.debug { "token1: ${token()}" }
-			claim("admin",true)
-			log.debug { "token2: ${token()}" }
-			setAlgorithm(alg, secret)
-			issuedAtNow()
-			token()
-		}
+		jwt {
+			val token = encode {
+				log.debug { "token1: ${token()}" }
+				claim("admin", true)
+				log.debug { "token2: ${token()}" }
+				setAlgorithm(alg, secret)
+				issuedAtNow()
+				token()
+			}
+			
+			log.debug { "final token: $token" }
 
-		log.debug { "final token: $token" }
-		jwtDecode(token,alg, secret){
-			printJson()
+			decode(token, alg, secret) {
+				printJson()
+			}
 		}
 	}
 }

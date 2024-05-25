@@ -47,22 +47,16 @@ internal fun <R, S : JWT> jwtScope(block: S.() -> R, creator: (MemScope) -> S): 
 }
 
 
-actual fun <R> jwtEncode(block: JWTEncode.() -> R): R = jwtScope(block, ::JWTEncode)
+actual fun <R> JWTScope.encode(block: JWTEncode.() -> R): R = jwtScope(block, ::JWTEncode)
 
-
-actual fun <R> jwtDecode(
-	token: String,
-	alg: JwtAlg,
-	secret: UByteArray,
-	block: JWTDecode.() -> R
-): R =
-	jwtScope(block) {
-		JWTDecode(it, token, alg, secret)
-	}
-
-fun <R> MemScope.jwtDecode(
+actual fun <R> JWTScope.decode(
 	token: String,
 	alg: JwtAlg,
 	secret: UByteArray,
 	block: JWTDecode.() -> R
 ): R = JWTDecode(this, token, alg, secret).block()
+
+
+actual typealias JWTScope = MemScope
+
+actual fun <R> jwt(block: JWTScope.() -> R): R = memScoped(block)
