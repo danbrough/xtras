@@ -5,6 +5,7 @@ import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
+import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.toCValues
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.value
@@ -31,7 +32,7 @@ import kotlin.test.Test
 
 val secret_512 =
 	"Cpl2CkWaVuoXCTdPukDlG72fzhBFSIoar0Q/aMmjehWpaCY5/5Fl5neG+92eX9Jh2B/kJkie0*3JCrpJd9VVMbEbF9mDvuhpOuylOTITlxjOhkY+s3rGC4UORjzWkWSrOF4fzdn/929eYQ/Im4xoHMt3mAGRlRgMtTHmpEhvYVRQLahV4MJrdfjd1hFixlYMsFnaEfhD19LW15Jlu3c+I+81HKbN/90nn/QlWsAP650eSkUY6Tci3UwuzLg9kW7POKrBicwHsvKcAuvoBp0xkLYoq9oprT/nH7EphwUwzxPkvYm+Vp3nZdPWnScddSE79O4jOKrMPkuSpV0/Liq/y+iugYajC8VHf3FoRIotr3xh4u4Ci9Naljseck9QQDC2d9ztMScFZVOINIYEHx3O2QFGej5o9+XBbc68XUgaVVm79r3l8TqKnlyapM79cmr9xrNyj8TdnqPobsdQlyNQ2iqHtk/4LVAAEXAuj2ri1tyl5twSrbzXqE1O0zNFT/j1".encodeToByteArray()
-		.toUByteArray()
+
 
 
 class NativeTests {
@@ -60,11 +61,13 @@ class NativeTests {
 			}
 
 
+			val secret = secret_512.toUByteArray().toCValues()
+
 			jwt_set_alg(
 				jwt,
 				JWT_ALG_HS512,
-				secret_512.toCValues(),
-				secret_512.size
+				secret,
+				secret.size
 			).also {
 				if (it != 0) error("jwt_set_alg returned $it") else log.trace { "jwt_set_alg success" }
 			}
@@ -89,7 +92,7 @@ class NativeTests {
 	private fun printToken(tok: String) {
 		memScoped {
 			val pJwt: CPointerVar<jwt_t> = alloc()
-			jwt_decode(pJwt.ptr, tok, secret_512.toCValues(), secret_512.size).also {
+			jwt_decode(pJwt.ptr, tok, secret_512.toUByteArray().toCValues(), secret_512.size).also {
 				if (it != 0) error("jwt_decode returned $it") else log.trace { "jwt_decode success" }
 			}
 			jwt_dump_fp(pJwt.value, stdout, 1)
@@ -105,12 +108,13 @@ class NativeTests {
 				if (it != 0) error("jwt_add_grant_int returned $it") else log.trace { "jwt_new success" }
 			}
 			val jwt: CPointer<jwt_t> = pJwt.value ?: error("pJwt.value is null")
+			val secret = secret_512.toUByteArray().toCValues()
 
 			jwt_set_alg(
 				jwt,
 				JWT_ALG_HS512,
-				secret_512.toCValues(),
-				secret_512.size
+				secret,
+				secret.size
 			).also {
 				if (it != 0) error("jwt_set_alg returned $it") else log.trace { "jwt_set_alg success" }
 			}
@@ -162,6 +166,7 @@ class NativeTests {
 		jwt {
 			val token = encode {
 				log.debug { "token1: ${token()}" }
+
 				claim("admin", true)
 				log.debug { "token2: ${token()}" }
 				setAlgorithm(alg, secret)

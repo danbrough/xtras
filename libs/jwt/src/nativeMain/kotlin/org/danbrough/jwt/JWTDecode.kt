@@ -11,20 +11,15 @@ import org.danbrough.jwt.cinterops.jwt_decode
 import org.danbrough.jwt.cinterops.jwt_t
 
 @Suppress("MemberVisibilityCanBePrivate")
-actual class JWTDecode(mScope: MemScope, val token: String,val jwtAlg: JwtAlg,val secret: UByteArray) : JWT(mScope) {
+actual class JWTDecode(mScope: MemScope, val token: String,val jwtAlg: JwtAlg,val secret: ByteArray) : JWT(mScope) {
 
 	override val jwt: CPointer<jwt_t> = memScoped {
 		val pJwt: CPointerVar<jwt_t> = alloc()
-		val cSecret = secret.toCValues()
-		jwt_decode(pJwt.ptr, token, cSecret, secret.size).also {
+		val cSecret = secret.toUByteArray().toCValues()
+		jwt_decode(pJwt.ptr, token, cSecret, cSecret.size).also {
 			if (it != 0) error("jwt_decode => $it")
 		}
-		memScoped {
-
-		}
 		pJwt.value!!
-
 	}
-
 
 }

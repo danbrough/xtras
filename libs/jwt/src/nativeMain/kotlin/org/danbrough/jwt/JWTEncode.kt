@@ -32,8 +32,9 @@ actual class JWTEncode( mScope: MemScope) : JWT(mScope){
 		pJwt.value!!
 	}
 
-	fun setAlgorithm(alg: JwtAlg, key: UByteArray) = apply {
-		jwt_set_alg(jwt, alg.algorithm, key.toCValues(), key.size).also {
+	fun setAlgorithm(alg: JwtAlg, key: ByteArray) = apply {
+		val uBytesKey = key.toUByteArray().toCValues()
+		jwt_set_alg(jwt, alg.algorithm, uBytesKey, uBytesKey.size).also {
 			if (it != 0) error("jwt_set_alg $alg => $it")
 		}
 	}
@@ -50,6 +51,9 @@ actual class JWTEncode( mScope: MemScope) : JWT(mScope){
 			if (it != 0) error("jwt_add_grant_bool => $it")
 		}
 	}
+
+	fun issuer(name:String) = claim("iss",name)
+	fun subject(name:String) = claim("subject",name)
 
 	fun claim(name: String, boolean: Boolean)  {
 		jwt_add_grant_bool(jwt, name, if (boolean) 1 else 0).also {

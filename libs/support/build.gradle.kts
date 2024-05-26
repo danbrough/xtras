@@ -70,7 +70,6 @@ kotlin {
 
     val commonMain by getting {
       dependencies {
-        api(libs.kotlin.logging)
       }
     }
 

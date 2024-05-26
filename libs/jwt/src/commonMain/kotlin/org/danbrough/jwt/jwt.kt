@@ -11,6 +11,6 @@ expect fun <R> JWTScope.encode(block: JWTEncode.()->R): R
 expect fun <R> jwt(block: JWTScope.()->R): R
 
 @OptIn(ExperimentalUnsignedTypes::class)
-expect fun <R> JWTScope.decode(token:String, alg: JwtAlg, secret:UByteArray, block: JWTDecode.()->R): R
+expect fun <R> JWTScope.decode(token:String, alg: JwtAlg, secret:ByteArray, block: JWTDecode.()->R): R
 
 

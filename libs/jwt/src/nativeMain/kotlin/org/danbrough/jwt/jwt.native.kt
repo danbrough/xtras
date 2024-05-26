@@ -39,23 +39,25 @@ val JwtAlg.algorithm: jwt_alg
 	}
 
 
-internal fun <R, S : JWT> jwtScope(block: S.() -> R, creator: (MemScope) -> S): R = memScoped {
+internal fun <R, S : JWT> JWTScope.jwtScope(block: S.() -> R, creator: (JWTScope) -> S): R {
 	val jwt = creator(this)
-	runCatching {
+	return runCatching {
 		jwt.block()
 	}.also { jwt.release() }.getOrThrow()
 }
 
 
-actual fun <R> JWTScope.encode(block: JWTEncode.() -> R): R = jwtScope(block, ::JWTEncode)
+actual fun <R> JWTScope.encode(block: JWTEncode.() -> R): R = jwtScope(block) {
+	JWTEncode(memScope)
+}
 
 actual fun <R> JWTScope.decode(
 	token: String,
 	alg: JwtAlg,
-	secret: UByteArray,
+	secret: ByteArray,
 	block: JWTDecode.() -> R
 ): R = jwtScope(block) {
-	JWTDecode(it, token, alg, secret)
+	JWTDecode(memScope, token, alg, secret)
 }
 
 

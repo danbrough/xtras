@@ -2,11 +2,10 @@ package org.danbrough.jwt
 
 actual object JWTScope
 
-@OptIn(ExperimentalUnsignedTypes::class)
 actual fun <R> JWTScope.decode(
 	token: String,
 	alg: JwtAlg,
-	secret: UByteArray,
+	secret: ByteArray,
 	block: JWTDecode.() -> R
 ): R {
 	TODO("Not yet implemented")

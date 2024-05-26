@@ -11,36 +11,36 @@ import ch.qos.logback.core.pattern.color.ANSIConstants.YELLOW_FG
 import ch.qos.logback.core.pattern.color.ForegroundCompositeConverterBase
 
 class ColorConverter : ForegroundCompositeConverterBase<ILoggingEvent>() {
-  override fun getForegroundColorCode(event: ILoggingEvent): String =
-    when (event.level.toInt()) {
-      Level.ERROR_INT -> RED_FG
-      Level.WARN_INT -> YELLOW_FG
-      Level.INFO_INT -> GREEN_FG
-      Level.DEBUG_INT -> CYAN_FG
-      Level.TRACE_INT -> MAGENTA_FG
-      else -> DEFAULT_FG
-    }
+	override fun getForegroundColorCode(event: ILoggingEvent): String =
+		when (event.level.toInt()) {
+			Level.ERROR_INT -> RED_FG
+			Level.WARN_INT -> YELLOW_FG
+			Level.INFO_INT -> GREEN_FG
+			Level.DEBUG_INT -> CYAN_FG
+			Level.TRACE_INT -> MAGENTA_FG
+			else -> DEFAULT_FG
+		}
 
-  /*
-  internal val Level.color: String
-  get() = when (this) {
-    Level.ERROR -> ANSIConstants.BOLD + ANSIConstants.RED_FG
-    Level.WARN -> ANSIConstants.YELLOW_FG
-    Level.INFO -> ANSIConstants.GREEN_FG
-    Level.DEBUG -> ANSIConstants.CYAN_FG
-    Level.TRACE -> ANSIConstants.MAGENTA_FG
-    else -> ANSIConstants.DEFAULT_FG
-  }
-   */
-  /*
-      Level.TRACE -> 35
-      Level.DEBUG -> 36
-      Level.INFO -> 32
-      Level.WARN -> 33
-      Level.ERROR -> 31
-      Level.OFF -> 0
-    }
-   */
+	/*
+	internal val Level.color: String
+	get() = when (this) {
+		Level.ERROR -> ANSIConstants.BOLD + ANSIConstants.RED_FG
+		Level.WARN -> ANSIConstants.YELLOW_FG
+		Level.INFO -> ANSIConstants.GREEN_FG
+		Level.DEBUG -> ANSIConstants.CYAN_FG
+		Level.TRACE -> ANSIConstants.MAGENTA_FG
+		else -> ANSIConstants.DEFAULT_FG
+	}
+	 */
+	/*
+			Level.TRACE -> 35
+			Level.DEBUG -> 36
+			Level.INFO -> 32
+			Level.WARN -> 33
+			Level.ERROR -> 31
+			Level.OFF -> 0
+		}
+	 */
 }
 
 /*
