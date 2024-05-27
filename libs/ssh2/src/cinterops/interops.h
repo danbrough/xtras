@@ -10,8 +10,9 @@
 
 #include <arpa/inet.h>
 #include <sys/socket.h>
-
 #endif
+
+#include "stuff.h"
 
 
 static int ssh2_init(int flags) {

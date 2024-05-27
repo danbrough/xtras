@@ -144,29 +144,14 @@ sonatype {
 xtrasAndroidConfig {
 }
 
-/*rootProject.findProject(":libs:openssl")!!.also {
-  val openssl = it.extensions.getByType<XtrasLibrary>()
-  logError("LIBS DIR OPENSSL: ${openssl.libsDir(KonanTarget.LINUX_ARM64)}")
-}*/
-
 val ssl = openssl {
 }
 
 
 ssh2(ssl) {
 	cinterops {
-		codeFile = file("interops.h")
-
-		/*    extraLibsDirs += {
-					xtrasLibsDir.resolveAll(
-						"openssl",
-						projectProperty<String>("openssl.version"),
-						it.kotlinTargetName
-					)
-				}*/
+		codeFile = file("src/cinterops/interops.h")
 	}
-
-
 }
 
 

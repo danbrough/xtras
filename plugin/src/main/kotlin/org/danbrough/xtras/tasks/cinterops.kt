@@ -4,7 +4,9 @@ import org.danbrough.xtras.CInteropsTargetWriter
 import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.logDebug
+import org.danbrough.xtras.logError
 import org.danbrough.xtras.logInfo
+import org.danbrough.xtras.logTrace
 import org.danbrough.xtras.mixedPath
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.withType
@@ -26,6 +28,9 @@ internal fun XtrasLibrary.registerCInteropsTasks() {
   kotlin.targets.withType<KotlinNativeTarget> {
     compilations["main"].cinterops.create(this@registerCInteropsTasks.name) {
       defFile = config.defFile
+      config.codeFile?.also {
+        includeDirs(it.parentFile)
+      }
     }
   }
 }
@@ -76,7 +81,7 @@ private fun XtrasLibrary.registerGenerateCInterops() {
     description = "Generates the interops def file at ${config.defFile.mixedPath}"
 
     config.codeFile?.also {
-      inputs.file(it)
+      inputs.dir(it.parentFile)
     }
 
     inputs.property("config", config.hashCode().toString())
@@ -114,7 +119,7 @@ private fun XtrasLibrary.registerGenerateCInterops() {
     }
 
     doLast {
-      project.logDebug("$name: wrote ${config.defFile.mixedPath}")
+      project.logDebug("$name: wrote ${config.defFile.absolutePath} ")
     }
   }
 

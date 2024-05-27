@@ -80,26 +80,5 @@ class Channel(private val session: SessionNative, private val channel: CPointer<
     }
 
     libssh2_channel_free(channel)
-
-
-    /*
-        while((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
-        waitsocket(sock, session);
-
-    if(rc == 0) {
-        exitcode = libssh2_channel_get_exit_status(channel);
-        libssh2_channel_get_exit_signal(channel, &exitsignal,
-                                        NULL, NULL, NULL, NULL, NULL);
-    }
-
-    if(exitsignal)
-        fprintf(stderr, "\nGot signal: %s\n", exitsignal);
-    else
-        fprintf(stderr, "\nEXIT: %d bytecount: %ld\n",
-                exitcode, (long)bytecount);
-
-    libssh2_channel_free(channel);
-     */
-
   }
 }
