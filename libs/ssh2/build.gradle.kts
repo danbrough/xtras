@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -129,7 +130,9 @@ kotlin {
 
 
 
-xtrasTestExecutables("ssh", tests = listOf("sshExec"))
+xtrasTestExecutables("ssh", tests = listOf("sshExec")){
+	it == HostManager.host
+}
 
 xtrasTesting {
 

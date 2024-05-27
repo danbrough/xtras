@@ -20,7 +20,7 @@ private const val JNI_PREFIX = "Java_org_danbrough_ssh2_SSHJni"
 @CName("${JNI_PREFIX}_nativeCreate")
 fun sshCreate(env: CPointer<JNIEnvVar>, clazz: jclass, obj: jobject): jlong {
   jniInit()
-  log.trace { "__nativeInitSSH::nativeInit()" }
+  log.trace { "__nativeInitSSH::nativeInit() " }
   return StableRef.create(SSHNative()).asCPointer().rawValue.toLong()
 }
 

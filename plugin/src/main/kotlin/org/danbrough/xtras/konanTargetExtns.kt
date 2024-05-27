@@ -100,11 +100,8 @@ val KonanTarget.goArch: String
   get() = when (architecture) {
     Architecture.ARM64 -> "arm64"
     Architecture.X64 -> "amd64"
-    Architecture.X86 -> "386"
-    Architecture.ARM32 -> "arm"
-    Architecture.MIPS32 -> "mips" //TODO: confirm this
-    Architecture.MIPSEL32 -> "mipsle" //TODO: confirm this
     Architecture.WASM32 -> "wasm"
+    else -> error("unsupported KonanTarget.goArch $this")
   }
 
 /**
