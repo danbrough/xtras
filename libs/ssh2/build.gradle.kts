@@ -60,7 +60,7 @@ kotlin {
 	}
 
 	linuxX64()
-	mingwX64()
+	//mingwX64()
 	linuxArm64()
 	androidNativeArm64()
 	androidNativeX64()

@@ -25,7 +25,7 @@ listOf(
   "ssh2",
   //"postgres",
   //"sqlite",
-  "jwt",
+  //"jwt",
 ).forEach {
   include(":libs:$it")
 }

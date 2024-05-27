@@ -12,4 +12,3 @@ class SSHJni : JNIObject(), SSH {
 }
 
 actual fun createSSH(): SSH = SSHJni()
-actual class SshSocket
