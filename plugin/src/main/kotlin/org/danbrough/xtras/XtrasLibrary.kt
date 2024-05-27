@@ -140,9 +140,11 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
 
       afterEvaluate {
         it.registerTasks()
-        xtras.nativeTargets.get().forEach {
-          //configureLinkTasks(it)
-          registerBinaryPublication(it)
+        if (buildEnabled) {
+          xtras.nativeTargets.get().forEach {
+            //configureLinkTasks(it)
+            registerBinaryPublication(it)
+          }
         }
       }
 
