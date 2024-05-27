@@ -40,7 +40,8 @@ private fun XtrasLibrary.registerDownloadTask() {
 
   project.run {
     tasks.register(downloadTaskName) {
-      enabled = buildEnabled
+      enabled = buildEnabled || project.hasProperty("forceBuild")
+
       group = XTRAS_TASK_GROUP
       description =
         "Downloads the source code from the remote repository ${config.url} with commit: ${config.commit}"
@@ -107,14 +108,14 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
   val srcDir = sourceDir(target)
   project.tasks.register<Exec>(taskName) {
     group = XTRAS_TASK_GROUP
-    enabled = buildEnabled
+    enabled = buildEnabled || project.hasProperty("forceBuild")
     description =
       "Extracts the source code for ${this@registerSourceExtractTask.name} to $srcDir"
     inputs.property("commit", sourceConfig.hashCode())
     val commitFile = srcDir.resolve(".commit_${sourceConfig.hashCode()}")
     //inputs.dir(downloadsDir)
     outputs.file(commitFile)
-    onlyIf { !packageFile(target).exists() }
+    onlyIf { !packageFile(target).exists()  || project.hasProperty("forceBuild")}
     dependsOn(SourceTaskName.DOWNLOAD.taskName(this@registerSourceExtractTask))
     doFirst {
       if (srcDir.exists()) srcDir.deleteRecursively()

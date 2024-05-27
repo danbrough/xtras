@@ -39,7 +39,7 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
 
   project.tasks.register(genEnvTaskName) {
-    onlyIf { !packageFile(target).exists() }
+    onlyIf { !packageFile(target).exists() || project.hasProperty("forceBuild") }
 
     dependsOn(SourceTaskName.EXTRACT.taskName(this@registerBuildTask, target))
     doFirst {
@@ -65,7 +65,7 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
   }
 
   project.tasks.register<Exec>(buildTaskName) {
-    onlyIf { !packageFile(target).exists() }
+    onlyIf { !packageFile(target).exists() || project.hasProperty("forceBuild") }
     dependsOn(genEnvTaskName)
 
     //environment(loadEnvironment(target))

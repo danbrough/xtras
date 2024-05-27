@@ -36,12 +36,20 @@ fun Project.ssh2(ssl: XtrasLibrary, extnName: String = "ssh2", block: XtrasLibra
     }
 
     buildCommand {target->
+      val binDir = buildDir(target).resolve("bin")
+      val copyExamples = if (target == KonanTarget.MINGW_X64)
+        """cp example/*.exe ${binDir.absolutePath}""".trimIndent()
+      else """
+        mkdir ${binDir.absolutePath}
+        cp example/.libs/* ${binDir.absolutePath}/
+        """
       writer.println("""
         [ ! -f configure ] && autoreconf -fi 
         [ ! -f Makefile ] && ./configure --host=${target.hostTriplet} --prefix=${buildDir(target).mixedPath} \
         --with-libssl-prefix=${xtrasLibsDir}/openssl/${project.projectProperty<String>("openssl.version")}/${target.kotlinTargetName}       
         make
         make install
+        $copyExamples
 			""".trimIndent())
     }
 

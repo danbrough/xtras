@@ -37,7 +37,7 @@ fun XtrasLibrary.sourceTask(
 			dependsOn(it.taskName(this@sourceTask, target))
 		}
 
-		onlyIf { !packageFile(target).exists() }
+		onlyIf { !packageFile(target).exists() || project.hasProperty("forceBuild") }
 
 		workingDir(sourceDir(target))
 

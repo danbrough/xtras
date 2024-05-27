@@ -32,7 +32,7 @@ private fun XtrasLibrary.registerPackageCreateTask(target: KonanTarget) {
     dependsOn(SourceTaskName.BUILD.taskName(this@registerPackageCreateTask, target))
     mustRunAfter(PackageTaskName.DOWNLOAD.taskName(this@registerPackageCreateTask, target))
     val packageFile = packageFile(target)
-    onlyIf { !packageFile.exists() }
+    onlyIf { !packageFile(target).exists() || project.hasProperty("forceBuild") }
     inputs.dir(buildDir(target))
     workingDir(buildDir(target))
     outputs.file(packageFile)

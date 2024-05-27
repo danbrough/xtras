@@ -66,7 +66,7 @@ import kotlin.io.encoding.Base64
 
 class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate") val config: SessionConfig) :
   AutoCloseable {
-  private var sock: libssh2_socket_t = 0
+  private var sock: libssh2_socket_t = 0.convert()
   private var session: CPointer<LIBSSH2_SESSION>? = null
 
   @OptIn(UnsafeNumber::class)
@@ -74,7 +74,7 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
     memScoped {
       log.info { "SSH.connect() ${config.user}@${config.hostName}:${config.port}" }
 
-      sock = socket(AF_INET, SOCK_STREAM, 0)
+      sock = socket(AF_INET, SOCK_STREAM, 0).convert()
       if (sock == LIBSSH2_INVALID_SOCKET)
         error("Failed to create socket")
       log.trace { "created socket" }
@@ -86,6 +86,7 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
       }*/
 
       val sockAddress = ssh2_sock_address(config.hostName, config.port)
+
 
       platform.posix.connect(sock, sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
         .also {

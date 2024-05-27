@@ -40,7 +40,7 @@ fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit) =
 fun Project.xtrasTestExecutables(
   configPrefix: String,
   tests: List<String>,
-  targetFilter: (KonanTarget) -> Boolean = { HostManager.host == it }
+  targetFilter: (KonanTarget) -> Boolean = { true}
 ) {
   (kotlinExtension as KotlinMultiplatformExtension).targets.withType<KotlinNativeTarget> {
     if (targetFilter(konanTarget)) {
