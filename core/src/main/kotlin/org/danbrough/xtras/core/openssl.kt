@@ -5,15 +5,8 @@ import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
 import org.danbrough.xtras.environmentNDK
 import org.danbrough.xtras.logInfo
-import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.registerXtrasGitLibrary
-import org.danbrough.xtras.tasks.PackageTaskName
-import org.danbrough.xtras.tasks.compileSource
-import org.danbrough.xtras.tasks.configureSource
-import org.danbrough.xtras.tasks.installSource
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 

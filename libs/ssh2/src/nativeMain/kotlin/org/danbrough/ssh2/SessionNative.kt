@@ -87,7 +87,6 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
 
       val sockAddress = ssh2_sock_address(config.hostName, config.port)
 
-
       platform.posix.connect(sock, sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
         .also {
           log.trace { "connected returned $it" }
