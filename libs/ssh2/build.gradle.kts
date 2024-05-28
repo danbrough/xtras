@@ -20,17 +20,17 @@ import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
-	alias(libs.plugins.kotlin.multiplatform)
-	alias(libs.plugins.xtras)
-	id("org.danbrough.xtras.sonatype")
-	id("com.android.library")
-	//`maven-publish`
+  alias(libs.plugins.kotlin.multiplatform)
+  alias(libs.plugins.xtras)
+  id("org.danbrough.xtras.sonatype")
+  id("com.android.library")
+  //`maven-publish`
 }
 
 buildscript {
-	dependencies {
-		classpath(libs.xtras.core)
-	}
+  dependencies {
+    classpath(libs.xtras.core)
+  }
 }
 
 
@@ -38,104 +38,107 @@ group = projectProperty<String>("ssh2.group")
 version = projectProperty<String>("ssh2.version")
 
 xtras {
-	androidConfig {
-		ndkApiVersion = 23
-		minSDKVersion = 23
-	}
+  androidConfig {
+    ndkApiVersion = 23
+    minSDKVersion = 23
+  }
 }
 
 kotlin {
-	withSourcesJar(publish = true)
+  withSourcesJar(publish = true)
 
-	compilerOptions {
-		freeCompilerArgs = listOf("-Xexpect-actual-classes")
-		languageVersion = xtras.kotlinLanguageVersion
-		apiVersion = xtras.kotlinApiVersion
-	}
+  compilerOptions {
+    freeCompilerArgs = listOf("-Xexpect-actual-classes")
+    languageVersion = xtras.kotlinLanguageVersion
+    apiVersion = xtras.kotlinApiVersion
+  }
 
-	applyDefaultHierarchyTemplate()
+  applyDefaultHierarchyTemplate()
 
-	jvm()
+  jvm()
 
-	androidTarget {
-	}
-
-	mingwX64()
+  androidTarget {
+  }
 
 
-/*		linuxX64()
-		mingwX64()
-		linuxArm64()
-		androidNativeArm64()
-		androidNativeX64()
-		if (HostManager.hostIsMac) {
-			macosArm64()
-			macosX64()
-		}
-	*/
 
-	sourceSets {
-		all {
-			languageSettings {
-				listOf(
-					"kotlin.ExperimentalStdlibApi",
-					"kotlin.io.encoding.ExperimentalEncodingApi",
-					"kotlin.experimental.ExperimentalNativeApi",
-					"kotlinx.cinterop.ExperimentalForeignApi",
-				).forEach(::optIn)
-			}
-		}
 
-		val commonMain by getting {
-			dependencies {
-				implementation(project(":libs:support"))
-				implementation(libs.kotlinx.coroutines)
-				implementation(libs.klog.core)
-			}
-		}
+  if (HostManager.hostIsMingw) {
+    mingwX64()
+  } else {
+    linuxX64()
+    mingwX64()
+    linuxArm64()
+    androidNativeArm64()
+    androidNativeX64()
+    if (HostManager.hostIsMac) {
+      macosArm64()
+      macosX64()
+    }
+  }
 
-		commonTest {
-			dependencies {
-				implementation(kotlin("test"))
-			}
-		}
+  sourceSets {
+    all {
+      languageSettings {
+        listOf(
+          "kotlin.ExperimentalStdlibApi",
+          "kotlin.io.encoding.ExperimentalEncodingApi",
+          "kotlin.experimental.ExperimentalNativeApi",
+          "kotlinx.cinterop.ExperimentalForeignApi",
+        ).forEach(::optIn)
+      }
+    }
 
-		val jniMain by creating {
-			dependsOn(commonMain)
-		}
+    val commonMain by getting {
+      dependencies {
+        implementation(project(":libs:support"))
+        implementation(libs.kotlinx.coroutines)
+        implementation(libs.klog.core)
+      }
+    }
 
-		jvmMain {
-			dependsOn(jniMain)
-		}
+    commonTest {
+      dependencies {
+        implementation(kotlin("test"))
+      }
+    }
 
-		jvmTest {
-			dependencies {
-				implementation(kotlin("stdlib"))
-			}
-		}
+    val jniMain by creating {
+      dependsOn(commonMain)
+    }
 
-		androidMain {
-			dependsOn(jniMain)
-		}
-	}
+    jvmMain {
+      dependsOn(jniMain)
+    }
 
-	targets.withType<KotlinNativeTarget> {
-		if (konanTarget.supportsJNI)
-			compilations["main"].defaultSourceSet.kotlin.srcDir(project.file("src").resolve("jni"))
-		binaries {
-			sharedLib("xtras_ssh2")
+    jvmTest {
+      dependencies {
+        implementation(kotlin("stdlib"))
+      }
+    }
+
+    androidMain {
+      dependsOn(jniMain)
+    }
+  }
+
+  targets.withType<KotlinNativeTarget> {
+    if (konanTarget.supportsJNI)
+      compilations["main"].defaultSourceSet.kotlin.srcDir(project.file("src").resolve("jni"))
+    binaries {
+      sharedLib("xtras_ssh2")
 //        executable("sshExec") {
 //          entryPoint = "org.danbrough.ssh2.mainSshExec"
 //          compilation = compilations.getByName("test")
 //        }
-		}
-	}
+    }
+  }
 }
 
 
 
-xtrasTestExecutables("ssh", tests = listOf("sshExec")){
-	it == HostManager.host || it == KonanTarget.MINGW_X64
+xtrasTestExecutables("ssh", tests = listOf("sshExec")) {
+  it == HostManager.host || it == KonanTarget.MINGW_X64
 }
 
 xtrasTesting {
@@ -153,9 +156,9 @@ val ssl = openssl {
 
 
 ssh2(ssl) {
-	cinterops {
-		codeFile = file("src/cinterops/interops.h")
-	}
+  cinterops {
+    codeFile = file("src/cinterops/interops.h")
+  }
 }
 
 
