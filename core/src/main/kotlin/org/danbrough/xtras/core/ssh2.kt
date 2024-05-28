@@ -60,17 +60,17 @@ CPPFLAGS='-arch arm64 -pipe -no-cpp-precomp -isysroot $SDKROOT -mmacosx-version-
 		buildCommand { target ->
 			val binDir = buildDir(target).resolve("bin")
 			val copyExamples = if (target == KonanTarget.MINGW_X64)
-				"""cp example/*.exe ${binDir.absolutePath}""".trimIndent()
+				"""cp example/*.exe ${pathOf(binDir)}""".trimIndent()
 			else """
         mkdir ${binDir.absolutePath}
-        cp example/.libs/* ${binDir.absolutePath}/
+        cp example/.libs/* ${pathOf(binDir)}/
         """
 			writer.println(
 				"""
         [ ! -f configure ] && autoreconf -fi 
-        [ ! -f Makefile ] && ./configure --host=${target.hostTriplet} --prefix=${buildDir(target).mixedPath} \
+        [ ! -f Makefile ] && ./configure --host=${target.hostTriplet} --prefix=${pathOf(buildDir(target))} \
         --disable-debug --disable-dependency-tracking --disable-silent-rules --with-libz \
-        --with-libssl-prefix=${xtrasLibsDir}/openssl/${project.projectProperty<String>("openssl.version")}/${target.kotlinTargetName}       
+        --with-libssl-prefix=${pathOf(xtrasLibsDir)}/openssl/${project.projectProperty<String>("openssl.version")}/${target.kotlinTargetName}       
         make
         make install
         $copyExamples

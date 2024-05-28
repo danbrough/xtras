@@ -39,13 +39,12 @@ private val Project.cygpath: String
 	}
 
 fun Project.unixPath(file: File): String = if (HostManager.hostIsMingw) Runtime.getRuntime()
-	.exec(arrayOf(cygpath, "-u", file.absolutePath)).inputStream.readAllBytes()
-	.decodeToString().trim()
+	.exec(arrayOf(cygpath, "-up", file.absolutePath)).inputReader().readText().trim()
 else file.absolutePath
 
 fun Project.pathOf(paths: List<Any?>): String =
 	paths.filterNotNull()
-		.joinToString(File.pathSeparator) { if (it is File) unixPath(it) else it.toString() }
+		.joinToString(":") { if (it is File) unixPath(it) else it.toString() }
 
 fun Project.pathOf(vararg paths: Any?): String = pathOf(paths.toList())
 
