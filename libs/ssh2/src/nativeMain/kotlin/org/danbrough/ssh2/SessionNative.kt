@@ -61,7 +61,7 @@ import kotlin.io.encoding.Base64
 
 class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate") val config: SessionConfig) :
   AutoCloseable {
-  private var sock: libssh2_socket_t = 0
+  private var sock: libssh2_socket_t = 0.convert()
   private var session: CPointer<LIBSSH2_SESSION>? = null
 
   @OptIn(UnsafeNumber::class)

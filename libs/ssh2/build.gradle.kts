@@ -60,15 +60,19 @@ kotlin {
 	androidTarget {
 	}
 
-	linuxX64()
 	mingwX64()
-	linuxArm64()
-	androidNativeArm64()
-	androidNativeX64()
-	if (HostManager.hostIsMac) {
-		macosArm64()
-		macosX64()
-	}
+
+
+/*		linuxX64()
+		mingwX64()
+		linuxArm64()
+		androidNativeArm64()
+		androidNativeX64()
+		if (HostManager.hostIsMac) {
+			macosArm64()
+			macosX64()
+		}
+	*/
 
 	sourceSets {
 		all {
