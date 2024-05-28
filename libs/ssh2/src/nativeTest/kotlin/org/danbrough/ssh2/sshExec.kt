@@ -9,8 +9,6 @@ fun mainSshExec(args: Array<String>) {
 
   log.debug { "config: $sessionConfig" }
 
-  org.danbrough.ssh2.cinterops.stuffTest()
-
   createSSH().use { ssh ->
     runCatching {
       ssh as SSHNative

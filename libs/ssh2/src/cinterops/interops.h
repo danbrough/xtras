@@ -12,7 +12,7 @@
 #include <sys/socket.h>
 #endif
 
-#include "stuff.h"
+#include "ssh_sockets.h"
 
 
 static int ssh2_init(int flags) {
@@ -48,13 +48,7 @@ static inline uint16_t ssh2_htons(uint16_t hostshort) {
 }
 
 
-static struct sockaddr_in ssh2_sock_address(const char *hostaddr, const int port) {
-    struct sockaddr_in sin;
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(port);
-    sin.sin_addr.s_addr = inet_addr(hostaddr);
-    return sin;
-}
+
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session) {
     struct timeval timeout;

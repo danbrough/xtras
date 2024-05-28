@@ -131,7 +131,7 @@ kotlin {
 
 
 xtrasTestExecutables("ssh", tests = listOf("sshExec")){
-	it == HostManager.host
+	it == HostManager.host || it == KonanTarget.MINGW_X64
 }
 
 xtrasTesting {

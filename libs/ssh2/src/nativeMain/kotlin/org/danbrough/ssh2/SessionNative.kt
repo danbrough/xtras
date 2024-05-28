@@ -53,20 +53,15 @@ import org.danbrough.ssh2.cinterops.libssh2_session_set_blocking
 import org.danbrough.ssh2.cinterops.libssh2_socket_close2
 import org.danbrough.ssh2.cinterops.libssh2_socket_t
 import org.danbrough.ssh2.cinterops.libssh2_userauth_publickey_fromfile_ex
-import org.danbrough.ssh2.cinterops.ssh2_sock_address
 import org.danbrough.ssh2.cinterops.waitsocket
-import platform.posix.AF_INET
-import platform.posix.SOCK_STREAM
-import platform.posix.shutdown
+import org.danbrough.ssh2.cinterops.ssh2_socket_connect
+import org.danbrough.ssh2.cinterops.ssh2_socket_close
 import platform.posix.size_tVar
-import platform.posix.sockaddr_in
-import platform.posix.socket
-import platform.posix.strerror
 import kotlin.io.encoding.Base64
 
 class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate") val config: SessionConfig) :
   AutoCloseable {
-  private var sock: libssh2_socket_t = 0.convert()
+  private var sock: libssh2_socket_t = 0
   private var session: CPointer<LIBSSH2_SESSION>? = null
 
   @OptIn(UnsafeNumber::class)
@@ -74,25 +69,26 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
     memScoped {
       log.info { "SSH.connect() ${config.user}@${config.hostName}:${config.port}" }
 
-      sock = socket(AF_INET, SOCK_STREAM, 0).convert()
-      if (sock == LIBSSH2_INVALID_SOCKET)
-        error("Failed to create socket")
-      log.trace { "created socket" }
-
-      /*val sockAddress = cValue<sockaddr_in>() {
-        sin_family = AF_INET.convert()
-        sin_port = org.danbrough.ssh2.cinterops.ssh2_htons(config.port.convert())
-        sin_addr.s_addr = org.danbrough.ssh2.cinterops.inetAddr(config.hostName)
-      }*/
-
-      val sockAddress = ssh2_sock_address(config.hostName, config.port)
-
-      platform.posix.connect(sock, sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
-        .also {
-          log.trace { "connected returned $it" }
-          if (it != 0)
-            error("Failed to connect: ${strerror(it)?.toKString()}")
-        }
+      sock = ssh2_socket_connect(config.hostName,config.port)
+//      sock = socket(AF_INET, SOCK_STREAM, 0).convert()
+//      if (sock == LIBSSH2_INVALID_SOCKET)
+//        error("Failed to create socket")
+//      log.trace { "created socket" }
+//
+//      /*val sockAddress = cValue<sockaddr_in>() {
+//        sin_family = AF_INET.convert()
+//        sin_port = org.danbrough.ssh2.cinterops.ssh2_htons(config.port.convert())
+//        sin_addr.s_addr = org.danbrough.ssh2.cinterops.inetAddr(config.hostName)
+//      }*/
+//
+//      val sockAddress = ssh2_sock_address(config.hostName, config.port)
+//
+//      platform.posix.connect(sock, sockAddress.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
+//        .also {
+//          log.trace { "connected returned $it" }
+//          if (it != 0)
+//            error("Failed to connect: ${strerror(it)?.toKString()}")
+//        }
 
       log.trace { "socket connected" }
 
@@ -334,12 +330,13 @@ or via libssh2_channel_direct_tcpip or libssh2_channel_forward_listen
     libssh2_session_disconnect_ex(session, SSH_DISCONNECT_BY_APPLICATION, "Normal Shutdown", "")
     libssh2_session_free(session)
     log.trace { "closed session" }
-
-    if (sock != LIBSSH2_INVALID_SOCKET) {
-      shutdown(sock, 2)
-      libssh2_socket_close2(sock)
-      log.trace { "closed socket" }
-    }
+//
+//    if (sock != LIBSSH2_INVALID_SOCKET) {
+//      shutdown(sock, 2)
+//      libssh2_socket_close2(sock)
+//      log.trace { "closed socket" }
+//    }
+    ssh2_socket_close(sock)
   }
 
 }
