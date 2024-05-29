@@ -9,7 +9,6 @@
 #include <sys/types.h>
 
 #ifndef _WIN32
-
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #endif
@@ -23,29 +22,29 @@ static struct sockaddr_in ssh2_sock_address(const char *hostaddr, const int port
 
 static libssh2_socket_t ssh2_socket_connect(const char* hostName,const int port){
     libssh2_socket_t sock;
-    uint32_t hostaddr;
+    //uint32_t hostaddr;
     struct sockaddr_in sin;
     sin.sin_family = AF_INET;
+
+    //printf("ssh2_socket_connect() %s:%d\n",hostName,port);fflush(stdout);
     sin.sin_port = htons(port);
-    sin.sin_addr.s_addr = inet_addr(hostaddr);
+    sin.sin_addr.s_addr = inet_addr(hostName);
 
 
-    hostaddr = inet_addr(hostName);
 
     /* Ultra basic "connect to port 22 on localhost".  Your code is
      * responsible for creating the socket establishing the connection
      */
+    //printf("ssh2_socket_connect::creating socket\n");fflush(stdout);
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "failed to create socket!\n");
+        fprintf(stderr, "failed to create socket!\n");fflush(stderr);
         return 0;
     }
 
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(port);
-    sin.sin_addr.s_addr = hostaddr;
+    //printf("ssh2_socket_connect::connect\n");fflush(stdout);
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
-        fprintf(stderr, "failed to connect!\n");
+        fprintf(stderr, "failed to connect!\n");fflush(stderr);
         return 0;
     }
     return  sock;

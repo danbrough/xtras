@@ -70,6 +70,7 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
       log.info { "SSH.connect() ${config.user}@${config.hostName}:${config.port}" }
 
       sock = ssh2_socket_connect(config.hostName,config.port)
+      log.debug { "ssh2_socket_connect returned $sock" }
 //      sock = socket(AF_INET, SOCK_STREAM, 0).convert()
 //      if (sock == LIBSSH2_INVALID_SOCKET)
 //        error("Failed to create socket")
@@ -236,6 +237,8 @@ class SessionNative internal constructor(@Suppress("MemberVisibilityCanBePrivate
     config.password?.also {
       if (!authMethods.contains(SessionConfig.AuthMethod.PASSWORD)) authMethods.add(SessionConfig.AuthMethod.PASSWORD)
     }
+
+    log.warn { "authenticating .." }
 
     authMethods.forEach { authMethod ->
       when (authMethod) {

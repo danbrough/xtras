@@ -3,7 +3,14 @@ package org.danbrough.xtras
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.getByName
+import org.gradle.kotlin.dsl.withType
 import org.gradle.process.ExecSpec
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
 import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.File
 import java.util.Locale
@@ -52,3 +59,13 @@ fun File.resolveAll(vararg paths: String): File = resolveAll(paths.toList())
 
 fun File.resolveAll(paths: List<String>): File =
 	paths.fold(this) { file, path -> file.resolve(path) }
+
+
+fun Project.xtrasSharedLibs(
+	targetFilter: (KotlinNativeTarget) -> Boolean = { it.konanTarget == HostManager.host },
+	binariesFilter: (NativeBinary) -> Boolean = { it.buildType == NativeBuildType.DEBUG }
+) =
+	(kotlinExtension as KotlinMultiplatformExtension).targets.withType<KotlinNativeTarget>()
+		.filter(targetFilter)
+		.flatMap { it.binaries }
+		.filter(binariesFilter).filterIsInstance<SharedLibrary>()

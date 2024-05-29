@@ -11,6 +11,7 @@ fun mainSshExec(args: Array<String>) {
 
   createSSH().use { ssh ->
     runCatching {
+      log.debug { "got ssh: $ssh" }
       ssh as SSHNative
       ssh.connect(sessionConfig).use { session ->
         runBlocking {
