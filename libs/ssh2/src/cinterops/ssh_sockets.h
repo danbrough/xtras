@@ -39,13 +39,13 @@ static libssh2_socket_t ssh2_socket_connect(const char* hostName,const int port)
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to create socket!\n");fflush(stderr);
-        return 0;
+        return LIBSSH2_INVALID_SOCKET;
     }
 
     //printf("ssh2_socket_connect::connect\n");fflush(stdout);
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");fflush(stderr);
-        return 0;
+        return LIBSSH2_INVALID_SOCKET;
     }
     return  sock;
 }

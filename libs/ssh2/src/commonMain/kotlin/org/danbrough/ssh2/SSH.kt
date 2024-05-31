@@ -6,17 +6,20 @@ expect fun createSSH(): SSH
 
 internal val log = klog.logger("SSH2")
 
-interface Scope {
-	fun release() {}
+expect interface Scope {
+	fun release()
 }
 
-internal object RootScope : Scope
+internal object RootScope : Scope{
+	override fun release() {
+	}
+}
 
 expect class SSHScope : Scope
 
-expect fun <R> ssh(block: SSHScope.() -> R): R
+expect suspend fun <R> ssh(block: suspend SSHScope.() -> R): R
 
-fun <B : Scope, R, S : Scope> B.sshScope(block: S.() -> R, creator: (B) -> S): R =
+suspend fun <B : Scope, R, S : Scope> B.sshScope(block:suspend S.() -> R, creator: (B) -> S): R =
 	creator(this).let { scope ->
 		runCatching {
 			scope.block()

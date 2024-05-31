@@ -18,6 +18,8 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinTest
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -122,11 +124,10 @@ kotlin {
 			dependsOn(jniMain)
 		}
 
-		nativeTest{
-			dependencies {
-				implementation(libs.kotlinx.io)
-			}
+		nativeMain.dependencies {
+			implementation(libs.kotlinx.io)
 		}
+
 	}
 
 	targets.withType<KotlinNativeTarget> {
@@ -145,19 +146,29 @@ xtrasTestExecutables("ssh", tests = listOf("sshExec")) {
 }
 
 xtrasTesting {
-	println("TESTTASK: $name: ${this::class.java}")
-/*	if (this is Test) {
-		val sharedLibs = xtrasSharedLibs()
+	if (this is KotlinNativeTest) {
+		doFirst {
+			val sallyKeyFile = file("docker/sally.key")
+			if (!sallyKeyFile.exists()) error(
+				"""${sallyKeyFile.absolutePath} not found. 
+					|You need to run ${file("docker/docker.sh")} first""".trimMargin()
+			)
+			environment("SSH_PRIVATE_KEY",sallyKeyFile.absolutePath)
+		}
+	}
 
-		dependsOn(*sharedLibs.map { it.linkTask }.toTypedArray())
+	/*	if (this is Test) {
+			val sharedLibs = xtrasSharedLibs()
 
-		environment(
-			HostManager.host.envLibraryPathName,
-			pathOf(sharedLibs.map { it.linkTask.outputFile.get().parentFile })
-		)
+			dependsOn(*sharedLibs.map { it.linkTask }.toTypedArray())
 
-		logError("LIB PATH: ${environment[HostManager.host.envLibraryPathName]}")
-	}*/
+			environment(
+				HostManager.host.envLibraryPathName,
+				pathOf(sharedLibs.map { it.linkTask.outputFile.get().parentFile })
+			)
+
+			logError("LIB PATH: ${environment[HostManager.host.envLibraryPathName]}")
+		}*/
 }
 
 sonatype {
@@ -165,7 +176,7 @@ sonatype {
 
 xtrasAndroidConfig {
 }
-libs/ssh2/docker/sally.key
+
 val ssl = openssl {
 }
 

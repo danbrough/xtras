@@ -14,18 +14,13 @@ class SSHJni : JNIObject(), SSH {
 actual fun createSSH(): SSH = SSHJni()
 
 
-actual open class BaseScope {
-	actual fun release() {
-	}
 
+
+actual suspend fun <R> ssh(block: suspend SSHScope.() -> R): R {
+	TODO("Not yet implemented")
 }
 
-
-actual class RootScope
-
-
-actual class SSHScope : Scope()
-
-actual fun <R> ssh(block: SSHScope.() -> R): R {
-	TODO("Not yet implemented")
+actual class SSHScope : Scope
+actual interface Scope {
+	actual fun release()
 }

@@ -7,12 +7,16 @@ import kotlinx.cinterop.memScoped
 actual fun createSSH(): SSH = SSHNative()
 
 
-actual fun <R> ssh(
-	block: SSHScope.() -> R
+actual suspend fun <R> ssh(
+	block: suspend SSHScope.() -> R
 ): R = memScoped {
 	RootScope.sshScope(block) {
 		SSHScope(this@memScoped)
 	}
 }
 
-fun <R> SSHScope.session(block: SSHSession.() -> R): R = sshScope(block, ::SSHSession)
+suspend fun <R> SSHScope.session(block: suspend SSHSession.() -> R): R = sshScope(block, ::SSHSession)
+
+actual interface Scope {
+	actual fun release()
+}
