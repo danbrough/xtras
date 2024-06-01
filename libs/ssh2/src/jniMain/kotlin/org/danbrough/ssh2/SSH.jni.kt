@@ -20,7 +20,14 @@ actual suspend fun <R> ssh(block: suspend SSHScope.() -> R): R {
 	TODO("Not yet implemented")
 }
 
-actual class SSHScope : Scope
-actual interface Scope {
-	actual fun release()
+actual class SSHScope : Scope {
+	override fun close() {
+		TODO("Not yet implemented")
+	}
 }
+
+actual interface Scope {
+	actual fun close()
+}
+
+actual class SSHSession

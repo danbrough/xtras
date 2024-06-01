@@ -17,6 +17,6 @@ actual suspend fun <R> ssh(
 
 suspend fun <R> SSHScope.session(block: suspend SSHSession.() -> R): R = sshScope(block, ::SSHSession)
 
-actual interface Scope {
-	actual fun release()
+actual interface Scope : AutoCloseable {
+	actual override fun close()
 }

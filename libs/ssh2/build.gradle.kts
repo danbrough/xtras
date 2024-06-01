@@ -7,6 +7,7 @@ import org.danbrough.xtras.core.ssh2
 import org.danbrough.xtras.envLibraryPathName
 import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.logError
+import org.danbrough.xtras.logWarn
 import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.supportsJNI
@@ -25,17 +26,17 @@ import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
-	alias(libs.plugins.kotlin.multiplatform)
-	alias(libs.plugins.xtras)
-	id("org.danbrough.xtras.sonatype")
-	id("com.android.library")
-	//`maven-publish`
+  alias(libs.plugins.kotlin.multiplatform)
+  alias(libs.plugins.xtras)
+  id("org.danbrough.xtras.sonatype")
+  id("com.android.library")
+  //`maven-publish`
 }
 
 buildscript {
-	dependencies {
-		classpath(libs.xtras.core)
-	}
+  dependencies {
+    classpath(libs.xtras.core)
+  }
 }
 
 
@@ -43,134 +44,171 @@ group = projectProperty<String>("ssh2.group")
 version = projectProperty<String>("ssh2.version")
 
 xtras {
-	androidConfig {
-		ndkApiVersion = 23
-		minSDKVersion = 23
-	}
+  androidConfig {
+    ndkApiVersion = 23
+    minSDKVersion = 23
+  }
 }
 
 kotlin {
-	withSourcesJar(publish = true)
+  withSourcesJar(publish = true)
 
-	compilerOptions {
-		freeCompilerArgs = listOf("-Xexpect-actual-classes")
-		languageVersion = xtras.kotlinLanguageVersion
-		apiVersion = xtras.kotlinApiVersion
-	}
+  compilerOptions {
+    freeCompilerArgs = listOf("-Xexpect-actual-classes")
+    languageVersion = xtras.kotlinLanguageVersion
+    apiVersion = xtras.kotlinApiVersion
+  }
 
-	applyDefaultHierarchyTemplate()
+  applyDefaultHierarchyTemplate()
 
-	jvm()
+  jvm()
 
-	androidTarget {
-	}
+  androidTarget {
+  }
 
 
-	if (HostManager.hostIsMingw) {
-		mingwX64()
-	} else {
-		linuxX64()
-		mingwX64()
-		linuxArm64()
-		androidNativeArm64()
-		androidNativeX64()
-		if (HostManager.hostIsMac) {
-			macosArm64()
-			macosX64()
-		}
-	}
+  if (HostManager.hostIsMingw) {
+    mingwX64()
+  } else {
+    linuxX64()
+    mingwX64()
+    linuxArm64()
+    androidNativeArm64()
+    androidNativeX64()
+    if (HostManager.hostIsMac) {
+      macosArm64()
+      macosX64()
+    }
+  }
 
-	sourceSets {
-		all {
-			languageSettings {
-				listOf(
-					"kotlin.ExperimentalStdlibApi",
-					"kotlin.io.encoding.ExperimentalEncodingApi",
-					"kotlin.experimental.ExperimentalNativeApi",
-					"kotlinx.cinterop.ExperimentalForeignApi",
-				).forEach(::optIn)
-			}
-		}
+  sourceSets {
+    all {
+      languageSettings {
+        listOf(
+          "kotlin.ExperimentalStdlibApi",
+          "kotlin.io.encoding.ExperimentalEncodingApi",
+          "kotlin.experimental.ExperimentalNativeApi",
+          "kotlinx.cinterop.ExperimentalForeignApi",
+        ).forEach(::optIn)
+      }
+    }
 
-		val commonMain by getting {
-			dependencies {
-				implementation(project(":libs:support"))
-				implementation(libs.kotlinx.coroutines)
-				implementation(libs.klog.core)
-			}
-		}
+    val commonMain by getting {
+      dependencies {
+        implementation(project(":libs:support"))
+        implementation(libs.kotlinx.coroutines)
+        implementation(libs.klog.core)
 
-		commonTest {
-			dependencies {
-				implementation(kotlin("test"))
-			}
-		}
+      }
+    }
 
-		val jniMain by creating {
-			dependsOn(commonMain)
-		}
+    commonTest {
+      dependencies {
+        implementation(kotlin("test"))
+        implementation(libs.kotlinx.datetime)
+      }
+    }
 
-		jvmMain {
-			dependsOn(jniMain)
-		}
+    val posixMain by creating {
+      dependsOn(commonMain)
+    }
 
-		jvmTest {
-			dependencies {
-				implementation(kotlin("stdlib"))
-			}
-		}
+    val jniMain by creating {
+      dependsOn(commonMain)
+    }
 
-		androidMain {
-			dependsOn(jniMain)
-		}
+    jvmMain {
+      dependsOn(jniMain)
+    }
 
-		nativeMain.dependencies {
-			implementation(libs.kotlinx.io)
-		}
+    jvmTest {
+      dependencies {
+        implementation(kotlin("stdlib"))
+      }
+    }
 
-	}
+    androidMain {
+      dependsOn(jniMain)
+    }
 
-	targets.withType<KotlinNativeTarget> {
-		if (konanTarget.supportsJNI)
-			compilations["main"].defaultSourceSet.kotlin.srcDir(project.file("src").resolve("jni"))
-		binaries {
-			sharedLib("xtras_ssh2")
-		}
-	}
+    androidNativeMain {
+      dependsOn(posixMain)
+    }
+
+    linuxMain {
+      dependsOn(posixMain)
+    }
+
+    mingwMain{
+      dependsOn(posixMain)
+    }
+
+    if (HostManager.hostIsMac) {
+      macosMain {
+        dependsOn(posixMain)
+      }
+    }
+
+
+    nativeMain.dependencies {
+      implementation(libs.kotlinx.io)
+    }
+
+  }
+
+  targets.withType<KotlinNativeTarget> {
+    if (konanTarget.supportsJNI)
+      compilations["main"].defaultSourceSet.kotlin.srcDir(project.file("src").resolve("jni"))
+    binaries {
+      sharedLib("xtras_ssh2")
+    }
+  }
 }
 
 
 
-xtrasTestExecutables("ssh", tests = listOf("sshExec")) {
-	it == HostManager.host || it == KonanTarget.MINGW_X64
+xtrasTestExecutables("ssh", tests = listOf("sshExec", "sshExec2")) {
+  it == HostManager.host || it == KonanTarget.MINGW_X64
 }
 
 xtrasTesting {
-	if (this is KotlinNativeTest) {
-		doFirst {
-			val sallyKeyFile = file("docker/sally.key")
-			if (!sallyKeyFile.exists()) error(
-				"""${sallyKeyFile.absolutePath} not found. 
+  if (this is KotlinNativeTest) {
+    doFirst {
+      val sallyKeyFile = file("docker/sally.key")
+      if (!sallyKeyFile.exists()) error(
+        """${sallyKeyFile.absolutePath} not found. 
 					|You need to run ${file("docker/docker.sh")} first""".trimMargin()
-			)
-			environment("SSH_PRIVATE_KEY",sallyKeyFile.absolutePath)
-		}
-	}
+      )
+      environment("SSH_PRIVATE_KEY", sallyKeyFile.absolutePath)
+    }
+  }
 
-	/*	if (this is Test) {
-			val sharedLibs = xtrasSharedLibs()
+  /*	if (this is Test) {
+      val sharedLibs = xtrasSharedLibs()
 
-			dependsOn(*sharedLibs.map { it.linkTask }.toTypedArray())
+      dependsOn(*sharedLibs.map { it.linkTask }.toTypedArray())
 
-			environment(
-				HostManager.host.envLibraryPathName,
-				pathOf(sharedLibs.map { it.linkTask.outputFile.get().parentFile })
-			)
+      environment(
+        HostManager.host.envLibraryPathName,
+        pathOf(sharedLibs.map { it.linkTask.outputFile.get().parentFile })
+      )
 
-			logError("LIB PATH: ${environment[HostManager.host.envLibraryPathName]}")
-		}*/
+      logError("LIB PATH: ${environment[HostManager.host.envLibraryPathName]}")
+    }*/
 }
 
+
+afterEvaluate {
+  tasks.withType<Exec> {
+    logWarn("EXEC: ${name} type: ${this::class.java}")
+    val sallyKeyFile = file("docker/sally.key")
+    if (!sallyKeyFile.exists()) error(
+      """${sallyKeyFile.absolutePath} not found. 
+					|You need to run ${file("docker/docker.sh")} first""".trimMargin()
+    )
+    environment("SSH_PRIVATE_KEY", sallyKeyFile.absolutePath)
+  }
+}
 sonatype {
 }
 
@@ -182,9 +220,9 @@ val ssl = openssl {
 
 
 ssh2(ssl) {
-	cinterops {
-		codeFile = file("src/cinterops/interops.h")
-	}
+  cinterops {
+    codeFile = file("src/cinterops/interops.h")
+  }
 }
 
 

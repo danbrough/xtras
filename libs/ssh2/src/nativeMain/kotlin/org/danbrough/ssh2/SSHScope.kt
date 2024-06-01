@@ -13,9 +13,6 @@ import org.danbrough.ssh2.cinterops.libssh2_init
 actual class SSHScope(val mScope: MemScope) : Scope, NativePlacement by mScope {
 
   init {
-    memScoped {
-
-    }
     libssh2_init(0).also {
       if (it != 0) error("libssh2_init() -> $it") else log.trace { "libssh2_init()" }
     }
@@ -26,7 +23,7 @@ actual class SSHScope(val mScope: MemScope) : Scope, NativePlacement by mScope {
   val <T : CVariable> CValues<T>.ptr: CPointer<T>
     get() = this@ptr.getPointer(mScope)
 
-  override fun release() {
+  override fun close() {
     log.trace { "SSHScope::release()" }
     libssh2_exit()
   }
