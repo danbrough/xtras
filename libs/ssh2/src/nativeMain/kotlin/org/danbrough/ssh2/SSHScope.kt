@@ -23,7 +23,7 @@ actual class SSHScope(val mScope: MemScope) : Scope, NativePlacement by mScope {
   val <T : CVariable> CValues<T>.ptr: CPointer<T>
     get() = this@ptr.getPointer(mScope)
 
-  override fun close() {
+  actual override fun close() {
     log.trace { "SSHScope::release()" }
     libssh2_exit()
   }

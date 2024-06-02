@@ -15,7 +15,9 @@ internal object RootScope : Scope{
 	}
 }
 
-expect class SSHScope : Scope
+expect class SSHScope : Scope{
+	override fun close()
+}
 
 expect suspend fun <R> ssh(block: suspend SSHScope.() -> R): R
 
