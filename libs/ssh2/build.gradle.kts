@@ -181,7 +181,7 @@ xtrasTesting {
 }
 
 
-afterEvaluate {
+/*afterEvaluate {
   tasks.withType<Exec> {
     logWarn("EXEC: ${name} type: ${this::class.java}")
     val sallyKeyFile = file("docker/sally.key")
@@ -191,7 +191,8 @@ afterEvaluate {
     )
     environment("SSH_PRIVATE_KEY", sallyKeyFile.absolutePath)
   }
-}
+}*/
+
 sonatype {
 }
 
