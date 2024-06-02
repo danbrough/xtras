@@ -1,6 +1,7 @@
 package org.danbrough.xtras
 
 import org.gradle.api.Project
+import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -9,6 +10,7 @@ import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.Executable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
@@ -40,10 +42,12 @@ fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit) =
 fun Project.xtrasTestExecutables(
   configPrefix: String,
   tests: List<String>,
-  targetFilter: (KonanTarget) -> Boolean = { true}
+  targets: List<KotlinNativeTarget> = (kotlinExtension as KotlinMultiplatformExtension).targets.withType<KotlinNativeTarget>()
+    .toList(),
+  block: Executable.() -> Unit = {},
 ) {
-  (kotlinExtension as KotlinMultiplatformExtension).targets.withType<KotlinNativeTarget> {
-    if (targetFilter(konanTarget)) {
+  targets.forEach {
+    it.apply {
       binaries {
         tests.forEach { testName ->
           executable(testName, buildTypes = setOf(NativeBuildType.DEBUG)) {
@@ -61,11 +65,13 @@ fun Project.xtrasTestExecutables(
                 }
               }
             }
+            block()
           }
         }
       }
     }
   }
+
 
   afterEvaluate {
 

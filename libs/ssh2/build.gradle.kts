@@ -143,7 +143,16 @@ kotlin {
 
 
 
-xtrasTestExecutables("ssh", tests = listOf("sshExec", "sshExec2"))
+xtrasTestExecutables("ssh", tests = listOf("sshExec", "sshExec2")){
+  runTask?.apply {
+    val sallyKeyFile = file("docker/sally.key")
+    if (!sallyKeyFile.exists()) error(
+      """${sallyKeyFile.absolutePath} not found. 
+					|You need to run ${file("docker/docker.sh")} first""".trimMargin()
+    )
+    environment("SSH_PRIVATE_KEY", sallyKeyFile.absolutePath)
+  }
+}
 
 xtrasTesting {
   if (this is KotlinNativeTest) {
