@@ -109,12 +109,6 @@ kotlin {
       }
     }
 
-/*
-    val posixMain by creating {
-      dependsOn(commonMain)
-    }
-*/
-
     val jniMain by creating {
       dependsOn(commonMain)
     }
@@ -133,31 +127,9 @@ kotlin {
       dependsOn(jniMain)
     }
 
-/*
-    androidNativeMain {
-      dependsOn(posixMain)
-    }
-
-    linuxMain {
-      dependsOn(posixMain)
-    }
-
-    mingwMain{
-      dependsOn(posixMain)
-    }
-
-    if (HostManager.hostIsMac) {
-      macosMain {
-        dependsOn(posixMain)
-      }
-    }
-*/
-
-
     nativeMain.dependencies {
       implementation(libs.kotlinx.io)
     }
-
   }
 
   targets.withType<KotlinNativeTarget> {
@@ -171,9 +143,7 @@ kotlin {
 
 
 
-xtrasTestExecutables("ssh", tests = listOf("sshExec", "sshExec2")) {
-  it == HostManager.host || it == KonanTarget.MINGW_X64
-}
+xtrasTestExecutables("ssh", tests = listOf("sshExec", "sshExec2"))
 
 xtrasTesting {
   if (this is KotlinNativeTest) {

@@ -14,7 +14,7 @@ docker image inspect $IMAGE > /dev/null 2>&1 || (\
 docker rm -f $CONTAINER > /dev/null 2>&1
 
 # ssh will be available on 127.0.0.1 only
-docker run --rm -d -p 127.0.0.1:$PORT:22 --name $CONTAINER $IMAGE || exit 1
+docker run --rm -d -p 0.0.0.0:$PORT:22 --name $CONTAINER $IMAGE || exit 1
 
 cat <<HERE
 Ready to login to $CONTAINER (passphrase set in env.sh):
