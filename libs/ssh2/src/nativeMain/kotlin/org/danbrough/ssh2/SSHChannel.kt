@@ -11,6 +11,7 @@ import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL
 import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL_PACKET_DEFAULT
 import org.danbrough.ssh2.cinterops.LIBSSH2_CHANNEL_WINDOW_DEFAULT
@@ -116,7 +117,9 @@ class SSHChannel(private val session: SSHSession, private val channel: CPointer<
 
         if (readCount == LIBSSH2_ERROR_EAGAIN.toLong()) {
           //delay(100)
+          yield()
           session.waitSocket()
+
         } else break
       }
     }

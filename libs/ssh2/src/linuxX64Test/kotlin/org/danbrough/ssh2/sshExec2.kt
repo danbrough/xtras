@@ -7,7 +7,9 @@ import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -61,14 +63,14 @@ fun mainSshExec2(args: Array<String>) {
           session.channel().use { channel ->
             log.info { "created channel: $channel" }
             channel.shell()
-            log.debug { "opened shell" }
+            log.debug { "opened shell pthread:${platform.posix.pthread_self().toLong()}" }
             val readJob = launch {
+              log.warn { "launched read job: pthread:${platform.posix.pthread_self().toLong()}" }
               channel.readLoop()
             }
             log.trace { "launched read job .. writing date.." }
             channel.date()
             log.trace { "${getTime()}: date returned" }
-            delay(2.seconds)
             log.trace { "${getTime()}: calling date " }
             channel.date()
             log.trace { "${getTime()}: date returned" }
