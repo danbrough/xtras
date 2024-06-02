@@ -116,10 +116,8 @@ class SSHChannel(private val session: SSHSession, private val channel: CPointer<
         } while (readCount > 0L)
 
         if (readCount == LIBSSH2_ERROR_EAGAIN.toLong()) {
-          //delay(100)
           yield()
           session.waitSocket()
-
         } else break
       }
     }

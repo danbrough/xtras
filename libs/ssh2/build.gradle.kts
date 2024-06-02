@@ -109,9 +109,11 @@ kotlin {
       }
     }
 
+/*
     val posixMain by creating {
       dependsOn(commonMain)
     }
+*/
 
     val jniMain by creating {
       dependsOn(commonMain)
@@ -131,6 +133,7 @@ kotlin {
       dependsOn(jniMain)
     }
 
+/*
     androidNativeMain {
       dependsOn(posixMain)
     }
@@ -148,6 +151,7 @@ kotlin {
         dependsOn(posixMain)
       }
     }
+*/
 
 
     nativeMain.dependencies {
