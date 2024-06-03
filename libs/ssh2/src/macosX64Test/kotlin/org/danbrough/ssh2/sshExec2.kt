@@ -63,9 +63,9 @@ fun mainSshExec2(args: Array<String>) {
           session.channel().use { channel ->
             log.info { "created channel: $channel" }
             channel.shell()
-            log.debug { "opened shell pthread:${platform.posix.pthread_self().toLong()}" }
+            log.debug { "opened shell pthread:${platform.posix.pthread_self()}" }
             val readJob = launch {
-              log.warn { "launched read job: pthread:${platform.posix.pthread_self().toLong()}" }
+              log.warn { "launched read job: pthread:${platform.posix.pthread_self()}" }
               channel.readLoop()
             }
             log.trace { "launched read job .. writing date.." }
