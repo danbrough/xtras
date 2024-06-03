@@ -139,7 +139,7 @@ kotlin {
 		dependsOn(nativeMain)
 	}
 
-	val posixTest by sourceSets.creating{
+	val posixTest by sourceSets.creating {
 		dependsOn(sourceSets.getAt("nativeTest"))
 	}
 
@@ -189,19 +189,6 @@ xtrasTesting {
 			environment("SSH_PRIVATE_KEY", sallyKeyFile.absolutePath)
 		}
 	}
-
-	/*	if (this is Test) {
-			val sharedLibs = xtrasSharedLibs()
-
-			dependsOn(*sharedLibs.map { it.linkTask }.toTypedArray())
-
-			environment(
-				HostManager.host.envLibraryPathName,
-				pathOf(sharedLibs.map { it.linkTask.outputFile.get().parentFile })
-			)
-
-			logError("LIB PATH: ${environment[HostManager.host.envLibraryPathName]}")
-		}*/
 }
 
 
@@ -243,13 +230,10 @@ ssh2(ssl) {
 }
 
 
-afterEvaluate {
-	val libs = xtras.libraries.get()
-
-	val libPath = pathOf(libs.map { it.libsDir(HostManager.host) })
-	logInfo("LIBS: $libs path: $libPath")
-	tasks.withType<Exec>{
-		environment(HostManager.host.envLibraryPathName,libPath)
-	}
-
+tasks.withType<Exec> {
+	environment(
+		HostManager.host.envLibraryPathName,
+		pathOf(xtras.ldLibraryPath.get(),environment[HostManager.host.envLibraryPathName])
+	)
 }
+

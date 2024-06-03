@@ -5,6 +5,7 @@ package org.danbrough.xtras
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -33,6 +34,8 @@ abstract class XtrasExtension(val project: Project) {
   @XtrasDSL
   abstract val libraries: ListProperty<XtrasLibrary>
 
+  @XtrasDSL
+  abstract val ldLibraryPath:Property<String>
 
   fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget?): XtrasEnvironment {
     environment(env, target)
