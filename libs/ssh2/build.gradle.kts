@@ -7,6 +7,7 @@ import org.danbrough.xtras.core.ssh2
 import org.danbrough.xtras.envLibraryPathName
 import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.logError
+import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.logWarn
 import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.projectProperty
@@ -16,6 +17,7 @@ import org.danbrough.xtras.xtrasTestExecutables
 import org.danbrough.xtras.xtrasTesting
 import org.danbrough.xtras.xtrasSharedLibs
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.plugin.mpp.Executable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
@@ -222,6 +224,15 @@ xtrasAndroidConfig {
 }
 
 val ssl = openssl {
+/*	afterEvaluate {
+		tasks.withType<KotlinNativeTest>{
+			println("NATIVE TEST: $name ${this::class.java}")
+		}
+
+		tasks.withType<Exec>{
+			println("EXEC: $name ${this::class.java}")
+		}
+	}*/
 }
 
 
@@ -232,3 +243,13 @@ ssh2(ssl) {
 }
 
 
+afterEvaluate {
+	val libs = xtras.libraries.get()
+
+	val libPath = pathOf(libs.map { it.libsDir(HostManager.host) })
+	logInfo("LIBS: $libs path: $libPath")
+	tasks.withType<Exec>{
+		environment(HostManager.host.envLibraryPathName,libPath)
+	}
+
+}

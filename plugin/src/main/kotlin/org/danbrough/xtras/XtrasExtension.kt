@@ -30,6 +30,9 @@ abstract class XtrasExtension(val project: Project) {
 
   private var environment: XtrasEnvironmentConfig = INITIAL_ENVIRONMENT
 
+  @XtrasDSL
+  abstract val libraries: ListProperty<XtrasLibrary>
+
 
   fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget?): XtrasEnvironment {
     environment(env, target)

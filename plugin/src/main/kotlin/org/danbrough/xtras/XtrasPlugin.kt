@@ -15,6 +15,7 @@ class XtrasPlugin : Plugin<Project> {
 
       val xtras = extensions.create(XTRAS_EXTENSION_NAME, XtrasExtension::class.java).apply {
         nativeTargets.convention(emptyList())
+        libraries.convention(emptyList())
       }
 
       afterEvaluate {

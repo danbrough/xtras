@@ -136,6 +136,8 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
 
   return extensions.create(name, clazz, group, name, version, project.xtras, this).also {
     extensions.configure<T>(name) {
+      xtras.libraries.add(this)
+
       block()
 
       afterEvaluate {
