@@ -1,18 +1,8 @@
 package org.danbrough.ssh2
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.io.buffered
-import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
-import kotlinx.io.readString
 import org.danbrough.xtras.support.getEnv
-import platform.posix.read
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.seconds
 
 class NativeTests {
   @Test

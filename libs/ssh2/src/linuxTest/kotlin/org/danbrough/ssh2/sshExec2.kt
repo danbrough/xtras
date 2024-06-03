@@ -1,35 +1,13 @@
 package org.danbrough.ssh2
 
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.cValue
-import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.ptr
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
-import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION
-import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION_BLOCK_INBOUND
-import org.danbrough.ssh2.cinterops.LIBSSH2_SESSION_BLOCK_OUTBOUND
-import org.danbrough.ssh2.cinterops.libssh2_session_block_directions
-import org.danbrough.ssh2.cinterops.libssh2_socket_t
 import org.danbrough.xtras.support.getEnv
-import platform.posix.fd_set
-import platform.posix.posix_FD_SET
-import platform.posix.posix_FD_ZERO
-import platform.posix.select
-import platform.posix.time_tVar
-import platform.posix.timer_tVar
-import platform.posix.timeval
 import kotlin.time.Duration.Companion.seconds
 
 
