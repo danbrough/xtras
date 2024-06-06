@@ -230,10 +230,3 @@ ssh2(ssl) {
 }
 
 
-tasks.withType<Exec> {
-	environment(
-		HostManager.host.envLibraryPathName,
-		pathOf(xtras.ldLibraryPath.get(),environment[HostManager.host.envLibraryPathName])
-	)
-}
-

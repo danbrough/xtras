@@ -36,7 +36,7 @@ fun mainSshExec2(args: Array<String>) {
         val session = SSHSession(this)
         log.trace { "created session $session" }
         session.connect("127.0.0.1", 2222)
-        session.authenticate("sally", privateKeyPath = sallysPrivateKeyPath, password = "password")
+        session.authenticate("sally", privateKeyPath = sallysPrivateKeyPath, password = sallysKeyPassphrase)
         session.use {
           session.channel().use { channel ->
             log.info { "created channel: $channel" }
