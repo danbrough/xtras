@@ -93,6 +93,29 @@ kotlin {
       }
     }
   }
+
+
+  targets.withType<KotlinNativeTarget> {
+    if (konanTarget.supportsJNI && konanTarget.family != Family.ANDROID) {
+      /**
+       * Generate the platform.android jni header bindings for targets that aren't android
+       */
+      compilations["main"].cinterops {
+        create("jni") {
+          packageName = "platform.android"
+          val headersDir = project.file("src").resolve("headers")
+          val osDir = when (konanTarget.family) {
+            Family.LINUX -> "linux"
+            Family.MINGW -> "win32"
+            Family.IOS, Family.TVOS, Family.WATCHOS, Family.OSX -> "darwin"
+            else -> error("Unhandled target: $konanTarget")
+          }.let { headersDir.resolve(it) }
+          headers(headersDir.resolve("jni.h"), osDir.resolve("jni_md.h"))
+          includeDirs(headersDir, osDir)
+        }
+      }
+    }
+  }
 }
 
 
