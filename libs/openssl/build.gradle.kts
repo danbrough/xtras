@@ -111,6 +111,7 @@ kotlin {
   }
 }
 
+
 xtrasTesting {
 }
 
@@ -118,10 +119,18 @@ sonatype {
 }
 
 xtrasAndroidConfig {
+
+}
+
+xtras.androidConfig {
+  ndkApiVersion = 24
+  minSDKVersion = 24
+  compileSDKVersion = 24
 }
 
 val ssl = openssl {
   //buildEnabled = true
+
 }
 
 tasks.register("printSSL") {

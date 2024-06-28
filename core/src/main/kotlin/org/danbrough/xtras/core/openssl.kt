@@ -32,7 +32,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
       buildCommand { target->
         writer.println("""
-          [ ! -f Makefile ] && ./Configure ${target.opensslPlatform} no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
+          [ ! -f Makefile ] && ./Configure ${target.opensslPlatform} -D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion} no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
           make
           make install_sw
           exit 0

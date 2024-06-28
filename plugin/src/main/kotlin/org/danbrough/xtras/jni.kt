@@ -82,27 +82,31 @@ fun Project.xtrasAndroidConfig(
 					&& it.binary.buildType == NativeBuildType.DEBUG
 		}
 
-		val libPath =
-			project.pathOf(linkTasks.flatMap { it.outputs.files.files.filter { file -> file.isDirectory } })
 
-		logWarn("LIBPATH: $libPath")
+		val libPath =
+			project.pathOf(linkTasks.map{it.outputs.files.first()})
+
+		logInfo("LIBPATH: $libPath linkTasks: ${linkTasks.joinToString{it.name}}")
 
 
 		if (libPath.isBlank()) return@afterEvaluate
 
 		tasks.withType<KotlinJvmTest> {
+			logDebug("KotlinJvmTest:$name setting dependsOn(${linkTasks.joinToString{it.name}})")
 			setDependsOn(linkTasks)
 			environment(HostManager.host.envLibraryPathName, libPath)
-			logWarn("jvm_test_task:$name setting env:${HostManager.host.envLibraryPathName} to ${environment[HostManager.host.envLibraryPathName]}")
+			logInfo("jvm_test_task:$name setting env:${HostManager.host.envLibraryPathName} to ${environment[HostManager.host.envLibraryPathName]}")
 		}
 
 		tasks.withType<JavaExec> {
+			logDebug("JavaExec:$name setting dependsOn(${linkTasks.joinToString{it.name}})")
+
 			setDependsOn(linkTasks)
 			environment(
 				HostManager.host.envLibraryPathName,
 				pathOf(libPath, environment[HostManager.host.envLibraryPathName])
 			)
-			logWarn("java_exec_task:$name setting env:${HostManager.host.envLibraryPathName} to ${environment[HostManager.host.envLibraryPathName]}")
+			logInfo("java_exec_task:$name setting env:${HostManager.host.envLibraryPathName} to ${environment[HostManager.host.envLibraryPathName]}")
 		}
 	}
 
