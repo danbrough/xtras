@@ -102,7 +102,7 @@ kotlin {
        */
       compilations["main"].cinterops {
         create("jni") {
-          packageName = "platform.android"
+          packageName = "${project.group}.jni"
           val headersDir = project.file("src").resolve("headers")
           val osDir = when (konanTarget.family) {
             Family.LINUX -> "linux"
