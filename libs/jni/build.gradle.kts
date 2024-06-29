@@ -96,7 +96,7 @@ kotlin {
 
 
   targets.withType<KotlinNativeTarget> {
-    if (konanTarget.supportsJNI && konanTarget.family != Family.ANDROID) {
+    if (konanTarget.supportsJNI) {
       /**
        * Generate the platform.android jni header bindings for targets that aren't android
        */
@@ -108,10 +108,17 @@ kotlin {
             Family.LINUX -> "linux"
             Family.MINGW -> "win32"
             Family.IOS, Family.TVOS, Family.WATCHOS, Family.OSX -> "darwin"
+            Family.ANDROID -> "android"
             else -> error("Unhandled target: $konanTarget")
           }.let { headersDir.resolve(it) }
-          headers(headersDir.resolve("jni.h"), osDir.resolve("jni_md.h"))
-          includeDirs(headersDir, osDir)
+
+          if (konanTarget.family == Family.ANDROID) {
+            headers(osDir.resolve("jni.h"))
+            includeDirs(osDir)
+          } else {
+            headers(headersDir.resolve("jni.h"), osDir.resolve("jni_md.h"))
+            includeDirs(headersDir, osDir)
+          }
         }
       }
     }
