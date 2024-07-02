@@ -5,6 +5,7 @@ import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.maven
+import java.io.File
 
 fun Publication.xtrasPom() {
   if (this is MavenPublication) {
@@ -50,6 +51,20 @@ fun Project.xtrasDeclareXtrasRepository() {
     repositories {
       findByName(XTRAS_REPO_NAME) ?: maven(xtrasMavenDir) {
         name = XTRAS_REPO_NAME
+      }
+    }
+  }
+}
+
+
+val Project.xtrasLocalRepo: File
+  get() = rootProject.layout.buildDirectory.file("mavenLocal").get().asFile
+
+fun Project.xtrasDeclareLocalRepository() {
+  extensions.configure<PublishingExtension>("publishing") {
+    repositories {
+      findByName(XTRAS_LOCAL_REPO_NAME) ?: maven(xtrasLocalRepo) {
+        name = XTRAS_LOCAL_REPO_NAME
       }
     }
   }
