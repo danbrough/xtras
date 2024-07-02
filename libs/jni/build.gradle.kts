@@ -54,6 +54,7 @@ kotlin {
   }
   androidNativeArm64()
   androidNativeX64()
+  androidNativeArm32()
 
   jvm()
   androidTarget()
