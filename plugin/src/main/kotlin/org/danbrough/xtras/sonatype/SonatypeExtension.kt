@@ -2,8 +2,12 @@ package org.danbrough.xtras.sonatype
 
 import org.gradle.api.provider.Property
 
+
 abstract class SonatypeExtension {
   companion object {
+    const val URL_STAGING_DEPLOY =
+      "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+
     const val REPO_NAME = "Sonatype"
     const val EXTENSION_NAME = "sonatype"
     const val REPO_ID = "sonatype.repoID"
@@ -21,3 +25,5 @@ abstract class SonatypeExtension {
   abstract val description: Property<String>
 
 }
+
+

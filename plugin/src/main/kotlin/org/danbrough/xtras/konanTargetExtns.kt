@@ -1,9 +1,9 @@
 package org.danbrough.xtras
 
-import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.kotlin.konan.target.Architecture
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.util.Locale
 
 
 val KonanTarget.kotlinTargetName: String
@@ -17,14 +17,24 @@ val KonanTarget.kotlinTargetName: String
         else -> throw Error("Unhandled android target $this")
       }
     }
-    return name.split("_").joinToString("") { it.capitalized() }.decapitalized()
+    return name.split("_").joinToString("") {
+      it.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(
+          Locale.getDefault()
+        ) else it.toString()
+      }
+    }.decapitalized()
   }
 
 
 val KonanTarget.Companion.targetNameMap: Map<String, KonanTarget>
   get() = predefinedTargets.mapKeys { keyEntry ->
     keyEntry.key.split('_').joinToString("") {
-      it.capitalized()
+      it.let<CharSequence, CharSequence> {
+        if (it.isEmpty()) it else it[0].titlecase(Locale.getDefault()) + it.substring(
+          1
+        )
+      }
     }.decapitalized()
   }
 

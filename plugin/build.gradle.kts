@@ -7,13 +7,14 @@ plugins {
   signing
 }
 
-group = libs.versions.xtrasPackage.get()
-version = libs.versions.xtras.version.get()
+group = findProperty("project.group").toString()
+version = findProperty("project.version").toString()
 
 repositories {
   mavenCentral()
   google()
 }
+
 java {
   sourceCompatibility = JavaVersion.VERSION_11
   targetCompatibility = JavaVersion.VERSION_11
@@ -25,11 +26,9 @@ kotlin {
   }
 }
 
-
 dependencies {
   implementation(libs.kotlin.gradle.plugin)
   compileOnly(libs.dokka.gradle.plugin)
-
   compileOnly(libs.gradle.android)
 }
 
@@ -46,23 +45,24 @@ gradlePlugin {
       displayName = "Xtras Plugin"
       description = "Kotlin multiplatform support plugin"
     }
-
-    create("sonatype") {
-      id = "$group.sonatype"
-      implementationClass = "$group.sonatype.SonatypePlugin"
-      displayName = "Xtras Sonatype Plugin"
-      description = "Sonatype support for Xtras projects"
-    }
+    /*
+        create("sonatype") {
+          id = "$group.sonatype"
+          implementationClass = "$group.sonatype.SonatypePlugin"
+          displayName = "Xtras Sonatype Plugin"
+          description = "Sonatype support for Xtras projects"
+        }*/
   }
 }
 
 
-fun extraProperty(name: String): String? = if (extra.has(name)) extra[name]?.toString() else null
-
-val sonatypeRepoId = extraProperty("sonatype.repoID")
+val sonatypeRepoId = findProperty("sonatype.repoID")?.toString()
 
 signing {
-  sign(publishing.publications)
+  findProperty("signing.key")?.toString()?.also { signingKey ->
+    useInMemoryPgpKeys(signingKey, findProperty("signing.password")!!.toString())
+    sign(publishing.publications)
+  }
 }
 
 publishing {
@@ -79,17 +79,20 @@ publishing {
       name = "Xtras"
     }
 
-    if (sonatypeRepoId != null) {
-      maven("https://s01.oss.sonatype.org/service/local/staging/deployByRepositoryId/$sonatypeRepoId") {
-        name = "Sonatype"
-        credentials {
-          username = extraProperty("sonatype.username")
-          password = extraProperty("sonatype.password")
-        }
-      }
-    }
+    val sonatypeUrl =
+      if (sonatypeRepoId != null) "https://s01.oss.sonatype.org/service/local/staging/deployByRepositoryId/$sonatypeRepoId"
+      else "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+
+    /*    maven(sonatypeUrl) {
+          name = "Sonatype"
+          credentials {
+            username = findProperty("sonatype.username")?.toString()
+            password = findProperty("sonatype.password")?.toString()
+          }
+        }*/
   }
 }
+
 
 publishing.publications.all {
   if (this is MavenPublication) {

@@ -1,5 +1,4 @@
-import org.danbrough.xtras.XTRAS_PACKAGE
-import org.danbrough.xtras.xtrasDeclareXtrasRepository
+import org.danbrough.xtras.XTRAS_GROUP
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -10,8 +9,7 @@ plugins {
   id("org.danbrough.xtras")
 }
 
-group = XTRAS_PACKAGE
-version = "0.0.1-beta01"
+
 
 repositories {
   mavenCentral()
@@ -23,4 +21,3 @@ dependencies {
   implementation(libs.xtras.plugin)
 }
 
-xtrasDeclareXtrasRepository()

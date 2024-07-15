@@ -11,7 +11,9 @@ import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.logWarn
 import org.danbrough.xtras.pathOf
 import org.danbrough.xtras.projectProperty
+import org.danbrough.xtras.sonatype.xtrasSonatype
 import org.danbrough.xtras.supportsJNI
+import org.danbrough.xtras.xtras
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTestExecutables
 import org.danbrough.xtras.xtrasTesting
@@ -29,8 +31,6 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
-	alias(libs.plugins.xtras)
-	id("org.danbrough.xtras.sonatype")
 	id("com.android.library")
 	//`maven-publish`
 }
@@ -204,7 +204,7 @@ xtrasTesting {
   }
 }*/
 
-sonatype {
+xtrasSonatype {
 }
 
 xtrasAndroidConfig {

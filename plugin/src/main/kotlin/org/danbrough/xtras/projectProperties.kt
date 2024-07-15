@@ -28,6 +28,20 @@ inline fun <reified T> Project.projectProperty(
     error("Property $name not found and no default specified")
 
 
-
-
-
+inline fun <reified T : Any?> Project.xtrasProperty(
+  name: String,
+  noinline notFound: (() -> T)? = null
+): T {
+  val value = findProperty(name) ?: return notFound?.invoke() ?: null as T
+  return when (T::class) {
+    String::class -> value.toString()
+    Int::class -> value.toString().toInt()
+    Float::class -> value.toString().toFloat()
+    Double::class -> value.toString().toDouble()
+    Long::class -> value.toString().toLong()
+    Boolean::class -> value.toString().let { it == "true" || it == "1" }
+    File::class -> File(value.toString())
+    URI::class -> URI.create(value.toString())
+    else -> value
+  } as T
+}

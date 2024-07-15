@@ -11,7 +11,7 @@ import java.io.File
 typealias XtrasEnvironment = MutableMap<String, Any>
 typealias XtrasEnvironmentConfig = XtrasEnvironment.(target: KonanTarget?) -> Unit
 
-val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
+val Xtras.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
   get() = { target ->
     //project.logTrace("INITIAL_ENVIRONMENT: target: $target")
 
@@ -24,7 +24,7 @@ val XtrasExtension.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
       put(
         "PATH",
         "/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
-			)
+      )
     } else {
       put("PATH", project.pathOf("/bin", "/usr/bin", "/usr/local/bin", get("PATH")))
     }
@@ -50,7 +50,7 @@ private fun XtrasEnvironment.environmentApple(target: KonanTarget) {
 }
 
 
-fun XtrasEnvironment.environmentNDK(xtras: XtrasExtension, target: KonanTarget, project: Project) {
+fun XtrasEnvironment.environmentNDK(xtras: Xtras, target: KonanTarget, project: Project) {
   put("ANDROID_NDK_ROOT", xtras.androidConfig.ndkDir)
 
   val archFolder = when {

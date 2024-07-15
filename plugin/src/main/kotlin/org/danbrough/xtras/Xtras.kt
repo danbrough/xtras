@@ -12,7 +12,29 @@ import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 
-abstract class XtrasExtension(val project: Project) {
+abstract class Xtras(val project: Project) {
+
+  companion object Properties {
+    const val PROJECT_NAME = "project.name"
+    const val PROJECT_DESCRIPTION = "project.description"
+    const val PROJECT_GROUP = "project.group"
+    const val PROJECT_VERSION = "project.version"
+
+    const val PUBLISH_SIGN = "publish.sign"
+    const val PUBLISH_DOCS = "publish.docs"
+    const val PUBLISH_LOCAL = "publish.local"
+    const val PUBLISH_XTRAS = "publish.xtras"
+
+    const val PUBLISH_SONATYPE = "publish.sonatype"
+    const val SONATYPE_USERNAME = "sonatype.username"
+    const val SONATYPE_PASSWORD = "sonatype.password"
+
+    //gpg in memory key for signing
+    const val SIGNING_KEY = "signing.key"
+
+    //gpg in memory password for signing
+    const val SIGNING_PASSWORD = "signing.password"
+  }
 
   @XtrasDSL
   var javaVersion = JavaVersion.VERSION_11
@@ -35,7 +57,7 @@ abstract class XtrasExtension(val project: Project) {
   abstract val libraries: ListProperty<XtrasLibrary>
 
   @XtrasDSL
-  abstract val ldLibraryPath:Property<String>
+  abstract val ldLibraryPath: Property<String>
 
   fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget?): XtrasEnvironment {
     environment(env, target)

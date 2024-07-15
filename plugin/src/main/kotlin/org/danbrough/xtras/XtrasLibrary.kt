@@ -15,7 +15,7 @@ abstract class XtrasLibrary(
   val group: String,
   val name: String,
   val version: String,
-  val xtras: XtrasExtension,
+  val xtras: Xtras,
   val project: Project
 ) {
   internal interface SourceConfig
@@ -89,8 +89,8 @@ abstract class XtrasLibrary(
   internal var taskInstallSource: TaskConfig? = null
 
   internal var environment: XtrasEnvironmentConfig = {
-    if (it != null){
-      put(ENV_BUILD_DIR,project.unixPath(buildDir(it)))
+    if (it != null) {
+      put(ENV_BUILD_DIR, project.unixPath(buildDir(it)))
     }
     xtras.loadEnvironment(this, it)
   }

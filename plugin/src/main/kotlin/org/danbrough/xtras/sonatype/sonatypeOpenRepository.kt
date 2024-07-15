@@ -88,7 +88,7 @@ internal fun Project.createOpenRepoTask(extn: SonatypeExtension) {
       )
 
       project.logDebug("Received response: $response")
-      println("export sonatype.repoID=${response.repositoryId}")
+      println("SONATYPE_REPO_ID=${response.repositoryId}")
     }
   }
 }

@@ -1,71 +1,185 @@
 package org.danbrough.xtras
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.maven
+import org.gradle.plugins.signing.SigningExtension
+import org.gradle.plugins.signing.SigningPlugin
 import java.io.File
 
-fun Publication.xtrasPom() {
+fun Publication.xtrasPom(
+  projectName: String,
+  projectDescription: String,
+  githubAccount: String = "danbrough",
+  website: String = "https://github.com/$githubAccount/$projectName",
+  issuesSite: String? = "$website/issues",
+  scmSite: String? = "scm:git:git@github.com:$githubAccount/$projectName.git",
+  licenseApache2: Boolean = true,
+  block: MavenPom.() -> Unit = {},
+) {
   if (this is MavenPublication) {
     pom {
 
-      name.set("Xtras")
-      description.set("Kotlin support for common native libraries.")
+      name.set(projectName)
+      description.set(projectDescription)
 
-      url.set("https://github.com/danbrough/xtras/")
+      url.set(website)
 
       licenses {
-        license {
-          name.set("Apache-2.0")
-          url.set("https://opensource.org/licenses/Apache-2.0")
-        }
+        if (licenseApache2)
+          license {
+            name.set("Apache-2.0")
+            url.set("https://opensource.org/licenses/Apache-2.0")
+          }
       }
 
       scm {
-        connection.set("scm:git:git@github.com:danbrough/xtras.git")
-        developerConnection.set("scm:git:git@github.com:danbrough/xtras.git")
-        url.set("https://github.com/danbrough/xtras/")
+        connection.set(scmSite)
+        developerConnection.set(scmSite)
+        url.set(website)
       }
 
-      issueManagement {
-        system.set("GitHub")
-        url.set("https://github.com/danbrough/xtras/issues")
-      }
+      if (issuesSite != null)
+        issueManagement {
+          system.set("GitHub")
+          url.set(issuesSite)
+        }
 
       developers {
         developer {
           id.set("danbrough")
           name.set("Dan Brough")
           email.set("dan@danbrough.org")
-          organizationUrl.set("https://github.com/danbrough/xtras")
+          organizationUrl.set(website)
+        }
+      }
+      block()
+    }
+  }
+}
+
+private fun Project.withPublishing(block: PublishingExtension.() -> Unit) {
+  findProperty("publishing") ?: pluginManager.apply("maven-publish")
+  extensions.configure<PublishingExtension>("publishing", block)
+}
+
+private fun Project.xtrasPublishToXtras() = registerPublishRepo(XTRAS_REPO_NAME, xtrasMavenDir)
+
+val Project.xtrasLocalRepoDir: File
+  get() = rootProject.layout.buildDirectory.file("m2").get().asFile
+
+private fun Project.xtrasPublishToLocal() =
+  registerPublishRepo(XTRAS_LOCAL_REPO_NAME, xtrasLocalRepoDir)
+
+private fun Project.xtrasPublishToSonatype() {
+
+  fun MavenArtifactRepository.configureCredentials() {
+    credentials {
+      username =
+        xtrasProperty(Xtras.SONATYPE_USERNAME) { error("${Xtras.SONATYPE_USERNAME} not specified in gradle.properties") }
+      password =
+        xtrasProperty(Xtras.SONATYPE_PASSWORD) { error("${Xtras.SONATYPE_PASSWORD} not specified in gradle.properties") }
+    }
+  }
+
+  withPublishing {
+    repositories {
+
+      maven("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        name = "Sonatype"
+        configureCredentials()
+      }
+
+      maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+        name = "Snapshots"
+        configureCredentials()
+      }
+    }
+  }
+}
+//
+//fun Project.xtrasConfigureSigning() {
+//  withPublishing {
+//    findProperty("signing") ?: pluginManager.apply("signing")
+//    extensions.configure<SigningExtension> {
+//      publications.all {
+//        sign(this)
+//      }
+//    }
+//  }
+//}
+
+private fun Project.registerPublishRepo(repoName: String, url: Any) {
+  withPublishing {
+    repositories {
+      maven(url) {
+        name = repoName
+      }
+    }
+  }
+}
+
+
+internal fun Project.xtrasPublishing(
+  publicationBlock: (Publication.() -> Unit)? = null
+) {
+
+  if (xtrasProperty<Boolean>(Xtras.PUBLISH_LOCAL) { false }) {
+    xtrasPublishToLocal()
+  }
+
+  if (xtrasProperty<Boolean>(Xtras.PUBLISH_XTRAS) { false }) {
+    xtrasPublishToXtras()
+  }
+
+  if (xtrasProperty<Boolean>(Xtras.PUBLISH_SONATYPE) { false }) {
+    //project.extra[Xtras.PUBLISH_SIGN] = "true"
+    xtrasPublishToSonatype()
+  }
+
+  withPublishing {
+    publications.all {
+      xtrasPom(
+        projectName = xtrasProperty(Xtras.PROJECT_NAME) { project.name },
+        projectDescription = xtrasProperty(Xtras.PROJECT_DESCRIPTION) {
+          project.description.also {
+            logWarn("${Xtras.PROJECT_DESCRIPTION} should be set instead of $name.description")
+          } ?: ""
+        }
+      )
+      publicationBlock?.invoke(this)
+    }
+  }
+
+
+
+  if (xtrasProperty(Xtras.PUBLISH_SIGN) { false }) {
+    logTrace("configuring signing..")
+    pluginManager.apply(SigningPlugin::class)
+    extensions.configure<SigningExtension> {
+
+      val signingKey =
+        xtrasProperty<String>(Xtras.SIGNING_KEY) { error("${Xtras.SIGNING_KEY} not set") }.replace(
+          "\\n",
+          ""
+        )
+      val signingPassword =
+        xtrasProperty<String>(Xtras.SIGNING_PASSWORD) { error("${Xtras.SIGNING_PASSWORD} not set") }
+
+      useInMemoryPgpKeys(signingKey, signingPassword)
+
+      withPublishing {
+        publications.all {
+          sign(this)
         }
       }
     }
   }
 }
 
-fun Project.xtrasDeclareXtrasRepository() {
-  extensions.configure<PublishingExtension>("publishing") {
-    repositories {
-      findByName(XTRAS_REPO_NAME) ?: maven(xtrasMavenDir) {
-        name = XTRAS_REPO_NAME
-      }
-    }
-  }
-}
-
-
-val Project.xtrasLocalRepo: File
-  get() = rootProject.layout.buildDirectory.file("mavenLocal").get().asFile
-
-fun Project.xtrasDeclareLocalRepository() {
-  extensions.configure<PublishingExtension>("publishing") {
-    repositories {
-      findByName(XTRAS_LOCAL_REPO_NAME) ?: maven(xtrasLocalRepo) {
-        name = XTRAS_LOCAL_REPO_NAME
-      }
-    }
-  }
-}

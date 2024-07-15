@@ -20,10 +20,10 @@ includeBuild("core")
 listOf(
 //  "logging",
   "support",
-  "jni",
-  "openssl",
+  //"jni",
+  //"openssl",
 
-  "ssh2",
+  //"ssh2",
   //"postgres",
   //"sqlite",
   //"jwt",

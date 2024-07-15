@@ -1,21 +1,18 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
+import org.danbrough.xtras.sonatype.xtrasSonatype
 import org.danbrough.xtras.supportsJNI
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.xtras)
-  id("org.danbrough.xtras.sonatype")
   id("com.android.library")
 }
 
@@ -132,7 +129,7 @@ xtrasAndroidConfig { }
 xtrasTesting { }
 
 
-sonatype {
+xtrasSonatype {
 
 }
 

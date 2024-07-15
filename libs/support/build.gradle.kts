@@ -1,6 +1,8 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
+import org.danbrough.xtras.sonatype.xtrasSonatype
 import org.danbrough.xtras.supportsJNI
+import org.danbrough.xtras.xtras
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -14,12 +16,8 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.xtras)
-  id("org.danbrough.xtras.sonatype")
   id("com.android.library")
 }
-
-version = "0.0.1-beta01"
 
 object JavaConfig {
   val javaVersion = JavaVersion.VERSION_1_8
@@ -103,9 +101,6 @@ xtrasAndroidConfig { }
 
 xtrasTesting { }
 
-
-sonatype {
-
-}
+xtrasSonatype {}
 
 

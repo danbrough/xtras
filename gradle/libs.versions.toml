@@ -5,16 +5,15 @@
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-org-jetbrains-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 android-application = { id = "com.android.application", version.ref = "agp" }
-xtras = { id = "org.danbrough.xtras", version.ref = "xtras-version" }
+xtras = { id = "org.danbrough.xtras"}
 xtras-openssl = { id = "org.danbrough.xtras.openssl", version.ref = "xtras-openssl" }
 xtras-mqtt = { id = "org.danbrough.xtras.mqtt", version.ref = "xtras-mqtt" }
-#kotest-multiplatform = { id = "io.kotest.multiplatform", version = "5.8.0" }
 
 [versions]
 
-agp = "8.5.0"
+agp = "8.5.1"
 ##⬆= "8.6.0-alpha01"
 ##⬆= "8.6.0-alpha02"
 ##⬆= "8.6.0-alpha03"
@@ -23,19 +22,22 @@ agp = "8.5.0"
 ##⬆= "8.6.0-alpha06"
 ##⬆= "8.6.0-alpha07"
 ##⬆= "8.6.0-alpha08"
+##⬆= "8.6.0-beta01"
 
-xtras-core = "0.0.1-beta01"
+
 kotlin ="2.0.0"
+## ⬆ = "2.0.10-RC"
 ## ⬆ = "2.0.20-Beta1"
+## ⬆ = "2.0.20-Beta2"
 
 xtrasPackage = "org.danbrough.xtras"
-xtras-version = "0.0.1-alpha02"
 xtras-openssl = "0.0.1-alpha01"
 xtras-mqtt = "0.0.1-alpha01"
-kotlin-logging = "6.0.9"
 xtras-support = "0.0.1-beta01"
+#xtras-core = "0.0.1-beta01"
+
 dokka = "1.9.20"
-kotlinx-io ="0.4.0"
+kotlinx-io ="0.5.0"
 slf4j-api ="2.0.13"
 ##    ⬆ = "2.1.0-alpha0"
 ##    ⬆ = "2.1.0-alpha1"
@@ -43,7 +45,7 @@ slf4j-simple = "2.0.12"
 logback-classic ="1.5.6"
 kotlinx-coroutines ="1.8.1"
 ##             ⬆ = "1.9.0-RC"
-klog = "0.0.3-beta01"
+klog = "0.0.3-beta02"
 kotlinx-datetime = "0.6.0"
 
 [libraries]
@@ -57,16 +59,10 @@ gradle-android = { module = "com.android.tools.build:gradle", version.ref = "agp
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 dokka-gradle-plugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
-xtras-support = { group = "org.danbrough.xtras", name = "support", version.ref = "xtras-support" }
-xtras-plugin = { group = "org.danbrough.xtras", name = "plugin", version.ref = "xtras-version" }
-xtras-core = { module = "org.danbrough.xtras:core", version.ref = "xtras-core" }
-xtras-mqtt-plugin = { group = "org.danbrough.xtras", name = "plugin_mqtt", version.ref = "xtras-version" }
-xtras-openssl-plugin = { group = "org.danbrough.xtras", name = "plugin_openssl", version.ref = "xtras-openssl" }
-#kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
-kotlin-logging = { module = "org.danbrough:kotlin-logging", version.ref = "kotlin-logging" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
+xtras-plugin = { module = "org.danbrough.xtras:plugin" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
 slf4j-android = { module = "org.slf4j:slf4j-android", version = "1.7.36" }
