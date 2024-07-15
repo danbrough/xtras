@@ -59,7 +59,7 @@ gradlePlugin {
 val sonatypeRepoId = findProperty("sonatype.repoID")?.toString()
 
 signing {
-  findProperty("signing.key")?.toString()?.also { signingKey ->
+  findProperty("signing.key")?.toString()?.replace("\\n", "\n")?.also { signingKey ->
     useInMemoryPgpKeys(signingKey, findProperty("signing.password")!!.toString())
     sign(publishing.publications)
   }
@@ -85,13 +85,13 @@ publishing {
       if (sonatypeRepoId != null) "https://s01.oss.sonatype.org/service/local/staging/deployByRepositoryId/$sonatypeRepoId"
       else "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 
-    /*    maven(sonatypeUrl) {
-          name = "Sonatype"
-          credentials {
-            username = findProperty("sonatype.username")?.toString()
-            password = findProperty("sonatype.password")?.toString()
-          }
-        }*/
+    maven(sonatypeUrl) {
+      name = "Sonatype"
+      credentials {
+        username = findProperty("sonatype.username")?.toString()
+        password = findProperty("sonatype.password")?.toString()
+      }
+    }
   }
 }
 

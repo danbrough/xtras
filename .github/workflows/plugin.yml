@@ -38,11 +38,13 @@ jobs:
 #          GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        shell: bash
         run: |
-          ./gradlew :plugin:publishAllPublicationsToSonatype \
-          -Psigning.key = ${{ secrets.GPG_SIGNING_KEY }} \
-          -Psigning.password = ${{ secrets.GPG_SIGNING_PASSWORD }} \
+          ./gradlew :plugin:publishAllPublicationsToSonatypeRepository \
+          -Pxtras.dir=$HOME/xtras \
+          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
+          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
           -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
-          -Psonatype.password=${{ secrets.SONATYPE_PASSWORD }} 
-        
+          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
+
+
