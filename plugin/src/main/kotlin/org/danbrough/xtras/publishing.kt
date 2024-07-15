@@ -160,8 +160,6 @@ internal fun Project.xtrasPublishing(
     }
   }
 
-
-
   if (xtrasProperty(Xtras.PUBLISH_SIGN) { false }) {
     logTrace("configuring signing..")
     pluginManager.apply(SigningPlugin::class)
