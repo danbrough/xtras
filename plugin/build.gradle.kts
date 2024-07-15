@@ -70,13 +70,15 @@ publishing {
   repositories {
     val xtrasMavenDir =
       if (hasProperty("xtras.dir.maven")) File(property("xtras.dir.maven").toString())
-      else if (hasProperty("xtras.dir")) File(property("xtras.dir").toString()).resolve("maven")
-      else error("Neither xtras.dir.maven or xtras.dir are set")
+      else if (hasProperty("xtras.dir")) File(property("xtras.dir").toString()).resolve("maven") else null
 
-    logger.info("xtrasMavenDir = $xtrasMavenDir")
 
-    maven(xtrasMavenDir) {
-      name = "Xtras"
+    if (xtrasMavenDir != null) {
+      logger.info("xtrasMavenDir = $xtrasMavenDir")
+
+      maven(xtrasMavenDir) {
+        name = "Xtras"
+      }
     }
 
     val sonatypeUrl =
