@@ -6,9 +6,12 @@ import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.maven
+import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 import org.gradle.plugins.signing.SigningPlugin
 import java.io.File
@@ -149,7 +152,7 @@ internal fun Project.xtrasPublishing(
         projectName = xtrasProperty(Xtras.PROJECT_NAME) { project.name },
         projectDescription = xtrasProperty(Xtras.PROJECT_DESCRIPTION) {
           project.description.also {
-            logWarn("${Xtras.PROJECT_DESCRIPTION} should be set instead of $name.description")
+            logWarn("${Xtras.PROJECT_DESCRIPTION} should be set instead of ${this@xtrasPublishing.name}.description")
           } ?: ""
         }
       )
@@ -181,5 +184,57 @@ internal fun Project.xtrasPublishing(
       }
     }
   }
+
+  if (xtrasProperty(Xtras.PUBLISH_DOCS) { false }) {
+    logTrace("configuring docs..")
+    pluginManager.apply("org.jetbrains.dokka")
+    val javadocTask = tasks.register("javadocJar", Jar::class.java) {
+      archiveClassifier.set("javadoc")
+      from(tasks.getByName("dokkaHtml"))
+    }
+
+    afterEvaluate {
+      withPublishing {
+        publications.all {
+          if (this is MavenPublication) {
+            artifact(javadocTask)
+          }
+        }
+      }
+
+      afterEvaluate {
+        val signTasks = tasks.withType(Sign::class.java).map { it.name }
+        if (signTasks.isNotEmpty()) {
+          tasks.withType(PublishToMavenRepository::class.java) {
+            //  println("$name => $signTasks")
+            dependsOn(signTasks)
+          }
+        }
+      }
+    }
+
+    tasks.getByName("dokkaHtml").doFirst {
+      println("RUNNING DOKKA HTML FOR PROJECT: ${this@xtrasPublishing.name}")
+    }
+
+
+    /*    val javadocJar by tasks.registering(Jar::class) {
+    //      archiveClassifier.set("javadoc")
+    //      from(tasks.getByName("dokkaHtml"))
+        }*/
+
+  }
+
+  /*
+afterEvaluate {
+val signTasks = tasks.withType(Sign::class.java).map { it.name }
+if (signTasks.isNotEmpty()) {
+tasks.withType(PublishToMavenRepository::class.java) {
+  //println("$name => $signTasks")
+  dependsOn(signTasks)
+}
+}
+}
+ */
 }
 

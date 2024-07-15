@@ -25,7 +25,10 @@ class XtrasPlugin : Plugin<Project> {
         //ldLibraryPath.convention( )
       }
 
-      configureExtras(xtras)
+      subprojects {
+        configureExtras(xtras)
+      }
+
 
       afterEvaluate {
 
