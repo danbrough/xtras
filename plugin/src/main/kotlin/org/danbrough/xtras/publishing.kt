@@ -170,7 +170,7 @@ internal fun Project.xtrasPublishing(
       val signingKey =
         xtrasProperty<String>(Xtras.SIGNING_KEY) { error("${Xtras.SIGNING_KEY} not set") }.replace(
           "\\n",
-          ""
+          "\n"
         )
       val signingPassword =
         xtrasProperty<String>(Xtras.SIGNING_PASSWORD) { error("${Xtras.SIGNING_PASSWORD} not set") }
