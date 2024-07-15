@@ -16,19 +16,22 @@ rootProject.name = "xtras"
 includeBuild("plugin")
 includeBuild("core")
 
+val pluginOnly:String? by settings
 
-listOf(
+if (pluginOnly == null) {
+  listOf(
 //  "logging",
-  "support",
-  //"jni",
-  //"openssl",
+    "support",
+    //"jni",
+    //"openssl",
 
-  //"ssh2",
-  //"postgres",
-  //"sqlite",
-  //"jwt",
-).forEach {
-  include(":libs:$it")
+    //"ssh2",
+    //"postgres",
+    //"sqlite",
+    //"jwt",
+  ).forEach {
+    include(":libs:$it")
+  }
 }
 
 
