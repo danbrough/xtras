@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.konan.target.HostManager
 class XtrasPlugin : Plugin<Project> {
   override fun apply(target: Project) =
     target.run {
-      if (parent != null) error("Xtras plugin must be applied on the parent project")
       logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
 
       val xtras = extensions.create(XTRAS_EXTENSION_NAME, Xtras::class.java).apply {
@@ -25,10 +24,8 @@ class XtrasPlugin : Plugin<Project> {
         //ldLibraryPath.convention( )
       }
 
-      subprojects {
-        configureExtras(xtras)
-      }
-
+      
+      configureExtras(xtras)
 
       afterEvaluate {
 

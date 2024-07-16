@@ -1,13 +1,15 @@
 @file:Suppress("UnstableApiUsage")
 
-import org.danbrough.xtras.XTRAS_GROUP
 
 plugins {
+
   alias(libs.plugins.kotlin.multiplatform) apply false
-  alias(libs.plugins.xtras)
   alias(libs.plugins.kotlin.android) apply false
   alias(libs.plugins.android.application) apply false
+
+  signing
   `maven-publish`
+  alias(libs.plugins.xtras) apply false
 }
 
 

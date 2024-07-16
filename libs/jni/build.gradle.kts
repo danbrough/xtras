@@ -14,6 +14,8 @@ import org.jetbrains.kotlin.konan.target.HostManager
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   id("com.android.library")
+  alias(libs.plugins.xtras)
+
 }
 
 version = "0.0.1-beta01"

@@ -17,6 +17,8 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   id("com.android.library")
+  `maven-publish`
+  signing
 }
 
 object JavaConfig {

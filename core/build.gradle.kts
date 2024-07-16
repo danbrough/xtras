@@ -4,12 +4,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
   `kotlin-dsl`
   `java-gradle-plugin`
-  `maven-publish`
-  signing
-  id("org.danbrough.xtras")
+  alias(libs.plugins.xtras)
 }
-
-
 
 repositories {
   mavenCentral()

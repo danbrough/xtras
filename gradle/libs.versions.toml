@@ -7,7 +7,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 android-application = { id = "com.android.application", version.ref = "agp" }
-xtras = { id = "org.danbrough.xtras"}
+xtras = { id = "org.danbrough.xtras" }
 xtras-openssl = { id = "org.danbrough.xtras.openssl", version.ref = "xtras-openssl" }
 xtras-mqtt = { id = "org.danbrough.xtras.mqtt", version.ref = "xtras-mqtt" }
 
@@ -25,7 +25,7 @@ agp = "8.5.1"
 ##⬆= "8.6.0-beta01"
 
 
-kotlin ="2.0.0"
+kotlin = "2.0.0"
 ## ⬆ = "2.0.10-RC"
 ## ⬆ = "2.0.20-Beta1"
 ## ⬆ = "2.0.20-Beta2"
@@ -37,13 +37,13 @@ xtras-support = "0.0.1-beta01"
 #xtras-core = "0.0.1-beta01"
 
 dokka = "1.9.20"
-kotlinx-io ="0.5.0"
-slf4j-api ="2.0.13"
+kotlinx-io = "0.5.0"
+slf4j-api = "2.0.13"
 ##    ⬆ = "2.1.0-alpha0"
 ##    ⬆ = "2.1.0-alpha1"
 slf4j-simple = "2.0.12"
-logback-classic ="1.5.6"
-kotlinx-coroutines ="1.8.1"
+logback-classic = "1.5.6"
+kotlinx-coroutines = "1.8.1"
 ##             ⬆ = "1.9.0-RC"
 klog = "0.0.3-beta02"
 kotlinx-datetime = "0.6.0"
