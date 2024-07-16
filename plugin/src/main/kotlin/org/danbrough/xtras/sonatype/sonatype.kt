@@ -134,6 +134,7 @@ internal fun Project.configurePublishing() {
   }
 }
 
+/*
 
 fun Project.xtrasSonatype(block: SonatypeExtension.() -> Unit) {
   extensions.findByType<SonatypeExtension>() ?: extensions.create<SonatypeExtension>(
@@ -151,4 +152,5 @@ fun Project.xtrasSonatype(block: SonatypeExtension.() -> Unit) {
   }
 }
 
+*/
 

@@ -22,7 +22,7 @@ val pluginOnly:String? by settings
 if (pluginOnly == null) {
   listOf(
 //  "logging",
- //   "support",
+    "support",
     "jni",
     //"openssl",
 
@@ -31,7 +31,8 @@ if (pluginOnly == null) {
     //"sqlite",
     //"jwt",
   ).forEach {
-    include(":libs:$it")
+    include(":$it")
+    project(":$it").projectDir = file("libs/$it")
   }
 }
 

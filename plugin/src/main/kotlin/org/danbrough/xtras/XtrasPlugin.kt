@@ -12,8 +12,9 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
 
 
-class XtrasPlugin : Plugin<Project> {
-  override fun apply(target: Project) =
+class XtrasPlugin : Plugin<Any> {
+  override fun apply(target: Any) {
+    if (target !is Project) return
     target.run {
       if (parent != null) error("Xtras plugin should be applied to the root project only")
 
@@ -47,6 +48,7 @@ class XtrasPlugin : Plugin<Project> {
 
       }
     }
+  }
 }
 
 internal fun Project.registerMiscTasks() {
