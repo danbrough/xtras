@@ -68,7 +68,7 @@ fun Publication.xtrasPom(
 }
 
 private fun Project.withPublishing(block: PublishingExtension.() -> Unit) {
-  findProperty("publishing") ?: pluginManager.apply("maven-publish")
+  //findProperty("publishing") ?: apply<MavenPublishPlugin>()
   extensions.configure<PublishingExtension>("publishing", block)
 }
 
@@ -129,9 +129,7 @@ private fun Project.registerPublishRepo(repoName: String, url: Any) {
 }
 
 
-internal fun Project.xtrasPublishing(
-  publicationBlock: (Publication.() -> Unit)? = null
-) {
+internal fun Project.xtrasPublishing(xtras: Xtras) {
 
   if (xtrasProperty<Boolean>(Xtras.PUBLISH_LOCAL) { false }) {
     xtrasPublishToLocal()
@@ -156,7 +154,6 @@ internal fun Project.xtrasPublishing(
           } ?: ""
         }
       )
-      publicationBlock?.invoke(this)
     }
   }
 

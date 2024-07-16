@@ -2,8 +2,11 @@ package org.danbrough.xtras
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.Exec
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.withType
+import org.gradle.plugins.signing.SigningPlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -12,6 +15,8 @@ import org.jetbrains.kotlin.konan.target.HostManager
 class XtrasPlugin : Plugin<Project> {
   override fun apply(target: Project) =
     target.run {
+      if (parent != null) error("Xtras plugin should be applied to the root project only")
+
       logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
 
       val xtras = extensions.create(XTRAS_EXTENSION_NAME, Xtras::class.java).apply {
@@ -24,8 +29,11 @@ class XtrasPlugin : Plugin<Project> {
         //ldLibraryPath.convention( )
       }
 
-      
-      configureExtras(xtras)
+      allprojects {
+        apply<MavenPublishPlugin>()
+        apply<SigningPlugin>()
+        configureExtras(xtras)
+      }
 
       afterEvaluate {
 
@@ -36,6 +44,7 @@ class XtrasPlugin : Plugin<Project> {
         }
 
         registerMiscTasks()
+
       }
     }
 }
@@ -78,6 +87,6 @@ private fun Project.configureExtras(xtras: Xtras) {
     version = it.toString()
   } ?: logDebug("${Xtras.PROJECT_VERSION} not specified")
 
-  xtrasPublishing { }
+  xtrasPublishing(xtras)
 
 }
