@@ -94,7 +94,11 @@ private fun Project.xtrasPublishToSonatype() {
   withPublishing {
     repositories {
 
-      maven("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+      val sonatypeUrl = xtrasProperty<String?>(Xtras.SONATYPE_REPO_ID)?.let {
+        "https://s01.oss.sonatype.org//service/local/staging/deployByRepositoryId/$it"
+      } ?: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+
+      maven(sonatypeUrl) {
         name = "Sonatype"
         configureCredentials()
       }

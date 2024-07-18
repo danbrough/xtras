@@ -39,6 +39,8 @@ abstract class Xtras(val project: Project) {
     const val PUBLISH_SONATYPE = "publish.sonatype"
     const val SONATYPE_USERNAME = "sonatype.username"
     const val SONATYPE_PASSWORD = "sonatype.password"
+    const val SONATYPE_REPO_ID = "sonatype.repoID"
+
 
     //gpg in memory key for signing
     const val SIGNING_KEY = "signing.key"
