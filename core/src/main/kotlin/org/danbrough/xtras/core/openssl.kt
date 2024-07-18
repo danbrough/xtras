@@ -33,11 +33,10 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
       buildCommand { target ->
         writer.println(
           """
-          [ ! -f Makefile ] && ./Configure ${target.opensslPlatform} ${if (target.family == Family.ANDROID) "-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion}" else ""} no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
-          make
-          make install_sw
-          exit 0
-        """.trimIndent()
+          |[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} ${if (target.family == Family.ANDROID) "-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion}" else ""} no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
+          |make || exit 1
+          |make install_sw || exit 1
+        """.trimMargin()
         )
       }
 
