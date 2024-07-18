@@ -28,7 +28,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
         
         """.trimIndent()
 
-      targetWriterFilter = { target -> target == KonanTarget.LINUX_ARM64 }
+      //targetWriterFilter = { target -> target == KonanTarget.LINUX_ARM64 }
 
       buildCommand { target->
         writer.println("""

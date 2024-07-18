@@ -102,7 +102,8 @@ private fun XtrasLibrary.registerGenerateCInterops() {
           writer.println(it)
         }
 
-        xtras.nativeTargets.get().filter(config.targetWriterFilter).forEach {
+        //xtras.nativeTargets.get().filter(config.targetWriterFilter).forEach {
+        xtras.nativeTargets.get().forEach {
           config.targetWriter(this@registerGenerateCInterops, config, it, writer)
         }
 
