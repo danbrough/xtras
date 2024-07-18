@@ -52,7 +52,6 @@ internal fun Project.configurePublishing() {
     extensions.findByType<PublishingExtension>()!!.run {
       extensions.findByType<KotlinMultiplatformExtension>()?.run {
 
-
         val emptyFileForJavadocTaskName = "emptyFileForJavadoc"
 
         val emptyFileTask: Task =
@@ -69,9 +68,7 @@ internal fun Project.configurePublishing() {
             }
             outputs.file(outputFile)
           }
-
-
-
+        
         publications.withType<MavenPublication> {
           //logTrace("PUBLICATION: project: ${project.name} name:$name type:${this::class.java}")
           if (!setOf("kotlinMultiplatform", "jvm").contains(name)) {

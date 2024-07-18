@@ -144,7 +144,6 @@ internal fun Project.xtrasPublishing() {
   }
 
   if (xtrasProperty<Boolean>(Xtras.PUBLISH_SONATYPE) { false }) {
-    //project.extra[Xtras.PUBLISH_SIGN] = "true"
     xtrasPublishToSonatype()
   }
 
@@ -216,24 +215,6 @@ internal fun Project.xtrasPublishing() {
       println("RUNNING DOKKA HTML FOR PROJECT: ${this@xtrasPublishing.name}")
     }
 
-
-    /*    val javadocJar by tasks.registering(Jar::class) {
-    //      archiveClassifier.set("javadoc")
-    //      from(tasks.getByName("dokkaHtml"))
-        }*/
-
   }
-
-  /*
-afterEvaluate {
-val signTasks = tasks.withType(Sign::class.java).map { it.name }
-if (signTasks.isNotEmpty()) {
-tasks.withType(PublishToMavenRepository::class.java) {
-  //println("$name => $signTasks")
-  dependsOn(signTasks)
-}
-}
-}
- */
 }
 
