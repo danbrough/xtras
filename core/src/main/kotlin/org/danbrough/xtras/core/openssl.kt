@@ -30,22 +30,24 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
       //targetWriterFilter = { target -> target == KonanTarget.LINUX_ARM64 }
 
-      buildCommand { target->
-        writer.println("""
-          [ ! -f Makefile ] && ./Configure ${target.opensslPlatform} -D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion} no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
+      buildCommand { target ->
+        writer.println(
+          """
+          [ ! -f Makefile ] && ./Configure ${target.opensslPlatform} ${if (target.family == Family.ANDROID) "-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion}" else ""} no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
           make
           make install_sw
           exit 0
-        """.trimIndent())
+        """.trimIndent()
+        )
       }
 
-/*      afterEvaluate {
-        tasks.withType<CInteropProcess> {
-          if (konanTarget in setOf(KonanTarget.LINUX_ARM64)) {
-            dependsOn(PackageTaskName.EXTRACT.taskName(this@registerXtrasGitLibrary, konanTarget))
-          }
-        }
-      }*/
+      /*      afterEvaluate {
+              tasks.withType<CInteropProcess> {
+                if (konanTarget in setOf(KonanTarget.LINUX_ARM64)) {
+                  dependsOn(PackageTaskName.EXTRACT.taskName(this@registerXtrasGitLibrary, konanTarget))
+                }
+              }
+            }*/
     }
 
     environment { target ->
@@ -56,8 +58,8 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
           environmentNDK(xtras, target, project)
         else if (target.family == Family.LINUX)
           environmentKonan(this@registerXtrasGitLibrary, target, project)
-        else if (target.family == Family.MINGW){
-          put("CC","x86_64-w64-mingw32-gcc")
+        else if (target.family == Family.MINGW) {
+          put("CC", "x86_64-w64-mingw32-gcc")
           put("RC", "x86_64-w64-mingw32-windres")
         }
 
@@ -65,29 +67,29 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
     }
 
 
-/*    configureSource { target ->
-      outputs.file(workingDir.resolve("Makefile"))
+    /*    configureSource { target ->
+          outputs.file(workingDir.resolve("Makefile"))
 
-      var command ="./Configure ${target.opensslPlatform} no-tests threads zlib --prefix=${buildDir(target)} --libdir=lib"
-
-
-      if (target.family == Family.ANDROID)
-        command += "-D__ANDROID_API__=${xtras.androidConfig.ndkApiVersion}"
-      else if (target == KonanTarget.MINGW_X64) {
-        command += "--cross-compile-prefix=x86_64-w64-mingw32-"
-      }
+          var command ="./Configure ${target.opensslPlatform} no-tests threads zlib --prefix=${buildDir(target)} --libdir=lib"
 
 
-      commandLine(xtras.sh,"-c",command)
-    }
+          if (target.family == Family.ANDROID)
+            command += "-D__ANDROID_API__=${xtras.androidConfig.ndkApiVersion}"
+          else if (target == KonanTarget.MINGW_X64) {
+            command += "--cross-compile-prefix=x86_64-w64-mingw32-"
+          }
 
-    compileSource {
-      commandLine(xtras.sh,"-c","make")
-    }
 
-    installSource {
-      commandLine(xtras.sh,"-c","make")
-    }*/
+          commandLine(xtras.sh,"-c",command)
+        }
+
+        compileSource {
+          commandLine(xtras.sh,"-c","make")
+        }
+
+        installSource {
+          commandLine(xtras.sh,"-c","make")
+        }*/
 
     block()
   }
