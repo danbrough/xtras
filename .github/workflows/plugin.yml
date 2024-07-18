@@ -41,7 +41,6 @@ jobs:
         shell: bash
         run: |
           ./gradlew :plugin:publishAllPublicationsToSonatypeRepository  :publishAllPublicationsToSonatypeRepository \
-          -PpluginOnly \
           -Pxtras.dir=$HOME/xtras \
           -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
           -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
