@@ -129,7 +129,7 @@ private fun Project.registerPublishRepo(repoName: String, url: Any) {
 }
 
 
-internal fun Project.xtrasPublishing(xtras: Xtras) {
+internal fun Project.xtrasPublishing() {
 
   if (xtrasProperty<Boolean>(Xtras.PUBLISH_LOCAL) { false }) {
     xtrasPublishToLocal()

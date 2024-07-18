@@ -1,17 +1,13 @@
 package org.danbrough.xtras.tasks
 
 import org.danbrough.xtras.ScriptCommandContext
+import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasLibrary
-import org.danbrough.xtras.kotlinTargetName
-import org.danbrough.xtras.logError
-import org.danbrough.xtras.resolveAll
 import org.danbrough.xtras.unixPath
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import java.io.File
 import java.io.PrintWriter
-import java.util.Date
 
 fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
@@ -22,7 +18,8 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
 
   val buildTaskName = SourceTaskName.BUILD.taskName(this, target)
-  val genEnvTaskName = "${buildTaskName}_env"
+  val genScriptTaskName = "${buildTaskName}_generate_script"
+  val printScriptTaskName = "${buildTaskName}_print_script"
 
   val scriptsDir= xtrasDir.resolve("scripts")
   val logsDir= xtrasDir.resolve("logs")
@@ -34,12 +31,12 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
   val envFile = scriptsDir.resolve("env.sh")
 
 
-  val buildScript =
+  val buildScriptFile =
     scriptsDir.resolve("build.sh")
 
 
-  project.tasks.register(genEnvTaskName) {
-    onlyIf { !packageFile(target).exists() || project.hasProperty("forceBuild") }
+  project.tasks.register(genScriptTaskName) {
+    //onlyIf { !packageFile(target).exists() || project.hasProperty("forceBuild") }
 
     dependsOn(SourceTaskName.EXTRACT.taskName(this@registerBuildTask, target))
     doFirst {
@@ -52,8 +49,7 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
         }
       }
 
-
-      buildScript.printWriter().use { writer ->
+      buildScriptFile.printWriter().use { writer ->
         writer.println("#!/bin/sh")
         writer.println()
         writer.println("source ${project.unixPath(envFile)}")
@@ -61,12 +57,22 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
         buildCommand!!.invoke(ScriptCommandContext(writer), target)
       }
     }
-    //outputs.file(envFile)
+    outputs.files(envFile,buildScriptFile)
+  }
+
+  project.tasks.register(printScriptTaskName){
+    dependsOn(genScriptTaskName)
+    doFirst {
+      println(envFile.readText())
+      println("#------------------------------------------------------")
+      println(buildScriptFile.readText())
+    }
   }
 
   project.tasks.register<Exec>(buildTaskName) {
     onlyIf { !packageFile(target).exists() || project.hasProperty("forceBuild") }
-    dependsOn(genEnvTaskName)
+    dependsOn(genScriptTaskName)
+    group = XTRAS_TASK_GROUP
 
     //environment(loadEnvironment(target))
 
@@ -91,7 +97,7 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
     commandLine(
       xtras.sh,
-      project.unixPath(buildScript)
+      project.unixPath(buildScriptFile)
     )
 
     doLast {
@@ -99,4 +105,6 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
       workingDir.resolve("xtras").copyRecursively(buildDir(target).resolve("xtras"), true)
     }
   }
+
+
 }

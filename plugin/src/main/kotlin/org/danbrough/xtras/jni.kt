@@ -18,7 +18,7 @@ import java.io.File
 
 fun Project.xtrasAndroidConfig(
 	namespace: String = group.toString(),
-	compileSdk: Int = xtras.androidConfig.compileSDKVersion,
+	compileSdk: Int = xtrasExtension.androidConfig.compileSDKVersion,
 	block: LibraryExtension.() -> Unit = {}
 ) {
 	extensions.getByType<LibraryExtension>().apply {
@@ -26,13 +26,13 @@ fun Project.xtrasAndroidConfig(
 		this.namespace = namespace
 
 		defaultConfig {
-			minSdk = xtras.androidConfig.minSDKVersion
+			minSdk = xtrasExtension.androidConfig.minSDKVersion
 			testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 		}
 
 		compileOptions {
-			sourceCompatibility = project.xtras.javaVersion
-			targetCompatibility = project.xtras.javaVersion
+			sourceCompatibility = xtrasExtension.javaVersion
+			targetCompatibility = xtrasExtension.javaVersion
 		}
 
 		sourceSets["debug"].jniLibs {

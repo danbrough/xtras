@@ -4,7 +4,8 @@
 
 import org.danbrough.xtras.core.openssl
 import org.danbrough.xtras.projectProperty
-import org.danbrough.xtras.xtrasExtension
+import org.danbrough.xtras.sonatype.xtrasSonatype
+import org.danbrough.xtras.xtras
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -26,7 +27,6 @@ buildscript {
 
 group = projectProperty<String>("openssl.group")
 version = projectProperty<String>("openssl.version")
-val xtras = xtrasExtension
 
 kotlin {
   withSourcesJar(publish = true)
@@ -40,13 +40,7 @@ kotlin {
 
   applyDefaultHierarchyTemplate()
 
-  jvm()
-
-  androidTarget {
-  }
-
   if (HostManager.hostIsLinux) {
-    mingwX64()
     linuxX64()
     linuxArm64()
     androidNativeArm64()
@@ -70,7 +64,7 @@ kotlin {
 
     val commonMain by getting {
       dependencies {
-        implementation(project(":support")) //or implementation(project(":libs:support"))
+        implementation(project(":libs:support")) //or implementation(project(":libs:support"))
         //implementation(libs.kotlinx.coroutines)
         //implementation(libs.kotlinx.io)
       }
@@ -101,30 +95,16 @@ kotlin {
     }
   }
 
-  targets.withType<KotlinNativeTarget> {
-    binaries {
-      sharedLib("xtras_openssl")
-    }
-  }
 }
 
 
 xtrasTesting {
 }
 
-xtrasAndroidConfig {
-
-}
 
 xtras.androidConfig {
   ndkApiVersion = 24
   minSDKVersion = 24
   compileSDKVersion = 24
 }
-
-openssl {
-
-}
-
-
 

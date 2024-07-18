@@ -1,6 +1,5 @@
 pluginManagement {
   repositories {
-    maven("https://maven.danbrough.org")
     mavenCentral()
     gradlePluginPortal()
   }

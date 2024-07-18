@@ -5,6 +5,8 @@ import org.gradle.api.Project
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningPlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -20,36 +22,42 @@ class XtrasPlugin : Plugin<Any> {
 
       logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
 
-      val xtras = extensions.create(XTRAS_EXTENSION_NAME, Xtras::class.java).apply {
-        nativeTargets.convention(emptyList())
-        libraries.convention(emptyList())
-
-        ldLibraryPath.convention(libraries.map { libs ->
-          pathOf(libs.map { it.libsDir(HostManager.host).resolve("lib") })
-        })
-        //ldLibraryPath.convention( )
-      }
+      xtrasExtension
 
       allprojects {
         apply<MavenPublishPlugin>()
         apply<SigningPlugin>()
-        configureExtras(xtras)
-      }
-
-      afterEvaluate {
-
-        val kotlin = target.extensions.findByName("kotlin")
-        if (kotlin is KotlinMultiplatformExtension) {
-          xtras.nativeTargets.convention(
-            kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget })
-        }
-
-        registerMiscTasks()
-
+        configureExtras()
       }
     }
   }
 }
+
+val Project.xtrasExtension: Xtras
+  get() = extensions.findByType<Xtras>() ?: extensions.create(
+    XTRAS_EXTENSION_NAME,
+    Xtras::class.java
+  ).apply {
+    nativeTargets.convention(emptyList())
+    libraries.convention(emptyList())
+
+    ldLibraryPath.convention(libraries.map { libs ->
+      pathOf(libs.map { it.libsDir(HostManager.host).resolve("lib") })
+    })
+
+
+    afterEvaluate {
+
+      val kotlin = extensions.findByName("kotlin")
+      if (kotlin is KotlinMultiplatformExtension) {
+        nativeTargets.convention(
+          kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget })
+      }
+
+      registerMiscTasks()
+
+    }
+  }
 
 internal fun Project.registerMiscTasks() {
 
@@ -72,13 +80,13 @@ internal fun Project.registerMiscTasks() {
   tasks.withType<Exec> {
     environment(
       HostManager.host.envLibraryPathName,
-      pathOf(xtras.ldLibraryPath.get(), environment[HostManager.host.envLibraryPathName])
+      pathOf(xtrasExtension.ldLibraryPath.get(), environment[HostManager.host.envLibraryPathName])
     )
   }
 
 }
 
-private fun Project.configureExtras(xtras: Xtras) {
+private fun Project.configureExtras() {
   logTrace("configureExtras(): $name")
 
   findProperty(Xtras.PROJECT_GROUP)?.also {
@@ -89,6 +97,6 @@ private fun Project.configureExtras(xtras: Xtras) {
     version = it.toString()
   } ?: logDebug("${Xtras.PROJECT_VERSION} not specified")
 
-  xtrasPublishing(xtras)
+  xtrasPublishing()
 
 }

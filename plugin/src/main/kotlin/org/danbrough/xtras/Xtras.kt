@@ -21,7 +21,7 @@ const val XTRAS_LOCAL_REPO_NAME = "Local"
 const val XTRAS_SONATYPE_REPO_NAME = "Sonatype"
 const val XTRAS_TASK_GROUP = "xtras"
 const val ENV_BUILD_DIR = "BUILD_DIR"
-const val XTRAS_EXTENSION_NAME = "xtrasExtension"
+const val XTRAS_EXTENSION_NAME = "xtras"
 
 abstract class Xtras(val project: Project) {
 

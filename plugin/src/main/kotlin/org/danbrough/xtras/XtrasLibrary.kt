@@ -15,12 +15,15 @@ abstract class XtrasLibrary(
   val group: String,
   val name: String,
   val version: String,
-  val xtras: Xtras,
   val project: Project
 ) {
   internal interface SourceConfig
 
   internal var sourceConfig: SourceConfig? = null
+
+  val xtras by lazy {
+    project.xtrasExtension
+  }
 
   @XtrasDSL
   var buildEnabled: Boolean = project.projectProperty("${name}.buildEnabled") { false }
@@ -130,13 +133,14 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
   block: T.() -> Unit = {}
 ): T {
 
+
   extensions.findByName(name)?.also {
     error("Extension $name is already registered")
   }
 
-  return extensions.create(name, clazz, group, name, version, project.xtras, this).also {
+  return extensions.create(name, clazz, group, name, version, this).also {
     extensions.configure<T>(name) {
-      xtras.libraries.add(this)
+      //xtras.libraries.add(this)
 
       block()
 

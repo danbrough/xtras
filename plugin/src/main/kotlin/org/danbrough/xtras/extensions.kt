@@ -14,8 +14,8 @@ import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.File
 import java.util.Locale
 
-val Project.xtras: Xtras
-  get() = rootProject.extensions.getByName<Xtras>(XTRAS_EXTENSION_NAME)
+
+
 
 fun Project.xtrasPath(path: XtrasPath): File {
   //println("Project.xtrasPath::getting ${path.propertyName} from extra")

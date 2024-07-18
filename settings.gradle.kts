@@ -14,7 +14,7 @@ plugins {
 rootProject.name = "xtras"
 
 includeBuild("plugin")
-//includeBuild("core")
+includeBuild("core")
 
 val pluginOnly:String? by settings
 
@@ -24,7 +24,8 @@ if (pluginOnly == null) {
 //  "logging",
     "support",
     "jni",
-    //"openssl",
+    //"duckdb",
+    "openssl",
 
     //"ssh2",
     //"postgres",
