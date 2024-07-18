@@ -51,7 +51,8 @@ kotlin {
     linuxArm64()
     androidNativeArm64()
     androidNativeX64()
-  } else if (HostManager.hostIsMac) {
+  }
+  if (HostManager.hostIsMac) {
     macosX64()
     macosArm64()
   }
