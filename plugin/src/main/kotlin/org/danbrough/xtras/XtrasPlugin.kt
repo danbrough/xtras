@@ -24,6 +24,14 @@ class XtrasPlugin : Plugin<Any> {
 
       xtrasExtension
 
+/*
+
+
+      if (target.xtrasProperty(Xtras.Constants.Properties.PUBLISH_SONATYPE) { false }) {
+        configureSonatypeTasks()
+      }
+*/
+
       allprojects {
         apply<MavenPublishPlugin>()
         apply<SigningPlugin>()
@@ -41,10 +49,14 @@ val Project.xtrasExtension: Xtras
     nativeTargets.convention(emptyList())
     libraries.convention(emptyList())
 
+    sonatypeRepoID.convention(
+      parent?.xtrasExtension?.sonatypeRepoID
+        ?: registerSonatypeOpenRepository().map { it.outputs.files.first().readText() }
+    )
+
     ldLibraryPath.convention(libraries.map { libs ->
       pathOf(libs.map { it.libsDir(HostManager.host).resolve("lib") })
     })
-
 
     afterEvaluate {
 
@@ -89,13 +101,13 @@ internal fun Project.registerMiscTasks() {
 private fun Project.configureExtras() {
   logTrace("configureExtras(): $name")
 
-  findProperty(Xtras.PROJECT_GROUP)?.also {
+  findProperty(Xtras.Constants.Properties.PROJECT_GROUP)?.also {
     group = it.toString()
-  } ?: logInfo("${Xtras.PROJECT_GROUP} not specified")
+  } ?: logInfo("${Xtras.Constants.Properties.PROJECT_GROUP} not specified")
 
-  findProperty(Xtras.PROJECT_VERSION)?.also {
+  findProperty(Xtras.Constants.Properties.PROJECT_VERSION)?.also {
     version = it.toString()
-  } ?: logDebug("${Xtras.PROJECT_VERSION} not specified")
+  } ?: logDebug("${Xtras.Constants.Properties.PROJECT_VERSION} not specified")
 
   xtrasPublishing()
 

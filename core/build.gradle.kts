@@ -1,6 +1,3 @@
-import org.danbrough.xtras.XTRAS_GROUP
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
   `kotlin-dsl`
   `java-gradle-plugin`

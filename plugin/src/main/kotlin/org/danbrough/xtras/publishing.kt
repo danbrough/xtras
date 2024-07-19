@@ -1,5 +1,6 @@
 package org.danbrough.xtras
 
+import org.danbrough.xtras.sonatype.SonatypeExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.Publication
@@ -82,45 +83,39 @@ private fun Project.xtrasPublishToLocal() =
 
 private fun Project.xtrasPublishToSonatype() {
 
+
   fun MavenArtifactRepository.configureCredentials() {
     credentials {
       username =
-        xtrasProperty(Xtras.SONATYPE_USERNAME) { error("${Xtras.SONATYPE_USERNAME} not specified in gradle.properties") }
+        xtrasProperty(Xtras.Constants.Properties.SONATYPE_USERNAME) { error("${Xtras.Constants.Properties.SONATYPE_USERNAME} not specified in gradle.properties") }
       password =
-        xtrasProperty(Xtras.SONATYPE_PASSWORD) { error("${Xtras.SONATYPE_PASSWORD} not specified in gradle.properties") }
+        xtrasProperty(Xtras.Constants.Properties.SONATYPE_PASSWORD) { error("${Xtras.Constants.Properties.SONATYPE_PASSWORD} not specified in gradle.properties") }
     }
   }
 
   withPublishing {
     repositories {
 
-      val sonatypeUrl = xtrasProperty<String?>(Xtras.SONATYPE_REPO_ID)?.let {
-        "https://s01.oss.sonatype.org//service/local/staging/deployByRepositoryId/$it"
-      } ?: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+      val baseURL = xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL){"https://s01.oss.sonatype.org"}
 
-      maven(sonatypeUrl) {
+      val sonatypeURL = xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)?.let {
+        "$baseURL/service/local/staging/deployByRepositoryId/$it"
+      } ?: "$baseURL/service/local/staging/deploy/maven2/"
+
+      logTrace("sonatypeURL: $sonatypeURL")
+
+      maven(sonatypeURL) {
         name = "Sonatype"
         configureCredentials()
       }
 
-      maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+      maven("$baseURL/content/repositories/snapshots/") {
         name = "Snapshots"
         configureCredentials()
       }
     }
   }
 }
-//
-//fun Project.xtrasConfigureSigning() {
-//  withPublishing {
-//    findProperty("signing") ?: pluginManager.apply("signing")
-//    extensions.configure<SigningExtension> {
-//      publications.all {
-//        sign(this)
-//      }
-//    }
-//  }
-//}
 
 private fun Project.registerPublishRepo(repoName: String, url: Any) {
   withPublishing {
@@ -135,43 +130,43 @@ private fun Project.registerPublishRepo(repoName: String, url: Any) {
 
 internal fun Project.xtrasPublishing() {
 
-  if (xtrasProperty<Boolean>(Xtras.PUBLISH_LOCAL) { false }) {
+  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_LOCAL) { false }) {
     xtrasPublishToLocal()
   }
 
-  if (xtrasProperty<Boolean>(Xtras.PUBLISH_XTRAS) { false }) {
+  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_XTRAS) { false }) {
     xtrasPublishToXtras()
   }
 
-  if (xtrasProperty<Boolean>(Xtras.PUBLISH_SONATYPE) { false }) {
+  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_SONATYPE) { false }) {
     xtrasPublishToSonatype()
   }
 
   withPublishing {
     publications.all {
       xtrasPom(
-        projectName = xtrasProperty(Xtras.PROJECT_NAME) { project.name },
-        projectDescription = xtrasProperty(Xtras.PROJECT_DESCRIPTION) {
+        projectName = xtrasProperty(Xtras.Constants.Properties.PROJECT_NAME) { project.name },
+        projectDescription = xtrasProperty(Xtras.Constants.Properties.PROJECT_DESCRIPTION) {
           project.description.also {
-            logWarn("${Xtras.PROJECT_DESCRIPTION} should be set instead of ${this@xtrasPublishing.name}.description")
+            logWarn("${Xtras.Constants.Properties.PROJECT_DESCRIPTION} should be set instead of ${this@xtrasPublishing.name}.description")
           } ?: ""
         }
       )
     }
   }
 
-  if (xtrasProperty(Xtras.PUBLISH_SIGN) { false }) {
+  if (xtrasProperty(Xtras.Constants.Properties.PUBLISH_SIGN) { false }) {
     logTrace("configuring signing..")
     pluginManager.apply(SigningPlugin::class)
     extensions.configure<SigningExtension> {
 
       val signingKey =
-        xtrasProperty<String>(Xtras.SIGNING_KEY) { error("${Xtras.SIGNING_KEY} not set") }.replace(
+        xtrasProperty<String>(Xtras.Constants.Properties.SIGNING_KEY) { error("${Xtras.Constants.Properties.SIGNING_KEY} not set") }.replace(
           "\\n",
           "\n"
         )
       val signingPassword =
-        xtrasProperty<String>(Xtras.SIGNING_PASSWORD) { error("${Xtras.SIGNING_PASSWORD} not set") }
+        xtrasProperty<String>(Xtras.Constants.Properties.SIGNING_PASSWORD) { error("${Xtras.Constants.Properties.SIGNING_PASSWORD} not set") }
 
       useInMemoryPgpKeys(signingKey, signingPassword)
 
@@ -183,7 +178,7 @@ internal fun Project.xtrasPublishing() {
     }
   }
 
-  if (xtrasProperty(Xtras.PUBLISH_DOCS) { false }) {
+  if (xtrasProperty(Xtras.Constants.Properties.PUBLISH_DOCS) { false }) {
     logTrace("configuring docs..")
     pluginManager.apply("org.jetbrains.dokka")
     val javadocTask = tasks.register("javadocJar", Jar::class.java) {
@@ -210,10 +205,10 @@ internal fun Project.xtrasPublishing() {
         }
       }
     }
-
+/*
     tasks.getByName("dokkaHtml").doFirst {
       println("RUNNING DOKKA HTML FOR PROJECT: ${this@xtrasPublishing.name}")
-    }
+    }*/
 
   }
 }

@@ -25,29 +25,34 @@ const val XTRAS_EXTENSION_NAME = "xtras"
 
 abstract class Xtras(val project: Project) {
 
-  companion object Properties {
-    const val PROJECT_NAME = "project.name"
-    const val PROJECT_DESCRIPTION = "project.description"
-    const val PROJECT_GROUP = "project.group"
-    const val PROJECT_VERSION = "project.version"
+  companion object Constants {
+    object Properties {
+      const val PROJECT_NAME = "project.name"
+      const val PROJECT_DESCRIPTION = "project.description"
+      const val PROJECT_GROUP = "project.group"
+      const val PROJECT_VERSION = "project.version"
 
-    const val PUBLISH_SIGN = "publish.sign"
-    const val PUBLISH_DOCS = "publish.docs"
-    const val PUBLISH_LOCAL = "publish.local"
-    const val PUBLISH_XTRAS = "publish.xtras"
+      const val PUBLISH_SIGN = "publish.sign"
+      const val PUBLISH_DOCS = "publish.docs"
+      const val PUBLISH_LOCAL = "publish.local"
+      const val PUBLISH_XTRAS = "publish.xtras"
 
-    const val PUBLISH_SONATYPE = "publish.sonatype"
-    const val SONATYPE_USERNAME = "sonatype.username"
-    const val SONATYPE_PASSWORD = "sonatype.password"
-    const val SONATYPE_REPO_ID = "sonatype.repoID"
+      const val PUBLISH_SONATYPE = "publish.sonatype"
+      const val SONATYPE_USERNAME = "sonatype.username"
+      const val SONATYPE_PASSWORD = "sonatype.password"
+      const val SONATYPE_REPO_ID = "sonatype.repoID"
+      const val SONATYPE_PROFILE_ID = "sonatype.profileID"
+      const val SONATYPE_BASE_URL = "sonatype.baseURL"
+      const val SONATYPE_DESCRIPTION = "sonatype.description"
 
+      //gpg in memory key for signing
+      const val SIGNING_KEY = "signing.key"
 
-    //gpg in memory key for signing
-    const val SIGNING_KEY = "signing.key"
-
-    //gpg in memory password for signing
-    const val SIGNING_PASSWORD = "signing.password"
+      //gpg in memory password for signing
+      const val SIGNING_PASSWORD = "signing.password"
+    }
   }
+
 
   @XtrasDSL
   var javaVersion = JavaVersion.VERSION_11
@@ -68,6 +73,9 @@ abstract class Xtras(val project: Project) {
 
   @XtrasDSL
   abstract val libraries: ListProperty<XtrasLibrary>
+
+  @XtrasDSL
+  abstract val sonatypeRepoID: Property<String>
 
   @XtrasDSL
   abstract val ldLibraryPath: Property<String>
