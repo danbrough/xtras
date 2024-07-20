@@ -94,8 +94,8 @@ abstract class Xtras(val project: Project) {
     }
 
     object TaskNames {
-      const val SONATYPE_OPEN_REPO = "sonatypeOpenRepo"
-      const val SONATYPE_CLOSE_REPO = "sonatypeCloseRepo"
+      const val SONATYPE_OPEN_REPO = "sonatypeOpenRepository"
+      const val SONATYPE_CLOSE_REPO = "sonatypeCloseRepository"
     }
   }
 
