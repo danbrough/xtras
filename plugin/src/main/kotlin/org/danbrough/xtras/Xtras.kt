@@ -61,6 +61,12 @@ abstract class Xtras(val project: Project) {
        */
       const val SONATYPE_SNAPSHOT = "sonatype.snapshot"
 
+
+      /**
+       * Specify the publishing repository staging id explicitly
+       */
+      const val SONATYPE_REPO_ID = "sonatype.repoID"
+
       /**
        * Whether to open a new repository explicitly:
        * Default: true

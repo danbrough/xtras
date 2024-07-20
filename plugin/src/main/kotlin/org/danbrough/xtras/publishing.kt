@@ -114,16 +114,19 @@ private fun Project.xtrasPublishToSonatype() {
 
     val snapshot = xtrasProperty(Xtras.Constants.Properties.SONATYPE_SNAPSHOT) { false }
     val openRepository = xtrasProperty(Xtras.Constants.Properties.SONATYPE_OPEN_REPOSITORY) { true }
-    val closeRepository = xtrasProperty(Xtras.Constants.Properties.SONATYPE_CLOSE_REPOSITORY) { false }
+    val closeRepository =
+      xtrasProperty(Xtras.Constants.Properties.SONATYPE_CLOSE_REPOSITORY) { false }
 
     tasks.withType<PublishToMavenRepository>().filter { it.repository?.name == SONATYPE_REPO_NAME }
       .forEach { publishTask ->
 
         if (openRepository) publishTask.dependsOn(":${Xtras.Constants.TaskNames.SONATYPE_OPEN_REPO}")
 
-        val repoID = xtrasExtension.repoIDFile.get().asFile.let {
-          if (it.exists()) it.readText().trim() else null
-        }
+        val repoID =
+          xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
+            ?: xtrasExtension.repoIDFile.get().asFile.let {
+              if (it.exists()) it.readText().trim() else null
+            }
 
         val mavenURL =
           if (snapshot) "$baseURL/content/repositories/snapshots/"
