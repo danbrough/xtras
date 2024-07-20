@@ -13,6 +13,8 @@ plugins {
   alias(libs.plugins.android.library)
 }
 
+version = libs.versions.xtras.publish.get()
+
 object JavaConfig {
   val javaVersion = JavaVersion.VERSION_1_8
   val jvmTarget = JvmTarget.JVM_1_8
