@@ -116,6 +116,8 @@ private fun Project.xtrasPublishToSonatype() {
     val closeRepository =
       xtrasProperty(Xtras.Constants.Properties.SONATYPE_CLOSE_REPOSITORY) { false }
 
+    logInfo("xtrasPublishToSonatype: openRepository: $openRepository closeRepository: $closeRepository snapshot:$snapshot")
+
     tasks.withType<PublishToMavenRepository>().filter { it.repository?.name == SONATYPE_REPO_NAME }
       .forEach { publishTask ->
 
