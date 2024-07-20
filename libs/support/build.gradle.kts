@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import org.danbrough.xtras.xtrasAndroidConfig
+import org.danbrough.xtras.xtrasExtension
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -92,6 +93,4 @@ kotlin {
 xtrasAndroidConfig { }
 
 xtrasTesting { }
-
-
 

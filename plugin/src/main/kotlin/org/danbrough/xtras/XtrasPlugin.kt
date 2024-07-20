@@ -6,7 +6,6 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningPlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -23,14 +22,6 @@ class XtrasPlugin : Plugin<Any> {
       logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
 
       xtrasExtension
-
-/*
-
-
-      if (target.xtrasProperty(Xtras.Constants.Properties.PUBLISH_SONATYPE) { false }) {
-        configureSonatypeTasks()
-      }
-*/
 
       allprojects {
         apply<MavenPublishPlugin>()
@@ -49,10 +40,15 @@ val Project.xtrasExtension: Xtras
     nativeTargets.convention(emptyList())
     libraries.convention(emptyList())
 
-    sonatypeRepoID.convention(
-      parent?.xtrasExtension?.sonatypeRepoID
-        ?: registerSonatypeOpenRepository().map { it.outputs.files.first().readText() }
-    )
+    repoIDFileName.convention(project.provider {
+      "sonatypeRepoID_${rootProject.name}_${rootProject.group}"
+    })
+    //by default share a single repoID for entire project
+
+    repoIDFile.convention(repoIDFileName.map { rootProject.layout.buildDirectory.file(it).get() })
+
+    if (parent == null)
+      registerSonatypeTasks()
 
     ldLibraryPath.convention(libraries.map { libs ->
       pathOf(libs.map { it.libsDir(HostManager.host).resolve("lib") })
@@ -92,7 +88,10 @@ internal fun Project.registerMiscTasks() {
   tasks.withType<Exec> {
     environment(
       HostManager.host.envLibraryPathName,
-      pathOf(xtrasExtension.ldLibraryPath.get(), environment[HostManager.host.envLibraryPathName])
+      pathOf(
+        xtrasExtension.ldLibraryPath.get(),
+        environment[HostManager.host.envLibraryPathName]
+      )
     )
   }
 
@@ -108,6 +107,8 @@ private fun Project.configureExtras() {
   findProperty(Xtras.Constants.Properties.PROJECT_VERSION)?.also {
     version = it.toString()
   } ?: logDebug("${Xtras.Constants.Properties.PROJECT_VERSION} not specified")
+
+  logTrace("name:$name group: $group")
 
   xtrasPublishing()
 

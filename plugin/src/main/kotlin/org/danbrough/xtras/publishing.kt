@@ -1,5 +1,6 @@
 package org.danbrough.xtras
 
+import org.danbrough.xtras.Xtras.Constants.SONATYPE_REPO_NAME
 import org.danbrough.xtras.sonatype.SonatypeExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -12,10 +13,12 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.maven
+import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 import org.gradle.plugins.signing.SigningPlugin
 import java.io.File
+import java.net.URI
 
 fun Publication.xtrasPom(
   projectName: String,
@@ -83,7 +86,6 @@ private fun Project.xtrasPublishToLocal() =
 
 private fun Project.xtrasPublishToSonatype() {
 
-
   fun MavenArtifactRepository.configureCredentials() {
     credentials {
       username =
@@ -93,27 +95,53 @@ private fun Project.xtrasPublishToSonatype() {
     }
   }
 
+
+
   withPublishing {
     repositories {
 
-      val baseURL = xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL){"https://s01.oss.sonatype.org"}
-
-      val sonatypeURL = xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)?.let {
-        "$baseURL/service/local/staging/deployByRepositoryId/$it"
-      } ?: "$baseURL/service/local/staging/deploy/maven2/"
-
-      logTrace("sonatypeURL: $sonatypeURL")
-
-      maven(sonatypeURL) {
-        name = "Sonatype"
-        configureCredentials()
-      }
-
-      maven("$baseURL/content/repositories/snapshots/") {
-        name = "Snapshots"
+      //configured later
+      maven("/dev/null") {
+        name = SONATYPE_REPO_NAME
         configureCredentials()
       }
     }
+  }
+
+  afterEvaluate {
+    val baseURL =
+      xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL) { "https://s01.oss.sonatype.org" }
+
+    val snapshot = xtrasProperty(Xtras.Constants.Properties.SONATYPE_SNAPSHOT) { false }
+    val openRepository = xtrasProperty(Xtras.Constants.Properties.SONATYPE_OPEN_REPOSITORY) { true }
+    val closeRepository = xtrasProperty(Xtras.Constants.Properties.SONATYPE_CLOSE_REPOSITORY) { false }
+
+    tasks.withType<PublishToMavenRepository>().filter { it.repository?.name == SONATYPE_REPO_NAME }
+      .forEach { publishTask ->
+
+        if (openRepository) publishTask.dependsOn(":${Xtras.Constants.TaskNames.SONATYPE_OPEN_REPO}")
+
+        val repoID = xtrasExtension.repoIDFile.get().asFile.let {
+          if (it.exists()) it.readText().trim() else null
+        }
+
+        val mavenURL =
+          if (snapshot) "$baseURL/content/repositories/snapshots/"
+          else
+            if (repoID != null) "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
+              "$baseURL/service/local/staging/deploy/maven2/"
+
+        publishTask.repository.url = URI.create(mavenURL)
+
+        if (repoID != null && closeRepository)
+          publishTask.finalizedBy(":${Xtras.Constants.TaskNames.SONATYPE_CLOSE_REPO}")
+
+        publishTask.doFirst {
+          logDebug("${publishTask.name} publishing to $mavenURL")
+        }
+
+      }
+
   }
 }
 
@@ -203,12 +231,14 @@ internal fun Project.xtrasPublishing() {
             dependsOn(signTasks)
           }
         }
+
+
       }
     }
-/*
-    tasks.getByName("dokkaHtml").doFirst {
-      println("RUNNING DOKKA HTML FOR PROJECT: ${this@xtrasPublishing.name}")
-    }*/
+    /*
+        tasks.getByName("dokkaHtml").doFirst {
+          println("RUNNING DOKKA HTML FOR PROJECT: ${this@xtrasPublishing.name}")
+        }*/
 
   }
 }

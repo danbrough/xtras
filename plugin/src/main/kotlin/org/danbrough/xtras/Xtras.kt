@@ -4,6 +4,9 @@ package org.danbrough.xtras
 
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.file.FileSystemLocationProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -26,6 +29,8 @@ const val XTRAS_EXTENSION_NAME = "xtras"
 abstract class Xtras(val project: Project) {
 
   companion object Constants {
+    const val SONATYPE_REPO_NAME = "Sonatype"
+
     object Properties {
       const val PROJECT_NAME = "project.name"
       const val PROJECT_DESCRIPTION = "project.description"
@@ -37,12 +42,42 @@ abstract class Xtras(val project: Project) {
       const val PUBLISH_LOCAL = "publish.local"
       const val PUBLISH_XTRAS = "publish.xtras"
 
+      /**
+       * Whether to enable publishing to sonatype
+       */
       const val PUBLISH_SONATYPE = "publish.sonatype"
       const val SONATYPE_USERNAME = "sonatype.username"
       const val SONATYPE_PASSWORD = "sonatype.password"
-      const val SONATYPE_REPO_ID = "sonatype.repoID"
       const val SONATYPE_PROFILE_ID = "sonatype.profileID"
+
+      /**
+       * Default: "https://s01.oss.sonatype.org"
+       */
       const val SONATYPE_BASE_URL = "sonatype.baseURL"
+
+      /**
+       * Whether to publish to sonatype snapshots
+       * Default: false
+       */
+      const val SONATYPE_SNAPSHOT = "sonatype.snapshot"
+
+      /**
+       * Whether to open a new repository explicitly:
+       * Default: true
+       */
+
+      const val SONATYPE_OPEN_REPOSITORY = "sonatype.openRepository"
+
+      /**
+       * whether to automatically close any explicitly opened repositories
+       * Default: false
+       */
+
+      const val SONATYPE_CLOSE_REPOSITORY = "sonatype.closeRepository"
+
+      /**
+       * Description for the explictly opened repository
+       */
       const val SONATYPE_DESCRIPTION = "sonatype.description"
 
       //gpg in memory key for signing
@@ -50,6 +85,11 @@ abstract class Xtras(val project: Project) {
 
       //gpg in memory password for signing
       const val SIGNING_PASSWORD = "signing.password"
+    }
+
+    object TaskNames {
+      const val SONATYPE_OPEN_REPO = "sonatypeOpenRepo"
+      const val SONATYPE_CLOSE_REPO = "sonatypeCloseRepo"
     }
   }
 
@@ -75,10 +115,10 @@ abstract class Xtras(val project: Project) {
   abstract val libraries: ListProperty<XtrasLibrary>
 
   @XtrasDSL
-  abstract val sonatypeRepoID: Property<String>
-
-  @XtrasDSL
   abstract val ldLibraryPath: Property<String>
+
+  abstract val repoIDFileName: Property<String>
+  abstract val repoIDFile: RegularFileProperty
 
   fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget?): XtrasEnvironment {
     environment(env, target)

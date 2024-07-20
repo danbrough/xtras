@@ -3,6 +3,8 @@
 
 
 import org.danbrough.xtras.core.openssl
+import org.danbrough.xtras.logDebug
+import org.danbrough.xtras.logError
 import org.danbrough.xtras.projectProperty
 import org.danbrough.xtras.xtrasExtension
 import org.danbrough.xtras.xtrasAndroidConfig
@@ -125,6 +127,5 @@ xtras.androidConfig {
 openssl {
 
 }
-
 
 

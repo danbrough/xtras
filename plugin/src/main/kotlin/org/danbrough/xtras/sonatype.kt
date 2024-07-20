@@ -2,8 +2,9 @@ package org.danbrough.xtras
 
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.provider.Provider
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.withType
 import org.w3c.dom.Element
 import java.io.InputStream
 import java.io.PrintWriter
@@ -13,24 +14,32 @@ import java.nio.charset.Charset
 import java.util.Base64
 import javax.xml.parsers.DocumentBuilderFactory
 
-internal fun Project.registerSonatypeOpenRepository(): TaskProvider<Task> =
-  tasks.register("sonatypeOpenRepository") {
+internal fun Project.registerSonatypeTasks() {
+  registerSonatypeOpenRepository()
+  registerSonatypeCloseRepository()
+}
+
+private fun Project.registerSonatypeOpenRepository() {
+  tasks.register(Xtras.Constants.TaskNames.SONATYPE_OPEN_REPO) {
     description = """
       Open a new sonatype repository and prints it to stdout.
       Specify the repository description with -P${Xtras.Constants.Properties.SONATYPE_DESCRIPTION}="..".
       """.trimMargin()
     group = XTRAS_TASK_GROUP
 
-    val repoIDFile = rootProject.layout.buildDirectory.file("sonatype_repo_id_${group}_${name}")
+    val repoIDFile = xtrasExtension.repoIDFile
     outputs.file(repoIDFile)
 
-    doFirst {
-      logError("getting sonatype repo ID")
+    onlyIf {
+      val repoFile = repoIDFile.get().asFile
+      logWarn("repoFile: ${repoFile.absolutePath} exists: ${repoFile.exists()}")
+      !repoFile.exists()
     }
 
     actions.add {
-      logError("doing repo id action")
+      logInfo("getting sonatype repo ID")
       val repoFile = repoIDFile.get().asFile
+
       if (!repoFile.exists()) {
         val response = sonatypeOpenRepository(
           xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PROFILE_ID) { error("${Xtras.Constants.Properties.SONATYPE_PROFILE_ID} not set") },
@@ -46,9 +55,19 @@ internal fun Project.registerSonatypeOpenRepository(): TaskProvider<Task> =
         }
       }
     }
-
-
   }
+}
+
+private fun Project.registerSonatypeCloseRepository(){
+  tasks.register(Xtras.Constants.TaskNames.SONATYPE_CLOSE_REPO){
+    group = XTRAS_TASK_GROUP
+    description = "Closes the sonatype repository. If it's been opened"
+
+    doLast {
+      logWarn("$name closing repo.. repo file exists: ${xtrasExtension.repoIDFile.get().asFile.exists()}")
+    }
+  }
+}
 
 
 private fun sonatypeOpenRepository(
