@@ -1,7 +1,6 @@
 package org.danbrough.xtras
 
-import org.danbrough.xtras.sonatype.SonatypeExtension
-import org.danbrough.xtras.sonatype.sonatypeCloseRepository
+
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
@@ -206,25 +205,3 @@ private fun Project.sonatypeCloseRepository(
   }
 }
 
-/*
-private fun Project.createCloseRepoTask() {
-  if (rootProject.tasks.findByPath("sonatypeCloseRepository") != null) return
-  rootProject.tasks.register("sonatypeCloseRepository") {
-    description =
-      "Closes the sonatype repository as specified by the ${SonatypeExtension.REPO_ID} property"
-    group = XTRAS_TASK_GROUP
-    doLast {
-      if (extn.repoID.get().isBlank()) throw Error("SonatypeExtension.repoID not set")
-
-      sonatypeCloseRepository(
-        extn.profileID.get(),
-        extn.repoID.get(),
-        extn.description.get(),
-        extn.username.get(),
-        extn.password.get(),
-        extn.urlBase.get()
-      )
-    }
-  }
-}
-*/

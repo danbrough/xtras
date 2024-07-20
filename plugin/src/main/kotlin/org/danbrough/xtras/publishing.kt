@@ -1,7 +1,6 @@
 package org.danbrough.xtras
 
 import org.danbrough.xtras.Xtras.Constants.SONATYPE_REPO_NAME
-import org.danbrough.xtras.sonatype.SonatypeExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.Publication
