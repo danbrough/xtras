@@ -2,6 +2,5 @@
 
 cd `dirname $0` && cd ..
 
-./gradlew  -Psonatype.repoID="sonatypeRepoId_not_specified" \
-  :plugin:publishAllPublicationsToXtras \
-  :core:publishAllPublicationsToXtras
+./gradlew  -PpluginOnly=1 -Psonatype.closeRepository=1 -Ppublish.docs=1 \
+  :plugin:publishAllPublicationsToSonatype

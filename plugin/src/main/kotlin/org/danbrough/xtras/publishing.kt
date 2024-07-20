@@ -122,25 +122,24 @@ private fun Project.xtrasPublishToSonatype() {
       .forEach { publishTask ->
 
         if (openRepository) publishTask.dependsOn(":${Xtras.Constants.TaskNames.SONATYPE_OPEN_REPO}")
-
-        val repoID =
-          xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
-            ?: xtrasExtension.repoIDFile.get().asFile.let {
-              if (it.exists()) it.readText().trim() else null
-            }
-
-        val mavenURL =
-          if (snapshot) "$baseURL/content/repositories/snapshots/"
-          else
-            if (repoID != null) "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
-              "$baseURL/service/local/staging/deploy/maven2/"
-
-        publishTask.repository.url = URI.create(mavenURL)
-
-        if (repoID != null && closeRepository)
+        if (closeRepository)
           publishTask.finalizedBy(":${Xtras.Constants.TaskNames.SONATYPE_CLOSE_REPO}")
 
         publishTask.doFirst {
+          val repoID =
+            xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
+              ?: xtrasExtension.repoIDFile.get().asFile.let {
+                if (it.exists()) it.readText().trim() else null
+              }
+
+          val mavenURL =
+            if (snapshot) "$baseURL/content/repositories/snapshots/"
+            else
+              if (repoID != null) "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
+                "$baseURL/service/local/staging/deploy/maven2/"
+
+          publishTask.repository.url = URI.create(mavenURL)
+
           logDebug("${publishTask.name} publishing to $mavenURL")
         }
 
