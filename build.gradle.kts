@@ -15,6 +15,7 @@ plugins {
   alias(libs.plugins.xtras)
 }
 
+version = libs.versions.xtras.toString()
 
 allprojects {
   repositories {

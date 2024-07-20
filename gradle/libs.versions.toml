@@ -31,7 +31,7 @@ kotlin = "2.0.0"
 ##  ⬆ = "2.0.20-Beta1"
 ##  ⬆ = "2.0.20-Beta2"
 
-xtrasPackage = "org.danbrough.xtras"
+xtras-publish="0.0.1-beta02"
 xtras-openssl = "0.0.1-alpha01"
 xtras-mqtt = "0.0.1-alpha01"
 xtras-support = "0.0.1-beta01"

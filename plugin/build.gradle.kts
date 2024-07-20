@@ -6,9 +6,10 @@ plugins {
   `maven-publish`
   alias(libs.plugins.dokka)
   signing
-  id("org.danbrough.xtras") version "0.0.1-beta01"
+  id("org.danbrough.xtras") version "0.0.1-beta02"
 }
 
+version = libs.versions.xtras.publish.get()
 
 repositories {
   mavenCentral()

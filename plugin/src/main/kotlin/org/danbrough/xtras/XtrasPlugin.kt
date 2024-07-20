@@ -98,17 +98,17 @@ internal fun Project.registerMiscTasks() {
 }
 
 private fun Project.configureExtras() {
-  logTrace("configureExtras(): $name")
+  logDebug("configureExtras(): $name")
 
   findProperty(Xtras.Constants.Properties.PROJECT_GROUP)?.also {
     group = it.toString()
-  } ?: logInfo("${Xtras.Constants.Properties.PROJECT_GROUP} not specified")
+  } ?: logTrace("${Xtras.Constants.Properties.PROJECT_GROUP} not specified. Defaulting to $group")
 
   findProperty(Xtras.Constants.Properties.PROJECT_VERSION)?.also {
     version = it.toString()
-  } ?: logDebug("${Xtras.Constants.Properties.PROJECT_VERSION} not specified")
+  } ?: logTrace("${Xtras.Constants.Properties.PROJECT_VERSION} not specified. Defaulting to $version")
 
-  logTrace("name:$name group: $group")
+  logTrace("name:$name group: $group version: $version")
 
   xtrasPublishing()
 
