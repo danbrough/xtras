@@ -12,11 +12,13 @@ on: workflow_dispatch
 #    types: [ created ]
 
 jobs:
-  build_plugin:
-    uses: './setup.yml@HEAD'
-    steps:
-      - name: Publish Plugin
+  do_setup:
+    uses: 'danbrough/xtras/.github/workflows/setup.yml@5528d3467d8848ddefd535d12eeef8283ccf7f82'
 
+  build_plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: fred
         shell: bash
         run: |
           ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
@@ -26,6 +28,26 @@ jobs:
           -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
           -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
           -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
+
+
+
+
+#    steps:
+#      shell: bash
+#      run: ls /
+#
+#  build_plugin:
+#    steps:
+#    -name: build_plugin
+#        shell: bash
+#        run: |
+#          ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
+#          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 -Psonatype.closeRepository=1 \
+#          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
+#          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
+#          -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
+#          -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
+#          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
 
 #          ./gradlew :core:publishAllPublicationsToSonatypeRepository \
 #          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 \
