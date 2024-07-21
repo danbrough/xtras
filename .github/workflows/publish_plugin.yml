@@ -12,15 +12,16 @@ on: workflow_dispatch
 #    types: [ created ]
 
 jobs:
-  build_plugin:
-    runs-on: ubuntu-latest
+
+  setup:
+    uses: danbrough/xtras/.github/workflows/setup.yml@5528d3467d8848ddefd535d12eeef8283ccf7f82
+    #runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
+  build:
     steps:
-      - name: fred
-        uses: danbrough/xtras/.github/workflows/setup.yml@5528d3467d8848ddefd535d12eeef8283ccf7f82
       - name: do_something
         shell: bash
         run: |
