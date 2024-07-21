@@ -12,17 +12,15 @@ on: workflow_dispatch
 #    types: [ created ]
 
 jobs:
-  do_setup:
-    uses: 'danbrough/xtras/.github/workflows/setup.yml@5528d3467d8848ddefd535d12eeef8283ccf7f82'
+
+  build_plugin:
     permissions:
       contents: read
       packages: write
-
-
-  build_plugin:
     runs-on: ubuntu-latest
     steps:
       - name: fred
+        uses: 'danbrough/xtras/.github/workflows/setup.yml@5528d3467d8848ddefd535d12eeef8283ccf7f82'
         shell: bash
         run: |
           ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
