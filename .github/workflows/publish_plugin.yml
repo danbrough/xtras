@@ -13,7 +13,7 @@ on: workflow_dispatch
 
 jobs:
   build_plugin:
-    uses: './setup.yml'
+    uses: './setup.yml@HEAD'
     steps:
       - name: Publish Plugin
 
