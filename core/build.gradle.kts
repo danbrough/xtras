@@ -15,4 +15,6 @@ dependencies {
   implementation(libs.xtras.plugin)
 }
 
-version = libs.versions.xtras.publish.get()
+java {
+  withSourcesJar()
+}

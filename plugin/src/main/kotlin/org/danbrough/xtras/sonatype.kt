@@ -93,8 +93,8 @@ private fun Project.registerSonatypeCloseRepository() {
           baseURL
         )
 
-        if (explicitRepoID == null){
-          val repoIDFile =  xtrasExtension.repoIDFile.get().asFile
+        if (explicitRepoID == null) {
+          val repoIDFile = xtrasExtension.repoIDFile.get().asFile
           logInfo("deleting $repoIDFile")
           repoIDFile.delete()
         }
@@ -189,12 +189,13 @@ private fun Project.sonatypeCloseRepository(
     PrintWriter(outputStream).use { output ->
       output.write(
         """
-          <promoteRequest>
-    <data>
-        <stagedRepositoryId>$repoId</stagedRepositoryId>
-        <description>$description</description>
-    </data>
-</promoteRequest>""".trimIndent()
+          <promoteRequest>        
+          <data>          
+            <stagedRepositoryId>$repoId</stagedRepositoryId>
+            <description>$description</description>
+          </data>
+          </promoteRequest>
+        """.trimIndent()
       )
     }
 
