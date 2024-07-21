@@ -5,23 +5,23 @@
 # This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
 # For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
 
-name: Publish
+name: publish_plugin
 
 on: workflow_dispatch
 #  release:
 #    types: [ created ]
 
 jobs:
-  uses: danbrough/xtras/.github/workflows/setup.yml@5528d3467d8848ddefd535d12eeef8283ccf7f82
-
   build_plugin:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    runs-on: ubuntu-latest
+
     steps:
       - name: fred
         uses: danbrough/xtras/.github/workflows/setup.yml@5528d3467d8848ddefd535d12eeef8283ccf7f82
+      - name: do_something
         shell: bash
         run: |
           ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
