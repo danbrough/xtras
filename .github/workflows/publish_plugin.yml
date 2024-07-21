@@ -19,6 +19,9 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     steps:
+      - name: init
+        uses: danbrough/xtras/.github/workflows/setup.yml@5528d3467d8848ddefd535d12eeef8283ccf7f82
+        
       - name: fred
         uses: danbrough/xtras/.github/workflows/setup.yml@5528d3467d8848ddefd535d12eeef8283ccf7f82
         shell: bash
