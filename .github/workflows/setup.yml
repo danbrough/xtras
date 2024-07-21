@@ -1,0 +1,94 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
+
+name: Setup
+
+on:
+  workflow_call:
+
+#  release:
+#    types: [ created ]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          #cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+
+      - name: Set up Android SDK
+        if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
+        uses: android-actions/setup-android@v3.2.1
+
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26d
+          add-to-path: true
+        env:
+          ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
+
+#      - name: Publish Plugin
+#        env:
+#          USERNAME: ${{ github.actor }}
+#          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        shell: bash
+#        run: |
+#          ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
+#          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 -Psonatype.closeRepository=1 \
+#          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
+#          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
+#          -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
+#          -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
+#          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
+          
+#          ./gradlew :core:publishAllPublicationsToSonatypeRepository \
+#          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 \
+#          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
+#          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
+#          -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
+#          -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
+#          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
+#
+#          ./gradlew :support:publishAllPublicationsToSonatypeRepository \
+#          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 \
+#          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
+#          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
+#          -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
+#          -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
+#          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
+
+
+#      - name: Publish Libs
+#        env:
+#          #          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+#          #          GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
+#          USERNAME: ${{ github.actor }}
+#          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        shell: bash
+#        run: |
+#          ./gradlew publishAllPublicationsToSonatypeRepository \
+#          -Ppublish.docs=1 -Ppublish.sign=1 \
+#          -Pxtras.dir=$HOME/xtras \
+#          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
+#          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
+#          -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
+#          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
+#
+
