@@ -16,7 +16,7 @@ on:
 
 jobs:
   build_plugin:
-    uses: ./setup.yml
+    uses: ./.github/workflows/setup.yml
     permissions:
       contents: read
       packages: write
