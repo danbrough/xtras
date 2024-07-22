@@ -226,16 +226,12 @@ internal fun Project.xtrasPublishing() {
         }
       }
 
-      afterEvaluate {
-        val signTasks = tasks.withType(Sign::class.java).map { it.name }
-        if (signTasks.isNotEmpty()) {
-          tasks.withType(PublishToMavenRepository::class.java) {
-            //  println("$name => $signTasks")
-            dependsOn(signTasks)
-          }
+      val signTasks = tasks.withType(Sign::class.java).map { it.name }
+      if (signTasks.isNotEmpty()) {
+        tasks.withType(PublishToMavenRepository::class.java) {
+          //  println("$name => $signTasks")
+          dependsOn(signTasks)
         }
-
-
       }
     }
     /*

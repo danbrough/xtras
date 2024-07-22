@@ -72,7 +72,7 @@ private fun Project.registerSonatypeCloseRepository() {
             if (it.exists()) it.readText().trim() else null
           }
 
-      logError("$name closing repo.. repoID $repoID TODO")
+
       if (repoID != null) {
         val stagingProfileID =
           xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PROFILE_ID) { error("${Xtras.Constants.Properties.SONATYPE_PROFILE_ID} not set") }
@@ -84,6 +84,9 @@ private fun Project.registerSonatypeCloseRepository() {
           xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PASSWORD) { error("${Xtras.Constants.Properties.SONATYPE_PASSWORD} not set") }
         val baseURL =
           xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL) { "https://s01.oss.sonatype.org" }
+
+        logInfo("$name closing repo.. repoID $repoID description:$description")
+
         sonatypeCloseRepository(
           stagingProfileID,
           repoID,

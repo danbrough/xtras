@@ -9,7 +9,7 @@ plugins {
   id("org.danbrough.xtras") version "0.0.1-beta02"
 }
 
-version = libs.versions.xtras.publish.get()
+version = "0.0.1-beta02"
 
 repositories {
   mavenCentral()
