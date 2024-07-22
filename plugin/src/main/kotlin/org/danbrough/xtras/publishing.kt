@@ -230,12 +230,12 @@ internal fun Project.xtrasPublishing() {
         }
       }
 
-      afterEvaluate {
-        val signingTasks = tasks.withType<Sign>()
-        tasks.withType<PublishToMavenRepository> {
-          mustRunAfter(signingTasks)
-        }
+
+      val signingTasks = tasks.withType<Sign>()
+      tasks.withType<PublishToMavenRepository> {
+        mustRunAfter(signingTasks)
       }
+
     }
   }
 
