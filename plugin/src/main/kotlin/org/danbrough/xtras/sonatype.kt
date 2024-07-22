@@ -44,7 +44,7 @@ private fun Project.registerSonatypeOpenRepository() {
       if (!repoFile.exists()) {
         val response = sonatypeOpenRepository(
           xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PROFILE_ID) { error("${Xtras.Constants.Properties.SONATYPE_PROFILE_ID} not set") },
-          xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_DESCRIPTION) { "" },
+          xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_DESCRIPTION) { "$group:${this@registerSonatypeOpenRepository.name}:${this@registerSonatypeOpenRepository.version}" },
           xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_USERNAME) { error("${Xtras.Constants.Properties.SONATYPE_USERNAME} not set") },
           xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PASSWORD) { error("${Xtras.Constants.Properties.SONATYPE_PASSWORD} not set") },
           xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL) { "https://s01.oss.sonatype.org" },
