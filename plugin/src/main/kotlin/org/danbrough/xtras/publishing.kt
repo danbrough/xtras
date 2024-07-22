@@ -225,7 +225,7 @@ internal fun Project.xtrasPublishing() {
             artifact(javadocTask)
           }
         }
-        
+
         val signTasks = tasks.withType(Sign::class.java).map { it.name }
         if (signTasks.isNotEmpty()) {
           tasks.withType(PublishToMavenRepository::class.java) {
