@@ -3,19 +3,17 @@ package org.danbrough.xtras
 import org.danbrough.xtras.Xtras.Constants.SONATYPE_REPO_NAME
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.withType
-import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
-import org.gradle.plugins.signing.SigningPlugin
 import java.io.File
 import java.net.URI
 
@@ -72,7 +70,7 @@ fun Publication.xtrasPom(
 
 internal fun Project.withPublishing(block: PublishingExtension.() -> Unit) {
   //findProperty("publishing") ?: apply<MavenPublishPlugin>()
-  extensions.configure<PublishingExtension>("publishing", block)
+  extensions.configure("publishing", block)
 }
 
 private fun Project.xtrasPublishToXtras() = registerPublishRepo(XTRAS_REPO_NAME, xtrasMavenDir)
@@ -94,11 +92,8 @@ private fun Project.xtrasPublishToSonatype() {
     }
   }
 
-
-
   withPublishing {
     repositories {
-
       //configured later
       maven("/dev/null") {
         name = SONATYPE_REPO_NAME
@@ -186,9 +181,10 @@ internal fun Project.xtrasPublishing() {
     }
   }
 
-  if (xtrasProperty(Xtras.Constants.Properties.PUBLISH_SIGN) { false }) {
+  val signPublications = xtrasProperty(Xtras.Constants.Properties.PUBLISH_SIGN) { false }
+
+  if (signPublications) {
     logTrace("configuring signing..")
-    pluginManager.apply(SigningPlugin::class)
     extensions.configure<SigningExtension> {
 
       val signingKey =
@@ -202,38 +198,30 @@ internal fun Project.xtrasPublishing() {
       useInMemoryPgpKeys(signingKey, signingPassword)
 
       withPublishing {
-        publications.all {
-          sign(this)
-        }
+        sign(publications)
       }
     }
   }
 
-  if (xtrasProperty(Xtras.Constants.Properties.PUBLISH_DOCS) { false }) {
+  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_DOCS) { false }) {
     logTrace("configuring docs..")
     pluginManager.apply("org.jetbrains.dokka")
-    val javadocTask = tasks.register("javadocJar", Jar::class.java) {
-      archiveClassifier.set("javadoc")
-      from(tasks.getByName("dokkaHtml"))
-    }
+
 
 
     withPublishing {
-      afterEvaluate {
-        publications.all {
-          if (this is MavenPublication) {
-            artifact(javadocTask)
+      //afterEvaluate {
+      publications.all {
+        if (this is MavenPublication) {
+          val javadocTask = tasks.register("${name}_javadocJar", Jar::class.java) {
+            group = JavaBasePlugin.DOCUMENTATION_GROUP
+            archiveClassifier.set("javadoc")
+            from(tasks.getByName("dokkaHtml"))
           }
-        }
-
-        val signTasks = tasks.withType(Sign::class.java).map { it.name }
-        if (signTasks.isNotEmpty()) {
-          tasks.withType(PublishToMavenRepository::class.java) {
-            //  println("$name => $signTasks")
-            dependsOn(signTasks)
-          }
+          artifact(javadocTask)
         }
       }
+      //}
     }
     /*
         tasks.getByName("dokkaHtml").doFirst {
@@ -241,5 +229,22 @@ internal fun Project.xtrasPublishing() {
         }*/
 
   }
+
+
+  /*
+    if (signPublications) {
+      extensions.configure<SigningExtension> {
+
+        withPublishing {
+          afterEvaluate {
+            tasks.withType<PublishToMavenRepository> {
+              println("publishTask: $name publication: $publication")
+            }
+          }
+        }
+      }
+    }
+  */
+
 }
 
