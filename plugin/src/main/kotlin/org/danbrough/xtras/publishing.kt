@@ -11,8 +11,10 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.withType
+import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 import java.io.File
 import java.net.URI
@@ -208,20 +210,36 @@ internal fun Project.xtrasPublishing() {
     pluginManager.apply("org.jetbrains.dokka")
 
 
+    val javadocTask = tasks.create("javadocJar", Jar::class.java) {
+      group = JavaBasePlugin.DOCUMENTATION_GROUP
+      archiveClassifier.set("javadoc")
+      from(tasks.getByName("dokkaHtml"))
+    }
 
+
+    //
+//A problem was found with the configuration of task ':core:signAndroidNativeX64Publication' (type 'Sign').
+//  - Gradle detected a problem with the following location: '/home/dan/workspace/kotlin/klog/core/build/libs/core-0.0.3-beta04-javadoc.jar.asc'.
+//
+//    Reason: Task ':core:publishAndroidNativeArm64PublicationToXtrasRepository' uses this output of task
+//    //':core:signAndroidNativeX64Publication' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+
+    val signing = extensions.findByType<SigningExtension>()
     withPublishing {
       //afterEvaluate {
       publications.all {
         if (this is MavenPublication) {
-          val javadocTask = tasks.register("${name}_javadocJar", Jar::class.java) {
-            group = JavaBasePlugin.DOCUMENTATION_GROUP
-            archiveClassifier.set("javadoc")
-            from(tasks.getByName("dokkaHtml"))
-          }
           artifact(javadocTask)
         }
       }
       //}
+
+      afterEvaluate {
+        val signingTasks = tasks.withType<Sign>()
+        tasks.withType<PublishToMavenRepository> {
+          mustRunAfter(signingTasks)
+        }
+      }
     }
     /*
         tasks.getByName("dokkaHtml").doFirst {
