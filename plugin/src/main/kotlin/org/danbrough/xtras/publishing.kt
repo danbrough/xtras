@@ -11,7 +11,6 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
@@ -224,15 +223,12 @@ internal fun Project.xtrasPublishing() {
 //    Reason: Task ':core:publishAndroidNativeArm64PublicationToXtrasRepository' uses this output of task
 //    //':core:signAndroidNativeX64Publication' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
 
-    val signing = extensions.findByType<SigningExtension>()
     withPublishing {
-      //afterEvaluate {
       publications.all {
         if (this is MavenPublication) {
           artifact(javadocTask)
         }
       }
-      //}
 
       afterEvaluate {
         val signingTasks = tasks.withType<Sign>()
@@ -241,28 +237,8 @@ internal fun Project.xtrasPublishing() {
         }
       }
     }
-    /*
-        tasks.getByName("dokkaHtml").doFirst {
-          println("RUNNING DOKKA HTML FOR PROJECT: ${this@xtrasPublishing.name}")
-        }*/
-
   }
 
-
-  /*
-    if (signPublications) {
-      extensions.configure<SigningExtension> {
-
-        withPublishing {
-          afterEvaluate {
-            tasks.withType<PublishToMavenRepository> {
-              println("publishTask: $name publication: $publication")
-            }
-          }
-        }
-      }
-    }
-  */
 
 }
 
