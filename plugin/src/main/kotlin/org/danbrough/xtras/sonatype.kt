@@ -172,7 +172,7 @@ private fun Project.sonatypeCloseRepository(
   password: String?,
   urlBase: String
 ) {
-  log("sonatypeOpenRepository()")
+  log("sonatypeCloseRepository()")
   val url = "$urlBase/service/local/staging/profiles/$stagingProfileId/finish"
   URL(url).openConnection().apply {
     this as HttpURLConnection

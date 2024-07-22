@@ -15,12 +15,13 @@ plugins {
 rootProject.name = "xtras"
 
 includeBuild("plugin")
-includeBuild("core")
 
 val pluginOnly:String? by settings
 
 
 if (pluginOnly == null) {
+  includeBuild("core")
+
   listOf(
 //  "logging",
     "support",

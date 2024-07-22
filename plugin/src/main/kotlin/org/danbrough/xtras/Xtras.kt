@@ -30,6 +30,7 @@ abstract class Xtras(val project: Project) {
 
   companion object Constants {
     const val SONATYPE_REPO_NAME = "Sonatype"
+    const val RSYNC_REPO_NAME = "RSync"
 
     object Properties {
       const val PROJECT_NAME = "project.name"

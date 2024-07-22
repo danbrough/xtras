@@ -70,7 +70,7 @@ fun Publication.xtrasPom(
   }
 }
 
-private fun Project.withPublishing(block: PublishingExtension.() -> Unit) {
+internal fun Project.withPublishing(block: PublishingExtension.() -> Unit) {
   //findProperty("publishing") ?: apply<MavenPublishPlugin>()
   extensions.configure<PublishingExtension>("publishing", block)
 }

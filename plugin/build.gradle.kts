@@ -45,3 +45,12 @@ gradlePlugin {
     }
   }
 }
+
+publishing {
+  repositories {
+    maven("/home/dan/workspace/xtras/xtras/maven"){
+      name = "Xtras"
+
+    }
+  }
+}
