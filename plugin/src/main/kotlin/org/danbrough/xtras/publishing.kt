@@ -217,20 +217,21 @@ internal fun Project.xtrasPublishing() {
       from(tasks.getByName("dokkaHtml"))
     }
 
-    afterEvaluate {
-      withPublishing {
+
+    withPublishing {
+      afterEvaluate {
         publications.all {
           if (this is MavenPublication) {
             artifact(javadocTask)
           }
         }
-      }
-
-      val signTasks = tasks.withType(Sign::class.java).map { it.name }
-      if (signTasks.isNotEmpty()) {
-        tasks.withType(PublishToMavenRepository::class.java) {
-          //  println("$name => $signTasks")
-          dependsOn(signTasks)
+        
+        val signTasks = tasks.withType(Sign::class.java).map { it.name }
+        if (signTasks.isNotEmpty()) {
+          tasks.withType(PublishToMavenRepository::class.java) {
+            //  println("$name => $signTasks")
+            dependsOn(signTasks)
+          }
         }
       }
     }
