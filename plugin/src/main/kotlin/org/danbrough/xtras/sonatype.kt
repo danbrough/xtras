@@ -30,6 +30,7 @@ private fun Project.registerSonatypeOpenRepository() {
 
     val repoIDFile = xtrasExtension.repoIDFile
     outputs.file(repoIDFile)
+    val repoID = xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
 
     onlyIf {
       val repoFile = repoIDFile.get().asFile
@@ -38,22 +39,30 @@ private fun Project.registerSonatypeOpenRepository() {
     }
 
     actions.add {
-      logInfo("getting sonatype repo ID")
       val repoFile = repoIDFile.get().asFile
+      if (repoID == null) {
+        logInfo("getting sonatype repo ID")
 
-      if (!repoFile.exists()) {
-        val response = sonatypeOpenRepository(
-          xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PROFILE_ID) { error("${Xtras.Constants.Properties.SONATYPE_PROFILE_ID} not set") },
-          xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_DESCRIPTION) { "${project.group}:${project.name}:${project.version}" },
-          xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_USERNAME) { error("${Xtras.Constants.Properties.SONATYPE_USERNAME} not set") },
-          xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PASSWORD) { error("${Xtras.Constants.Properties.SONATYPE_PASSWORD} not set") },
-          xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL) { "https://s01.oss.sonatype.org" },
-        )
 
-        logDebug("sonatypeResponse: $response")
-        repoFile.printWriter().use {
-          it.println(response.repositoryId)
+        if (!repoFile.exists()) {
+          val response = sonatypeOpenRepository(
+            xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PROFILE_ID) { error("${Xtras.Constants.Properties.SONATYPE_PROFILE_ID} not set") },
+            xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_DESCRIPTION) { "${project.group}:${project.name}:${project.version}" },
+            xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_USERNAME) { error("${Xtras.Constants.Properties.SONATYPE_USERNAME} not set") },
+            xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PASSWORD) { error("${Xtras.Constants.Properties.SONATYPE_PASSWORD} not set") },
+            xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL) { "https://s01.oss.sonatype.org" },
+          )
+
+          logDebug("sonatypeResponse: $response")
+          repoFile.printWriter().use {
+            it.println(response.repositoryId)
+          }
         }
+      } else {
+        repoFile.printWriter().use {
+          it.println(repoID)
+        }
+
       }
     }
   }
