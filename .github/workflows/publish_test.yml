@@ -72,6 +72,14 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
+          if [ ! -d $HOME/xtras ]; then
+            echo xtras doesn't exist .. creating 
+            mkdir -p $HOME/xtras
+            echo initial message `date` > $HOME/xtras/log.txt 
+          fi
+          echo message at `date` >> $HOME/xtras/log.txt
+          cat $HOME/xtras/log.txt 
+          
           ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
           -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 -Psonatype.closeRepository=1 \
           -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
