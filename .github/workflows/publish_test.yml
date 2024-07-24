@@ -73,7 +73,7 @@ jobs:
         shell: bash
         run: |
           if [ ! -d $HOME/xtras ]; then
-            echo xtras doesn't exist .. creating 
+            echo xtras doesnt exist .. creating 
             mkdir -p $HOME/xtras
             echo initial message $(date) > $HOME/xtras/log.txt 
           fi
