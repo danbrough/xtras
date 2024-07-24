@@ -30,20 +30,16 @@ private fun Project.registerSonatypeOpenRepository() {
 
     val repoIDFile = xtrasExtension.repoIDFile
     outputs.file(repoIDFile)
-    val repoID = xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
 
     onlyIf {
-      val repoFile = repoIDFile.get().asFile
-      logWarn("repoFile: ${repoFile.absolutePath} exists: ${repoFile.exists()}")
-      !repoFile.exists() && xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID) == null
+      !repoIDFile.get().asFile.exists()
     }
 
     actions.add {
       val repoFile = repoIDFile.get().asFile
-      if (repoID == null) {
-        logInfo("getting sonatype repo ID")
 
-
+      if (xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID) == null) {
+        logDebug("getting sonatype repo ID")
         if (!repoFile.exists()) {
           val response = sonatypeOpenRepository(
             xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PROFILE_ID) { error("${Xtras.Constants.Properties.SONATYPE_PROFILE_ID} not set") },
@@ -58,11 +54,6 @@ private fun Project.registerSonatypeOpenRepository() {
             it.println(response.repositoryId)
           }
         }
-      } else {
-        repoFile.printWriter().use {
-          it.println(repoID)
-        }
-
       }
     }
   }
