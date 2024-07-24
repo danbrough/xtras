@@ -46,6 +46,16 @@ jobs:
         env:
           ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
 
+      - name: Upgrade
+        #if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
+        shell: bash
+        run: |
+          sudo apt -qq update
+          sudo apt -qq -y upgrade
+          sudo apt -qq install cmake libssl-dev build-essential libffi-dev curl libz-dev ninja-build 
+          touch upgraded
+                              
+
       - name: publish_plugin
         env:
           USERNAME: ${{ github.actor }}
