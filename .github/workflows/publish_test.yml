@@ -47,9 +47,11 @@ jobs:
           ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
 
       - name: Cache Xtras packages
+        id: cache_xtras
         uses: actions/cache@v3
         with:
           path: $HOME/xtras
+          key: ${{ runner.os }}-xtras
 
       - name: Upgrade
         #if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
