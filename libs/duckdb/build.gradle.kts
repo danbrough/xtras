@@ -47,7 +47,7 @@ kotlin {
   androidTarget {
   }
 
-  mingwX64()
+  //mingwX64()
   linuxX64()
   linuxArm64()
   androidNativeArm64()
