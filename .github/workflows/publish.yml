@@ -59,7 +59,21 @@ jobs:
           -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
           -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
           -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
-          
+
+      - name: publish_libs
+        env:
+          USERNAME: ${{ github.actor }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          ./gradlew publishAllPublicationsToSonatypeRepository \
+          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 -Psonatype.closeRepository=1 \
+          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
+          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
+          -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
+          -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
+          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
+
 #          ./gradlew :core:publishAllPublicationsToSonatypeRepository \
 #          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 \
 #          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \

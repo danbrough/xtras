@@ -11,6 +11,8 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
@@ -71,7 +73,7 @@ fun Publication.xtrasPom(
 
 internal fun Project.withPublishing(block: PublishingExtension.() -> Unit) {
   //findProperty("publishing") ?: apply<MavenPublishPlugin>()
-  extensions.configure("publishing", block)
+  extensions.getByType<PublishingExtension>().block()
 }
 
 private fun Project.xtrasPublishToXtras() = registerPublishRepo(XTRAS_REPO_NAME, xtrasMavenDir)
@@ -84,63 +86,69 @@ private fun Project.xtrasPublishToLocal() =
 
 private fun Project.xtrasPublishToSonatype() {
 
-  fun MavenArtifactRepository.configureCredentials() {
-    credentials {
-      username =
-        xtrasProperty(Xtras.Constants.Properties.SONATYPE_USERNAME) { error("${Xtras.Constants.Properties.SONATYPE_USERNAME} not specified in gradle.properties") }
-      password =
-        xtrasProperty(Xtras.Constants.Properties.SONATYPE_PASSWORD) { error("${Xtras.Constants.Properties.SONATYPE_PASSWORD} not specified in gradle.properties") }
-    }
-  }
+  logInfo("$name::xtrasPublishToSonatype")
+  if (parent == null)
+    registerSonatypeTasks()
 
-  withPublishing {
+  val baseURL =
+    xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL) { "https://s01.oss.sonatype.org" }
+
+  val snapshot = xtrasProperty(Xtras.Constants.Properties.SONATYPE_SNAPSHOT) { false }
+
+  val openRepository = xtrasProperty(Xtras.Constants.Properties.SONATYPE_OPEN_REPOSITORY) { true }
+  val closeRepository =
+    xtrasProperty(Xtras.Constants.Properties.SONATYPE_CLOSE_REPOSITORY) { false }
+
+
+  val publishing =
+    extensions.findByType<PublishingExtension>() ?: error("PublishingExtension not found")
+  publishing.apply {
     repositories {
-      //configured later
-      maven("/dev/null") {
+      maven {
         name = SONATYPE_REPO_NAME
-        configureCredentials()
+        credentials {
+          username =
+            xtrasProperty(Xtras.Constants.Properties.SONATYPE_USERNAME) { error("${Xtras.Constants.Properties.SONATYPE_USERNAME} not specified in gradle.properties") }
+          password =
+            xtrasProperty(Xtras.Constants.Properties.SONATYPE_PASSWORD) { error("${Xtras.Constants.Properties.SONATYPE_PASSWORD} not specified in gradle.properties") }
+        }
       }
     }
   }
 
+
   afterEvaluate {
-    val baseURL =
-      xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL) { "https://s01.oss.sonatype.org" }
-
-    val snapshot = xtrasProperty(Xtras.Constants.Properties.SONATYPE_SNAPSHOT) { false }
-    val openRepository = xtrasProperty(Xtras.Constants.Properties.SONATYPE_OPEN_REPOSITORY) { true }
-    val closeRepository =
-      xtrasProperty(Xtras.Constants.Properties.SONATYPE_CLOSE_REPOSITORY) { false }
-
     logInfo("xtrasPublishToSonatype: openRepository: $openRepository closeRepository: $closeRepository snapshot:$snapshot")
 
     tasks.withType<PublishToMavenRepository>().filter { it.repository?.name == SONATYPE_REPO_NAME }
       .forEach { publishTask ->
-
         if (openRepository) publishTask.dependsOn(":${Xtras.Constants.TaskNames.SONATYPE_OPEN_REPO}")
         if (closeRepository)
           publishTask.finalizedBy(":${Xtras.Constants.TaskNames.SONATYPE_CLOSE_REPO}")
-
         publishTask.doFirst {
-          val repoID =
-            xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
-              ?: xtrasExtension.repoIDFile.get().asFile.let {
-                if (it.exists()) it.readText().trim() else null
-              }
+          publishing.repositories.getByName(SONATYPE_REPO_NAME)
+            .apply {
+              this as MavenArtifactRepository
+              val repoID =
+                xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
+                  ?: xtrasExtension.repoIDFile.get().asFile.let {
+                    if (it.exists()) it.readText().trim() else null
+                  }
 
-          val mavenURL =
-            if (snapshot) "$baseURL/content/repositories/snapshots/"
-            else
-              if (repoID != null) "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
-                "$baseURL/service/local/staging/deploy/maven2/"
 
-          publishTask.repository.url = URI.create(mavenURL)
+              val sonatypeURL =
+                if (snapshot) "$baseURL/content/repositories/snapshots/"
+                else
+                  if (repoID != null) "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
+                    "$baseURL/service/local/staging/deploy/maven2/"
 
-          logDebug("${publishTask.name} publishing to $mavenURL")
+
+              logDebug("sonatype publish url: $sonatypeURL")
+
+              this.url = URI.create(sonatypeURL)
+            }
         }
-
       }
-
   }
 }
 
@@ -157,17 +165,6 @@ private fun Project.registerPublishRepo(repoName: String, url: Any) {
 
 internal fun Project.xtrasPublishing() {
 
-  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_LOCAL) { false }) {
-    xtrasPublishToLocal()
-  }
-
-  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_XTRAS) { false }) {
-    xtrasPublishToXtras()
-  }
-
-  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_SONATYPE) { false }) {
-    xtrasPublishToSonatype()
-  }
 
   withPublishing {
     publications.all {
@@ -237,6 +234,19 @@ internal fun Project.xtrasPublishing() {
       }
 
     }
+  }
+
+
+  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_LOCAL) { false }) {
+    xtrasPublishToLocal()
+  }
+
+  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_XTRAS) { false }) {
+    xtrasPublishToXtras()
+  }
+
+  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_SONATYPE) { false }) {
+    xtrasPublishToSonatype()
   }
 
 

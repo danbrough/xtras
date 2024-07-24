@@ -6,10 +6,10 @@ plugins {
   `maven-publish`
   alias(libs.plugins.dokka)
   signing
-  id("org.danbrough.xtras") version "0.0.1-beta02"
+  id("org.danbrough.xtras") version "0.0.1-beta03"
 }
 
-version = "0.0.1-beta02"
+version = "0.0.1-beta04"
 
 repositories {
   mavenCentral()
@@ -17,15 +17,15 @@ repositories {
 }
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_11
-  targetCompatibility = JavaVersion.VERSION_11
+  //sourceCompatibility = JavaVersion.VERSION_1_8
+  //targetCompatibility = JavaVersion.VERSION_1_8
   withSourcesJar()
 //  withJavadocJar()
 }
 
 kotlin {
   compilerOptions {
-    this.jvmTarget = JvmTarget.JVM_11
+//    this.jvmTarget = JvmTarget.JVM_1_8
   }
 }
 

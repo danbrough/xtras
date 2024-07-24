@@ -2,10 +2,11 @@
 @file:Suppress("SpellCheckingInspection")
 
 
-import org.danbrough.xtras.core.openssl
+import org.danbrough.xtras.core.duckdb
+import org.danbrough.xtras.logDebug
+import org.danbrough.xtras.logError
 import org.danbrough.xtras.projectProperty
-import org.danbrough.xtras.sonatype.xtrasSonatype
-import org.danbrough.xtras.xtras
+import org.danbrough.xtras.xtrasExtension
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -25,8 +26,9 @@ buildscript {
   }
 }
 
-group = projectProperty<String>("openssl.group")
-version = projectProperty<String>("openssl.version")
+group = projectProperty<String>("duckdb.group")
+version = projectProperty<String>("duckdb.version")
+val xtras = xtrasExtension
 
 kotlin {
   withSourcesJar(publish = true)
@@ -40,12 +42,18 @@ kotlin {
 
   applyDefaultHierarchyTemplate()
 
-  if (HostManager.hostIsLinux) {
-    linuxX64()
-    linuxArm64()
-    androidNativeArm64()
-    androidNativeX64()
-  } else if (HostManager.hostIsMac) {
+  jvm()
+
+  androidTarget {
+  }
+
+  mingwX64()
+  linuxX64()
+  linuxArm64()
+  androidNativeArm64()
+  androidNativeX64()
+
+  if (HostManager.hostIsMac) {
     macosX64()
     macosArm64()
   }
@@ -64,7 +72,7 @@ kotlin {
 
     val commonMain by getting {
       dependencies {
-        implementation(project(":libs:support")) //or implementation(project(":libs:support"))
+        implementation(project(":support")) //or implementation(project(":libs:support"))
         //implementation(libs.kotlinx.coroutines)
         //implementation(libs.kotlinx.io)
       }
@@ -95,16 +103,29 @@ kotlin {
     }
   }
 
+  targets.withType<KotlinNativeTarget> {
+    binaries {
+      sharedLib("xtras_openssl")
+    }
+  }
 }
 
 
 xtrasTesting {
 }
 
+xtrasAndroidConfig {
+
+}
 
 xtras.androidConfig {
   ndkApiVersion = 24
   minSDKVersion = 24
   compileSDKVersion = 24
 }
+
+duckdb {
+
+}
+
 

@@ -21,11 +21,11 @@ class XtrasPlugin : Plugin<Any> {
 
       logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
 
-      xtrasExtension
-
       allprojects {
+        logWarn("${this.name}::applying maven publish plugin")
         apply<MavenPublishPlugin>()
         apply<SigningPlugin>()
+        xtrasExtension
         configureExtras()
       }
     }
@@ -47,8 +47,6 @@ val Project.xtrasExtension: Xtras
 
     repoIDFile.convention(repoIDFileName.map { rootProject.layout.buildDirectory.file(it).get() })
 
-    if (parent == null)
-      registerSonatypeTasks()
 
     ldLibraryPath.convention(libraries.map { libs ->
       pathOf(libs.map { it.libsDir(HostManager.host).resolve("lib") })
@@ -63,7 +61,6 @@ val Project.xtrasExtension: Xtras
       }
 
       registerMiscTasks()
-
     }
   }
 
@@ -106,7 +103,8 @@ private fun Project.configureExtras() {
 
   findProperty(Xtras.Constants.Properties.PROJECT_VERSION)?.also {
     version = it.toString()
-  } ?: logTrace("${Xtras.Constants.Properties.PROJECT_VERSION} not specified. Defaulting to $version")
+  }
+    ?: logTrace("${Xtras.Constants.Properties.PROJECT_VERSION} not specified. Defaulting to $version")
 
   logTrace("name:$name group: $group version: $version")
 
