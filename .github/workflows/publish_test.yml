@@ -34,17 +34,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
-      - name: Set up Android SDK
-        if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
-        uses: android-actions/setup-android@v3.2.1
-
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r26d
-          add-to-path: true
-        env:
-          ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
+#      - name: Set up Android SDK
+#        if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
+#        uses: android-actions/setup-android@v3.2.1
+#
+#      - uses: nttld/setup-ndk@v1
+#        id: setup-ndk
+#        with:
+#          ndk-version: r26d
+#          add-to-path: true
+#        env:
+#          ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
 
       - name: Cache Xtras packages
         id: cache_xtras
@@ -80,13 +80,13 @@ jobs:
           echo message at $(date) >> $HOME/xtras/log.txt
           cat $HOME/xtras/log.txt 
           
-          ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
-          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 -Psonatype.closeRepository=1 \
-          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
-          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
-          -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
-          -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
-          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
+#          ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
+#          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 -Psonatype.closeRepository=1 \
+#          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
+#          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
+#          -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
+#          -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
+#          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
 
 #
 #      - name: publish_libs
