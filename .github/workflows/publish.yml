@@ -23,12 +23,14 @@ jobs:
       packages: write
 
     steps:
+      - uses: android-actions/setup-android@v3.2.1
+        
       - name: Upgrade
         #if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
         shell: bash
         run: |
-          #sudo apt -qq update
-          #sudo apt -qq -y upgrade
+          sudo apt -qq update
+          sudo apt -qq -y upgrade
           sudo apt -qq install cmake libssl-dev build-essential libffi-dev curl libz-dev ninja-build 
 
       - name: Setup gradle
@@ -47,7 +49,7 @@ jobs:
 
       - name: Set up Android SDK
         if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
-        uses: android-actions/setup-android@v3.2.1
+
 
       - name: Setup gradle.properties
         shell: bash
