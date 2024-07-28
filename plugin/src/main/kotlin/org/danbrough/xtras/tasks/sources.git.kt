@@ -117,6 +117,7 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
     outputs.file(commitFile)
     onlyIf { !packageFile(target).exists()  || project.hasProperty("forceBuild")}
     dependsOn(SourceTaskName.DOWNLOAD.taskName(this@registerSourceExtractTask))
+
     doFirst {
       if (srcDir.exists()) srcDir.deleteRecursively()
       project.logDebug("$taskName: cloning $sourceConfig to $srcDir")

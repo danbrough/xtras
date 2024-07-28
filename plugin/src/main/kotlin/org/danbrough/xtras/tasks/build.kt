@@ -3,6 +3,7 @@ package org.danbrough.xtras.tasks
 import org.danbrough.xtras.ScriptCommandContext
 import org.danbrough.xtras.XTRAS_TASK_GROUP
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.konanDepsTaskName
 import org.danbrough.xtras.unixPath
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
@@ -39,6 +40,8 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
     //onlyIf { !packageFile(target).exists() || project.hasProperty("forceBuild") }
 
     dependsOn(SourceTaskName.EXTRACT.taskName(this@registerBuildTask, target))
+    dependsOn(":${target.konanDepsTaskName}")
+    
     doFirst {
       scriptsDir.mkdirs()
       envFile.printWriter().use { writer ->
