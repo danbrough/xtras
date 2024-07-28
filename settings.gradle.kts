@@ -28,7 +28,7 @@ if (pluginOnly == null) {
     "jni",
     //"duckdb",
     "openssl",
-    "duckdb",
+    //"duckdb",
 
     //"ssh2",
     //"postgres",
