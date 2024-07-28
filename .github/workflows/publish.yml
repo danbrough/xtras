@@ -23,6 +23,14 @@ jobs:
       packages: write
 
     steps:
+      - name: Upgrade
+        #if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
+        shell: bash
+        run: |
+          #sudo apt -qq update
+          #sudo apt -qq -y upgrade
+          sudo apt -qq install cmake libssl-dev build-essential libffi-dev curl libz-dev ninja-build 
+
       - name: Setup gradle
         uses: yumemi-inc/setup-java-gradle@v1
         with:
@@ -77,13 +85,6 @@ jobs:
           path: ${{ env.KONAN_DIR }}
           key: ${{ runner.os }}-konan
 
-      - name: Upgrade
-        #if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
-        shell: bash
-        run: |
-          #sudo apt -qq update
-          #sudo apt -qq -y upgrade
-          sudo apt -qq install cmake libssl-dev build-essential libffi-dev curl libz-dev ninja-build 
 
       - name: publish_plugin
         env:
