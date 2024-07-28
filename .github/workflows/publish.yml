@@ -103,7 +103,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          ./gradlew :publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
+          ./gradlew publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
 
 
 #          ./gradlew :core:publishAllPublicationsToSonatypeRepository \
