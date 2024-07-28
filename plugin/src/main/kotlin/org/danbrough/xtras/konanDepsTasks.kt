@@ -40,9 +40,8 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
   val generateDepsProjectTaskName = "xtrasGenerateKonanDepsProject${target.presetName}"
 
   val depsProjectDir =
-    rootProject.layout.buildDirectory.dir("konandeps").get().asFile.resolve(target.presetName)
+    File(System.getProperty("java.io.tmpdir"),"konanDeps_${target.presetName}")
 
-//  val depsProjectDir = File(System.getProperty("java.io.tmpdir"),"konandeps")
   rootProject.tasks.register(generateDepsProjectTaskName) {
     outputs.dir(depsProjectDir)
     doFirst {
