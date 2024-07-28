@@ -39,6 +39,10 @@ jobs:
           cache-read-only: false
           gradle-home-cache-cleanup: false
 
+      - name: Set up Android SDK
+        if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
+        uses: android-actions/setup-android@v3.2.1
+
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
@@ -46,9 +50,6 @@ jobs:
           add-to-path: true
         env:
           ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
-
-      - name: Set up Android SDK
-        if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
 
 
       - name: Setup gradle.properties
