@@ -95,8 +95,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
-          -Psonatype.closeRepository=1 
+          ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 -Psonatype.closeRepository=1 
 
       - name: publish_libs
         env:
@@ -104,7 +103,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          ./gradlew xtrasPackageCreateDuckdbLinuxX64 
+          ./gradlew :publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
 
 
 #          ./gradlew :core:publishAllPublicationsToSonatypeRepository \
