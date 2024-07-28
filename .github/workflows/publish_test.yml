@@ -16,7 +16,7 @@ on:
 #    types: [ created ]
 
 jobs:
-  setup:
+  setup_test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -63,7 +63,7 @@ jobs:
 
   publish_plugin:
     runs-on: ubuntu-latest
-    needs: setup
+    needs: setup_test
     steps:
       - uses: actions/checkout@v4
       - name: publish_plugin

@@ -16,7 +16,7 @@ on:
 #    types: [ created ]
 
 jobs:
-  setup:
+  setup_mac:
     runs-on: macos-latest
     permissions:
       contents: read
