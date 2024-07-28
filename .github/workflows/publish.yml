@@ -23,8 +23,8 @@ jobs:
       packages: write
 
     steps:
-      - uses: android-actions/setup-android@v3.2.1
-        
+      - uses: actions/checkout@v4
+
       - name: Upgrade
         #if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
         shell: bash
