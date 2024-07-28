@@ -85,13 +85,17 @@ jobs:
           path: ${{ env.KONAN_DIR }}
           key: ${{ runner.os }}-konan
 
-#      - name: publish_support
-#        shell: bash
-#        run: |
-#          ./gradlew :support:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
+      #      - name: publish_support
+      #        shell: bash
+      #        run: |
+      #          ./gradlew :support:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
 
-      - name: publish_jni
+      #      - name: publish_jni
+      #        shell: bash
+      #        run: |
+      #          ./gradlew :jni:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
+
+      - name: publish_openssl
         shell: bash
         run: |
-          ./gradlew :jni:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
-
+          ./gradlew :openssl:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
