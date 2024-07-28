@@ -67,11 +67,12 @@ jobs:
           PROPS
           chmod 600 $GRADLE_PROPS
 
-      - name: Cache Xtras packages
+      - name: Cache Xtras dir
+        id: cache_xtras
         uses: actions/cache@v4.0.2
         with:
-          path: $HOME/xtras
-
+          path: ${{ env.XTRAS_DIR }}
+          key: ${{ runner.os }}-xtras
 
       - name: Upgrade
         #if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
