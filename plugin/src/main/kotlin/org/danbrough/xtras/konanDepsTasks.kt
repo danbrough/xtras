@@ -31,7 +31,8 @@ internal fun Project.registerKonanDepsTasks() {
           """
         kotlin.native.ignoreDisabledTargets=true
         org.gradle.parallel=false
-        org.gradle.caching=false 
+        org.gradle.caching=false
+        
       """.trimIndent()
         )
 

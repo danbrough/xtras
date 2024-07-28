@@ -48,7 +48,7 @@ jobs:
 
       - name: Cache Xtras packages
         id: cache_xtras
-        uses: actions/cache@v3
+        uses: actions/cache@v4.0.2
         with:
           path: $HOME/xtras
           key: ${{ runner.os }}-xtras

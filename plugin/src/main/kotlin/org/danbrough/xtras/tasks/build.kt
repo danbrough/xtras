@@ -41,7 +41,7 @@ fun XtrasLibrary.registerBuildTask(target: KonanTarget) {
 
     dependsOn(SourceTaskName.EXTRACT.taskName(this@registerBuildTask, target))
     dependsOn(":${target.konanDepsTaskName}")
-    
+
     doFirst {
       scriptsDir.mkdirs()
       envFile.printWriter().use { writer ->

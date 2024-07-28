@@ -47,16 +47,37 @@ jobs:
           ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
 
       - name: Cache Xtras packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4.0.2
         with:
           path: $HOME/xtras
+
+      - name: Setup gradle.properties
+        shell: bash
+        run: |
+          echo XTRAS_DIR=$HOME/xtras >> $GITHUB_ENV
+          GRADLE_PROPS=$HOME/.gradle/gradle.properties
+          echo Configuring $GRADLE_PROPS 
+          if [ -f $GRADLE_PROPS ]; then
+            echo existing $GRADLE_PROPS
+            cat $GRADLE_PROPS
+          fi
+          cat > $GRADLE_PROPS <<PROPS
+          org.gradle.caching=true
+          signing.key=${{ secrets.GPG_SIGNING_KEY }}
+          signing.password=${{ secrets.GPG_SIGNING_PASSWORD }}
+          sonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }}
+          sonatype.username=${{ secrets.SONATYPE_USERNAME }}
+          sonatype.password=${{ secrets.SONATYPE_PASSWORD }}
+          xtras.dir=$HOME/xtras
+          PROPS
+          chmod 600 $GRADLE_PROPS
 
       - name: Upgrade
         #if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
         shell: bash
         run: |
-          sudo apt -qq update
-          sudo apt -qq -y upgrade
+          #sudo apt -qq update
+          #sudo apt -qq -y upgrade
           sudo apt -qq install cmake libssl-dev build-essential libffi-dev curl libz-dev ninja-build 
 
       - name: publish_plugin
@@ -66,13 +87,7 @@ jobs:
         shell: bash
         run: |
           ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -PpluginOnly=1 \
-          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 -Psonatype.closeRepository=1 \
-          -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}" \
-          -Psigning.password="${{ secrets.GPG_SIGNING_PASSWORD }}" \
-          -Psonatype.profileID=${{ secrets.SONATYPE_PROFILE_ID }} \
-          -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
-          -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}"
-
+          -Pxtras.dir=$HOME/xtras -Ppublish.docs=1 -Ppublish.sign=1 -Psonatype.closeRepository=1 
 
       - name: publish_libs
         env:
