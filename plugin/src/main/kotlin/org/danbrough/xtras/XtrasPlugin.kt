@@ -9,6 +9,7 @@ import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningPlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
 
@@ -109,5 +110,8 @@ private fun Project.configureExtras() {
   logTrace("name:$name group: $group version: $version")
 
   xtrasPublishing()
+
+
+    registerKonanDepsTasks()
 
 }
