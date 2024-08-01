@@ -22,6 +22,7 @@ fun Project.xtrasAndroidConfig(
 	block: LibraryExtension.() -> Unit = {}
 ) {
 	extensions.getByType<LibraryExtension>().apply {
+		//logWarn("$name::xtrasAndroidCOnfig() namespace=$namespace")
 		this.compileSdk = compileSdk
 		this.namespace = namespace
 

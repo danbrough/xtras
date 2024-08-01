@@ -55,7 +55,7 @@ fun Project.log(msg: String, level: LogLevel = LogLevel.INFO, err: Throwable? = 
       LogLevel.ERROR -> "ERROR"
     }
     println(
-      "${if (logName.length == 4) " " else ""}${logName.colored(level)}:\t${msg.colored(level)} ${
+      "${if (logName.length == 4) " " else ""}${logName.colored(level)}: ${project.name.colored(level)}: ${msg.colored(level)} ${
         err?.message?.colored(
           level
         ) ?: ""

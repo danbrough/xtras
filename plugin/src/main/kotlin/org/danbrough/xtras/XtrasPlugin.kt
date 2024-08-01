@@ -9,8 +9,10 @@ import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningPlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.Executable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
 import org.jetbrains.kotlin.konan.target.HostManager
 
 
@@ -20,14 +22,40 @@ class XtrasPlugin : Plugin<Any> {
     target.run {
       if (parent != null) error("Xtras plugin should be applied to the root project only")
 
-      logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
+      //logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
 
       allprojects {
-        logWarn("${this.name}::applying maven publish plugin")
+        logTrace("${this.name}::configuring xtras")
         apply<MavenPublishPlugin>()
         apply<SigningPlugin>()
-        xtrasExtension
-        configureExtras()
+
+        val xtras = xtrasExtension.apply {
+          nativeTargets.convention(emptyList())
+          libraries.convention(emptyList())
+
+          repoIDFileName.convention(project.provider {
+            "sonatypeRepoID_${rootProject.name}_${rootProject.group}"
+          })
+          //by default share a single repoID for entire project
+
+          repoIDFile.convention(repoIDFileName.map {
+            rootProject.layout.buildDirectory.file(it).get()
+          })
+
+
+          afterEvaluate {
+
+            val kotlin = extensions.findByName("kotlin")
+            if (kotlin is KotlinMultiplatformExtension) {
+              nativeTargets.convention(
+                kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget })
+            }
+
+            registerMiscTasks()
+          }
+        }
+
+        configureExtras(xtras)
       }
     }
   }
@@ -37,33 +65,7 @@ val Project.xtrasExtension: Xtras
   get() = extensions.findByType<Xtras>() ?: extensions.create(
     XTRAS_EXTENSION_NAME,
     Xtras::class.java
-  ).apply {
-    nativeTargets.convention(emptyList())
-    libraries.convention(emptyList())
-
-    repoIDFileName.convention(project.provider {
-      "sonatypeRepoID_${rootProject.name}_${rootProject.group}"
-    })
-    //by default share a single repoID for entire project
-
-    repoIDFile.convention(repoIDFileName.map { rootProject.layout.buildDirectory.file(it).get() })
-
-
-    ldLibraryPath.convention(libraries.map { libs ->
-      pathOf(libs.map { it.libsDir(HostManager.host).resolve("lib") })
-    })
-
-    afterEvaluate {
-
-      val kotlin = extensions.findByName("kotlin")
-      if (kotlin is KotlinMultiplatformExtension) {
-        nativeTargets.convention(
-          kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget })
-      }
-
-      registerMiscTasks()
-    }
-  }
+  )
 
 internal fun Project.registerMiscTasks() {
 
@@ -83,20 +85,20 @@ internal fun Project.registerMiscTasks() {
   }
 
 
-  tasks.withType<Exec> {
+/*  tasks.withType<Exec> {
     environment(
       HostManager.host.envLibraryPathName,
       pathOf(
-        xtrasExtension.ldLibraryPath.get(),
+        xtrasExtension.ldLibraryPath(),
         environment[HostManager.host.envLibraryPathName]
       )
     )
-  }
+  }*/
 
 }
 
-private fun Project.configureExtras() {
-  logDebug("configureExtras(): $name")
+private fun Project.configureExtras(xtras: Xtras) {
+  //logDebug("configureExtras(): $name")
 
   findProperty(Xtras.Constants.Properties.PROJECT_GROUP)?.also {
     group = it.toString()
@@ -107,11 +109,30 @@ private fun Project.configureExtras() {
   }
     ?: logTrace("${Xtras.Constants.Properties.PROJECT_VERSION} not specified. Defaulting to $version")
 
-  logTrace("name:$name group: $group version: $version")
+  logDebug("name:$name $group:$version")
 
   xtrasPublishing()
 
+  registerKonanDepsTasks()
 
-    registerKonanDepsTasks()
+  configureProjectTasks(xtras)
+}
 
+/**
+ * Setup environment for executable and test tasks
+ */
+private fun Project.configureProjectTasks(xtras: Xtras) {
+
+  afterEvaluate {
+    val exes = kotlinBinaries { it is Executable }
+    logError("configureProjectTasks() libraries: ${xtras.libraries.get()} exeCount:${exes.size}")
+
+
+    exes.forEach { exe ->
+      val runTask = (exe as Executable).runTask!!
+      val ldPath = exe.xtrasLibraryPath()
+      logError("configureProjectTasks:$exe ldPath: $ldPath")
+      runTask.environment[HostManager.host.envLibraryPathName] = ldPath
+    }
+  }
 }

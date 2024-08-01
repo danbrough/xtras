@@ -11,6 +11,8 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
@@ -121,8 +123,6 @@ abstract class Xtras(val project: Project) {
   @XtrasDSL
   abstract val libraries: ListProperty<XtrasLibrary>
 
-  @XtrasDSL
-  abstract val ldLibraryPath: Property<String>
 
   abstract val repoIDFileName: Property<String>
   abstract val repoIDFile: RegularFileProperty
@@ -165,6 +165,15 @@ abstract class Xtras(val project: Project) {
 
 }
 
+
+fun Xtras.ldLibraryPath(buildType: NativeBuildType = NativeBuildType.DEBUG): String =
+  project.pathOf(
+    project.pathOf(libraries.get().map { xtrasLib ->
+      xtrasLib.libsDir(HostManager.host).resolve("libs")
+    }),
+    project.pathOf(project.kotlinBinaries { it is SharedLibrary && it.buildType == buildType }
+      .map { it.outputDirectory } )
+  )
 
 
 

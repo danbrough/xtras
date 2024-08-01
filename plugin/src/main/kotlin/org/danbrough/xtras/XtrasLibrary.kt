@@ -17,8 +17,12 @@ abstract class XtrasLibrary(
   val version: String,
   val project: Project
 ) {
-  internal interface SourceConfig
 
+  private val className = this::class.java.simpleName.substringBefore("_")
+
+  override fun toString(): String = "$className[$group:$name:$version]"
+
+  internal interface SourceConfig
   internal var sourceConfig: SourceConfig? = null
 
   val xtras by lazy {
@@ -140,9 +144,7 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
 
   return extensions.create(name, clazz, group, name, version, this).also {
     extensions.configure<T>(name) {
-      //xtras.libraries.add(this)
-
-      block()
+      xtras.libraries.add(this)
 
       afterEvaluate {
         it.registerTasks()
@@ -153,7 +155,7 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
           }
         }
       }
-
+      block()
     }
   }
 }
