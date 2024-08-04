@@ -51,7 +51,7 @@ else file.absolutePath
 
 fun Project.pathOf(paths: List<Any?>): String =
   paths.filterNotNull()
-    .joinToString(":") { if (it is File) unixPath(it) else it.toString() }
+    .joinToString(":") { if (it is File) unixPath(it) else if (it is List<*>) pathOf(it) else it.toString() }
 
 fun Project.pathOf(vararg paths: Any?): String = pathOf(paths.toList())
 

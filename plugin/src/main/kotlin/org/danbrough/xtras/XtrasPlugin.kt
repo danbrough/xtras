@@ -125,13 +125,12 @@ private fun Project.configureProjectTasks(xtras: Xtras) {
 
   afterEvaluate {
     val exes = kotlinBinaries { it is Executable }
-    logError("configureProjectTasks() libraries: ${xtras.libraries.get()} exeCount:${exes.size}")
-
+    logTrace("configureProjectTasks() libraries: ${xtras.libraries.get()} exeCount:${exes.size}")
 
     exes.forEach { exe ->
       val runTask = (exe as Executable).runTask!!
       val ldPath = exe.xtrasLibraryPath()
-      logError("configureProjectTasks:$exe ldPath: $ldPath")
+      logDebug("configureProjectTasks:$exe ldPath: $ldPath")
       runTask.environment[HostManager.host.envLibraryPathName] = ldPath
     }
   }
