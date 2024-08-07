@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
 import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 import java.util.Locale
 
@@ -61,11 +62,9 @@ fun File.resolveAll(paths: List<String>): File =
   paths.fold(this) { file, path -> file.resolve(path) }
 
 fun Project.kotlinBinaries(
-  targetFilter: (KotlinNativeTarget) -> Boolean = { it.konanTarget == HostManager.host },
-  binariesFilter: (NativeBinary) -> Boolean = { it.buildType == NativeBuildType.DEBUG }
+  binariesFilter: (NativeBinary) -> Boolean = { it.buildType == NativeBuildType.DEBUG && it.target.konanTarget == HostManager.host }
 ): List<NativeBinary> =
   extensions.findByType<KotlinMultiplatformExtension>()?.targets?.withType<KotlinNativeTarget>()
-    ?.filter(targetFilter)
     ?.flatMap { it.binaries }
     ?.filter(binariesFilter)
     ?: emptyList()
@@ -77,3 +76,11 @@ fun Executable.xtrasLibraryPath(): String =
   )
 
 
+val NativeBinary.jniLibsDir: File
+  get() = project.file("src").resolveAll(
+    if (buildType.debuggable) "debug" else "release",
+    target.konanTarget.androidLibDir!!
+  )
+
+val NativeBinary.runsOnHost: Boolean
+  get() = this.target.konanTarget == HostManager.host

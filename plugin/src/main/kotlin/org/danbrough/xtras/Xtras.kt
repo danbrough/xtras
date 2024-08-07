@@ -11,6 +11,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -99,6 +100,13 @@ abstract class Xtras(val project: Project) {
     object TaskNames {
       const val SONATYPE_OPEN_REPO = "sonatypeOpenRepository"
       const val SONATYPE_CLOSE_REPO = "sonatypeCloseRepository"
+      const val XTRAS_PREPARE_JNI_LIBS = "xtrasPrepareJniLibs"
+
+      fun copyAndroidLibsToJniFolderTaskName(binary: NativeBinary) =
+        "xtrasCopyAndroidLibsToJniFolder${binary.name.capitalized()}${binary.target.konanTarget.kotlinTargetName.capitalized()}"
+
+      fun copyXtrasLibsToJniFolderTaskName(lib:XtrasLibrary,target: KonanTarget) =
+        "xtrasCopyXtrasLibsToJniFolder${lib.name.capitalized()}${target.kotlinTargetName.capitalized()}"
     }
   }
 

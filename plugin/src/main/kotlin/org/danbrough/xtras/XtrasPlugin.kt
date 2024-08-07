@@ -1,18 +1,22 @@
 package org.danbrough.xtras
 
+import org.danbrough.xtras.tasks.PackageTaskName
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.api.tasks.Exec
+import org.gradle.api.tasks.Copy
 import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningPlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.Executable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 
 
@@ -85,15 +89,15 @@ internal fun Project.registerMiscTasks() {
   }
 
 
-/*  tasks.withType<Exec> {
-    environment(
-      HostManager.host.envLibraryPathName,
-      pathOf(
-        xtrasExtension.ldLibraryPath(),
-        environment[HostManager.host.envLibraryPathName]
+  /*  tasks.withType<Exec> {
+      environment(
+        HostManager.host.envLibraryPathName,
+        pathOf(
+          xtrasExtension.ldLibraryPath(),
+          environment[HostManager.host.envLibraryPathName]
+        )
       )
-    )
-  }*/
+    }*/
 
 }
 
@@ -123,9 +127,19 @@ private fun Project.configureExtras(xtras: Xtras) {
  */
 private fun Project.configureProjectTasks(xtras: Xtras) {
 
+  val prepareJniTask = tasks.create<Task>(Xtras.Constants.TaskNames.XTRAS_PREPARE_JNI_LIBS){
+    group = XTRAS_TASK_GROUP
+    description = "Copy required files into jniLibs dir for android packaging"
+  }
+
   afterEvaluate {
-    val exes = kotlinBinaries { it is Executable }
-    logTrace("configureProjectTasks() libraries: ${xtras.libraries.get()} exeCount:${exes.size}")
+    logDebug("configureProjectTasks()")
+
+    tasks.findByName("mergeReleaseJniLibFolders")?.dependsOn(prepareJniTask)
+
+
+    val exes = kotlinBinaries { it is Executable && it.runsOnHost }
+    logTrace("exeCount:${exes.size}")
 
     exes.forEach { exe ->
       val runTask = (exe as Executable).runTask!!
@@ -133,5 +147,43 @@ private fun Project.configureProjectTasks(xtras: Xtras) {
       logDebug("configureProjectTasks:$exe ldPath: $ldPath")
       runTask.environment[HostManager.host.envLibraryPathName] = ldPath
     }
+
+    val androidLibs = kotlinBinaries { it is SharedLibrary && it.target.konanTarget.family == Family.ANDROID }
+    logTrace("androidLib count: ${androidLibs.size}")
+
+    androidLibs.forEach { lib ->
+      val copyTaskName =
+        Xtras.Constants.TaskNames.copyAndroidLibsToJniFolderTaskName(lib)
+      tasks.register<Copy>(copyTaskName) {
+        val sharedLibDir = lib.linkTask.destinationDirectory.get().asFile
+        dependsOn(lib.linkTask)
+        prepareJniTask.dependsOn(name)
+        from(sharedLibDir)
+        into(lib.jniLibsDir)
+        doLast {
+          logInfo("$name: copied files from $sharedLibDir to ${lib.jniLibsDir}")
+        }
+      }
+    }
+
+    val libs = xtras.libraries.get()
+    logTrace("libCount: ${libs.size}")
+    xtras.nativeTargets.get().filter { it.family == Family.ANDROID }.forEach { androidTarget->
+      libs.forEach { lib->
+        val copyTaskName = Xtras.Constants.TaskNames.copyXtrasLibsToJniFolderTaskName(lib,androidTarget)
+        tasks.register<Copy>(copyTaskName){
+          prepareJniTask.dependsOn(copyTaskName)
+          dependsOn(PackageTaskName.EXTRACT.taskName(lib, androidTarget))
+          val srcDir = lib.libsDir.invoke(androidTarget).resolve("lib")
+          from(srcDir)
+          val destDir = project.file("src").resolveAll("main","jniLibs",androidTarget.androidLibDir!!)
+          into(destDir)
+          doLast {
+            logInfo("$name: copied files from $srcDir to $destDir")
+          }
+        }
+      }
+    }
+
   }
 }
