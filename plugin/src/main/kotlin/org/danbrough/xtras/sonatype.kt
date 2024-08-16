@@ -10,6 +10,7 @@ import org.w3c.dom.Element
 import java.io.InputStream
 import java.io.PrintWriter
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import java.nio.charset.Charset
 import java.util.Base64
@@ -115,7 +116,7 @@ private fun sonatypeOpenRepository(
   urlBase: String
 ): PromoteRequestResponse {
   val url = "$urlBase/service/local/staging/profiles/$stagingProfileId/start"
-  URL(url).openConnection().apply {
+  URI(url).toURL().openConnection().apply {
     this as HttpURLConnection
     requestMethod = "POST"
     doOutput = true
@@ -177,7 +178,7 @@ private fun Project.sonatypeCloseRepository(
 ) {
   log("sonatypeCloseRepository()")
   val url = "$urlBase/service/local/staging/profiles/$stagingProfileId/finish"
-  URL(url).openConnection().apply {
+  URI(url).toURL().openConnection().apply {
     this as HttpURLConnection
     requestMethod = "POST"
     doOutput = true

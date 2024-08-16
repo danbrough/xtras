@@ -61,7 +61,7 @@ val KonanTarget.hostTriplet: String
     KonanTarget.TVOS_ARM64 -> "aarch64-apple-tvos"
     //KonanTarget.TVOS_SIMULATOR_ARM64 -> "aarch64-tvossimulator-darwin"
     KonanTarget.TVOS_X64 -> "x86_64-apple-tvos-simulator"
-    KonanTarget.WASM32 -> TODO()
+
     //KonanTarget.WATCHOS_ARM32 -> "arm32-watchos-darwin"
     KonanTarget.WATCHOS_ARM64 -> "arm64_32-apple-watchos"
     //KonanTarget.WATCHOS_SIMULATOR_ARM64 -> "aarch64-watchossimulator-darwin"
@@ -102,15 +102,15 @@ val KonanTarget.goOS: String?
     Family.LINUX -> "linux"
     Family.MINGW -> "windows"
     Family.ANDROID -> "android"
-    Family.WASM -> null
-    Family.ZEPHYR -> null
+    //Family.WASM -> null
+    else -> null
   }
 
 val KonanTarget.goArch: String
   get() = when (architecture) {
     Architecture.ARM64 -> "arm64"
     Architecture.X64 -> "amd64"
-    Architecture.WASM32 -> "wasm"
+    //Architecture.WASM32 -> "wasm"
     else -> error("unsupported KonanTarget.goArch $this")
   }
 

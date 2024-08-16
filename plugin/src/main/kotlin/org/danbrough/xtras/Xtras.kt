@@ -105,7 +105,7 @@ abstract class Xtras(val project: Project) {
       fun copyAndroidLibsToJniFolderTaskName(binary: NativeBinary) =
         "xtrasCopyAndroidLibsToJniFolder${binary.name.capitalized()}${binary.target.konanTarget.kotlinTargetName.capitalized()}"
 
-      fun copyXtrasLibsToJniFolderTaskName(lib:XtrasLibrary,target: KonanTarget) =
+      fun copyXtrasLibsToJniFolderTaskName(lib: XtrasLibrary, target: KonanTarget) =
         "xtrasCopyXtrasLibsToJniFolder${lib.name.capitalized()}${target.kotlinTargetName.capitalized()}"
     }
   }
@@ -174,14 +174,17 @@ abstract class Xtras(val project: Project) {
 }
 
 
-fun Xtras.ldLibraryPath(buildType: NativeBuildType = NativeBuildType.DEBUG): String =
-  project.pathOf(
-    project.pathOf(libraries.get().map { xtrasLib ->
-      xtrasLib.libsDir(HostManager.host).resolve("lib")
-    }),
-    project.pathOf(project.kotlinBinaries { it is SharedLibrary && it.buildType == buildType }
-      .map { it.outputDirectory } )
-  )
+fun Xtras.ldLibraryPath(
+  target: KonanTarget,
+  buildType: NativeBuildType = NativeBuildType.DEBUG
+): String = project.pathOf(
+  libraries.get().map { xtrasLib ->
+    xtrasLib.libsDir(target).resolve("lib")
+  },
+  project.kotlinBinaries { it is SharedLibrary && it.buildType == buildType && it.target.konanTarget == target }
+    .map { it.outputDirectory }
+)
+
 
 
 

@@ -10,6 +10,12 @@ repositories {
   google()
 }
 
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+//  withJavadocJar()
+}
+
 dependencies {
   implementation(libs.kotlin.gradle.plugin)
   implementation(libs.xtras.plugin)

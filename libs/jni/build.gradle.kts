@@ -4,8 +4,6 @@ import org.danbrough.xtras.supportsJNI
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -15,12 +13,7 @@ plugins {
   id("com.android.library")
 }
 
-object JavaConfig {
-  val javaVersion = JavaVersion.VERSION_1_8
-  val jvmTarget = JvmTarget.JVM_1_8
-  val kotlinLanguageVersion = KotlinVersion.KOTLIN_1_9
-  val kotlinApiVersion = KotlinVersion.KOTLIN_1_9
-}
+
 
 /*
 java {
@@ -31,12 +24,7 @@ java {
 
 kotlin {
   withSourcesJar(publish = true)
-  applyDefaultHierarchyTemplate()
-
-  compilerOptions {
-    languageVersion = JavaConfig.kotlinLanguageVersion
-    apiVersion = JavaConfig.kotlinApiVersion
-  }
+ // applyDefaultHierarchyTemplate()
 
   linuxX64()
   linuxArm64()

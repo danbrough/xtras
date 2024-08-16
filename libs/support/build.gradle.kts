@@ -14,12 +14,7 @@ plugins {
 }
 
 
-object JavaConfig {
-  val javaVersion = JavaVersion.VERSION_1_8
-  val jvmTarget = JvmTarget.JVM_1_8
-  val kotlinLanguageVersion = KotlinVersion.KOTLIN_1_9
-  val kotlinApiVersion = KotlinVersion.KOTLIN_1_9
-}
+
 
 /*
 java {
@@ -32,10 +27,10 @@ kotlin {
   withSourcesJar(publish = true)
   applyDefaultHierarchyTemplate()
 
-  compilerOptions {
+/*  compilerOptions {
     languageVersion = JavaConfig.kotlinLanguageVersion
     apiVersion = JavaConfig.kotlinApiVersion
-  }
+  }*/
 
   linuxX64()
   linuxArm64()

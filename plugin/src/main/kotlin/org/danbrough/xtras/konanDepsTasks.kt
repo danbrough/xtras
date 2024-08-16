@@ -3,8 +3,6 @@ package org.danbrough.xtras
 import org.gradle.api.Project
 import org.gradle.api.tasks.GradleBuild
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -17,7 +15,7 @@ val KonanTarget.konanDepsTaskName: String
 
 internal fun Project.registerKonanDepsTasks() {
 
-  if (parent == null){
+  if (parent == null) {
     KonanTarget.predefinedTargets.values.forEach {
       registerKonanDepsTask(it)
     }
@@ -36,11 +34,10 @@ internal fun Project.registerKonanDepsTasks() {
 }
 
 private fun Project.registerKonanDepsTask(target: KonanTarget) {
-
   val generateDepsProjectTaskName = "xtrasGenerateKonanDepsProject${target.presetName}"
 
   val depsProjectDir =
-    File(System.getProperty("java.io.tmpdir"),"konanDeps_${target.presetName}")
+    File(System.getProperty("java.io.tmpdir"), "konanDeps_${target.presetName}")
 
   rootProject.tasks.register(generateDepsProjectTaskName) {
     outputs.dir(depsProjectDir)
@@ -64,7 +61,7 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
         output.println(
           """
           plugins {
-            kotlin("multiplatform") version "${KotlinVersion.CURRENT}"
+            kotlin("multiplatform") version "2.0.10"
           }
    
           repositories {

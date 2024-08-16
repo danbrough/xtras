@@ -7,6 +7,7 @@ import org.gradle.api.Task
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.Copy
 import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.register
@@ -16,6 +17,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.Executable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 
@@ -29,40 +31,47 @@ class XtrasPlugin : Plugin<Any> {
       //logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
 
       allprojects {
-        logTrace("${this.name}::configuring xtras")
+        logInfo("applying XtrasPlugin")
         apply<MavenPublishPlugin>()
         apply<SigningPlugin>()
 
-        val xtras = xtrasExtension.apply {
-          nativeTargets.convention(emptyList())
-          libraries.convention(emptyList())
+        val xtras = xtrasExtension
 
-          repoIDFileName.convention(project.provider {
-            "sonatypeRepoID_${rootProject.name}_${rootProject.group}"
-          })
-          //by default share a single repoID for entire project
-
-          repoIDFile.convention(repoIDFileName.map {
-            rootProject.layout.buildDirectory.file(it).get()
-          })
+        xtras.nativeTargets.convention(providers.provider {
+          val kotlin = extensions.findByName("kotlin")
+          if (kotlin is KotlinMultiplatformExtension) {
+            kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget }
+          } else emptyList()
+        })
 
 
-          afterEvaluate {
+        xtras.repoIDFileName.convention(project.provider {
+          "sonatypeRepoID_${rootProject.name}_${rootProject.group}"
+        })
+        //by default share a single repoID for entire project
 
-            val kotlin = extensions.findByName("kotlin")
-            if (kotlin is KotlinMultiplatformExtension) {
-              nativeTargets.convention(
-                kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget })
+        xtras.repoIDFile.convention(xtras.repoIDFileName.map {
+          rootProject.layout.buildDirectory.file(it).get()
+        })
+
+        val xtrasJvmTarget = xtras.jvmTarget
+
+        afterEvaluate {
+
+          tasks.withType<KotlinJvmCompile> {
+            compilerOptions {
+              this.jvmTarget = xtrasJvmTarget
             }
-
-            registerMiscTasks()
           }
+
+          registerMiscTasks()
         }
 
         configureExtras(xtras)
       }
     }
   }
+
 }
 
 val Project.xtrasExtension: Xtras
@@ -87,18 +96,6 @@ internal fun Project.registerMiscTasks() {
       }
     }
   }
-
-
-  /*  tasks.withType<Exec> {
-      environment(
-        HostManager.host.envLibraryPathName,
-        pathOf(
-          xtrasExtension.ldLibraryPath(),
-          environment[HostManager.host.envLibraryPathName]
-        )
-      )
-    }*/
-
 }
 
 private fun Project.configureExtras(xtras: Xtras) {
@@ -127,7 +124,7 @@ private fun Project.configureExtras(xtras: Xtras) {
  */
 private fun Project.configureProjectTasks(xtras: Xtras) {
 
-  val prepareJniTask = tasks.create<Task>(Xtras.Constants.TaskNames.XTRAS_PREPARE_JNI_LIBS){
+  val prepareJniTask = tasks.create<Task>(Xtras.Constants.TaskNames.XTRAS_PREPARE_JNI_LIBS) {
     group = XTRAS_TASK_GROUP
     description = "Copy required files into jniLibs dir for android packaging"
   }
@@ -137,18 +134,18 @@ private fun Project.configureProjectTasks(xtras: Xtras) {
 
     tasks.findByName("mergeReleaseJniLibFolders")?.dependsOn(prepareJniTask)
 
-
     val exes = kotlinBinaries { it is Executable && it.runsOnHost }
     logTrace("exeCount:${exes.size}")
 
     exes.forEach { exe ->
       val runTask = (exe as Executable).runTask!!
       val ldPath = exe.xtrasLibraryPath()
-      logDebug("configureProjectTasks:$exe ldPath: $ldPath")
+      logDebug("configureProjectTasks: exe:${exe.name} target:${exe.target.konanTarget.kotlinTargetName} ldPath:$ldPath")
       runTask.environment[HostManager.host.envLibraryPathName] = ldPath
     }
 
-    val androidLibs = kotlinBinaries { it is SharedLibrary && it.target.konanTarget.family == Family.ANDROID }
+    val androidLibs =
+      kotlinBinaries { it is SharedLibrary && it.target.konanTarget.family == Family.ANDROID }
     logTrace("androidLib count: ${androidLibs.size}")
 
     androidLibs.forEach { lib ->
@@ -168,15 +165,17 @@ private fun Project.configureProjectTasks(xtras: Xtras) {
 
     val libs = xtras.libraries.get()
     logTrace("libCount: ${libs.size}")
-    xtras.nativeTargets.get().filter { it.family == Family.ANDROID }.forEach { androidTarget->
-      libs.forEach { lib->
-        val copyTaskName = Xtras.Constants.TaskNames.copyXtrasLibsToJniFolderTaskName(lib,androidTarget)
-        tasks.register<Copy>(copyTaskName){
+    xtras.nativeTargets.get().filter { it.family == Family.ANDROID }.forEach { androidTarget ->
+      libs.forEach { lib ->
+        val copyTaskName =
+          Xtras.Constants.TaskNames.copyXtrasLibsToJniFolderTaskName(lib, androidTarget)
+        tasks.register<Copy>(copyTaskName) {
           prepareJniTask.dependsOn(copyTaskName)
           dependsOn(PackageTaskName.EXTRACT.taskName(lib, androidTarget))
           val srcDir = lib.libsDir.invoke(androidTarget).resolve("lib")
           from(srcDir)
-          val destDir = project.file("src").resolveAll("main","jniLibs",androidTarget.androidLibDir!!)
+          val destDir =
+            project.file("src").resolveAll("main", "jniLibs", androidTarget.androidLibDir!!)
           into(destDir)
           doLast {
             logInfo("$name: copied files from $srcDir to $destDir")

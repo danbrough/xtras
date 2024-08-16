@@ -144,13 +144,13 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
 
   return extensions.create(name, clazz, group, name, version, this).also {
     extensions.configure<T>(name) {
+      logError("adding $name to xtras.libraries")
       xtras.libraries.add(this)
 
       afterEvaluate {
         it.registerTasks()
         if (buildEnabled) {
           xtras.nativeTargets.get().forEach {
-            //configureLinkTasks(it)
             registerBinaryPublication(it)
           }
         }
@@ -179,11 +179,3 @@ inline fun <reified T : XtrasLibrary> Project.registerXtrasGitLibrary(
 }
 
 
-/*
-
-private fun XtrasLibrary.configureLinkTasks(target: KonanTarget){
-  project.tasks.withType<KotlinNativeLink>{
-    this.binary.linkTask.li
-  }
-}
-*/

@@ -50,9 +50,14 @@ fun Project.unixPath(file: File): String = if (HostManager.hostIsMingw) Runtime.
   .exec(arrayOf(cygpath, "-up", file.absolutePath)).inputStream.bufferedReader().readText()
 else file.absolutePath
 
-fun Project.pathOf(paths: List<Any?>): String =
-  paths.filterNotNull()
-    .joinToString(":") { if (it is File) unixPath(it) else if (it is List<*>) pathOf(it) else it.toString() }
+fun Project.pathOf(paths: Collection<Any?>): String =
+  paths.mapNotNull {
+    when (it) {
+      is File -> unixPath(it)
+      is Collection<*> -> pathOf(it).ifEmpty { null }
+      else -> it?.toString()?.ifBlank { null }
+    }
+  }.joinToString(File.pathSeparator)
 
 fun Project.pathOf(vararg paths: Any?): String = pathOf(paths.toList())
 
@@ -61,9 +66,7 @@ fun File.resolveAll(vararg paths: String): File = resolveAll(paths.toList())
 fun File.resolveAll(paths: List<String>): File =
   paths.fold(this) { file, path -> file.resolve(path) }
 
-fun Project.kotlinBinaries(
-  binariesFilter: (NativeBinary) -> Boolean = { it.buildType == NativeBuildType.DEBUG && it.target.konanTarget == HostManager.host }
-): List<NativeBinary> =
+fun Project.kotlinBinaries(binariesFilter: (NativeBinary) -> Boolean): List<NativeBinary> =
   extensions.findByType<KotlinMultiplatformExtension>()?.targets?.withType<KotlinNativeTarget>()
     ?.flatMap { it.binaries }
     ?.filter(binariesFilter)
@@ -71,10 +74,9 @@ fun Project.kotlinBinaries(
 
 fun Executable.xtrasLibraryPath(): String =
   project.pathOf(
-    project.xtrasExtension.ldLibraryPath(buildType),
+    project.xtrasExtension.ldLibraryPath(this.target.konanTarget, buildType),
     runTask!!.environment[HostManager.host.envLibraryPathName]
   )
-
 
 val NativeBinary.jniLibsDir: File
   get() = project.file("src").resolveAll(
