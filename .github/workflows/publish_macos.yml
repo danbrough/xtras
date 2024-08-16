@@ -35,6 +35,8 @@ jobs:
         with:
           cache-read-only: false
           gradle-home-cache-cleanup: false
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '21'
 
       - name: Set up Android SDK
         if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
@@ -71,19 +73,19 @@ jobs:
           PROPS
           chmod 600 $GRADLE_PROPS
 
-      - name: Cache Xtras dir
-        id: cache_xtras
-        uses: actions/cache@v4.0.2
-        with:
-          path: ${{ env.XTRAS_DIR }}
-          key: ${{ runner.os }}-xtras
-
-      - name: Cache Konan dir
-        id: cache_konan
-        uses: actions/cache@v4.0.2
-        with:
-          path: ${{ env.KONAN_DIR }}
-          key: ${{ runner.os }}-konan
+#      - name: Cache Xtras dir
+#        id: cache_xtras
+#        uses: actions/cache@v4.0.2
+#        with:
+#          path: ${{ env.XTRAS_DIR }}
+#          key: ${{ runner.os }}-xtras
+#
+#      - name: Cache Konan dir
+#        id: cache_konan
+#        uses: actions/cache@v4.0.2
+#        with:
+#          path: ${{ env.KONAN_DIR }}
+#          key: ${{ runner.os }}-konan
 
       #      - name: publish_support
       #        shell: bash

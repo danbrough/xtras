@@ -38,6 +38,9 @@ jobs:
         with:
           cache-read-only: false
           gradle-home-cache-cleanup: false
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '21'
+
 
       - name: Set up Android SDK
         if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
