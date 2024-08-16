@@ -97,7 +97,7 @@ jobs:
       #        run: |
       #          ./gradlew :jni:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
 
-      - name: publish_openssl
+      - name: publish_support
         shell: bash
         run: |
-          ./gradlew :openssl:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
+          ./gradlew :support:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
