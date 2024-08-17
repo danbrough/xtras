@@ -66,7 +66,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
           put("CC", "x86_64-w64-mingw32-gcc")
           put("RC", "x86_64-w64-mingw32-windres")
         } else if (target == KonanTarget.MACOS_ARM64){
-          cflags += " -arch ARM64"
+          cflags += " -arch arm64"
         }else if (target == KonanTarget.MACOS_ARM64){
           cflags += " -arch x86_64"
         }
