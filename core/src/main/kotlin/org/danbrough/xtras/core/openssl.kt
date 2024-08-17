@@ -21,6 +21,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
         linkerOpts.linux = -ldl -lc -lm -lssl -lcrypto -L/usr/lib 
         linkerOpts.android = -ldl -lc -lm -lssl -lcrypto
         linkerOpts.macos = -ldl -lc -lm -lssl -lcrypto
+        linkerOpts.ios = -ldl -lc -lm -lssl -lcrypto
         linkerOpts.mingw = -lm -lssl -lcrypto
         compilerOpts.android = -D__ANDROID_API__=${xtras.androidConfig.ndkApiVersion}  
         compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
@@ -33,7 +34,9 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
       buildCommand { target ->
         writer.println(
           """
-          |[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} ${if (target.family == Family.ANDROID) "-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion}" else ""} no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
+          |[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} \
+          |${if (target.family == Family.ANDROID) "-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion}" else ""} \
+          |no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
           |make || exit 1
           |make install_sw || exit 1
         """.trimMargin()
@@ -51,8 +54,10 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
     environment { target ->
 
-      put("CFLAGS", "-Wno-unused-command-line-argument -Wno-macro-redefined")
+
+
       if (target != null) {
+        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined"
         if (target.family == Family.ANDROID)
           environmentNDK(xtras, target, project)
         else if (target.family == Family.LINUX)
@@ -60,8 +65,12 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
         else if (target.family == Family.MINGW) {
           put("CC", "x86_64-w64-mingw32-gcc")
           put("RC", "x86_64-w64-mingw32-windres")
+        } else if (target == KonanTarget.MACOS_ARM64){
+          cflags += " -arch ARM64"
+        }else if (target == KonanTarget.MACOS_ARM64){
+          cflags += " -arch x86_64"
         }
-
+        put("CFLAGS",cflags)
       }
     }
 
