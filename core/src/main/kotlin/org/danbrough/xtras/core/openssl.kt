@@ -53,9 +53,6 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
     }
 
     environment { target ->
-
-
-
       if (target != null) {
         var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined"
         if (target.family == Family.ANDROID)
@@ -65,10 +62,8 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
         else if (target.family == Family.MINGW) {
           put("CC", "x86_64-w64-mingw32-gcc")
           put("RC", "x86_64-w64-mingw32-windres")
-        } else if (target == KonanTarget.MACOS_ARM64){
-          cflags += " -arch arm64"
-        }else if (target == KonanTarget.MACOS_ARM64){
-          cflags += " -arch x86_64"
+        } else if (target.family.isAppleFamily){
+          cflags += " -arch ${target.architecture.name}"
         }
         put("CFLAGS",cflags)
       }
