@@ -26,8 +26,8 @@ buildscript {
   }
 }
 
-group = projectProperty<String>("openssl.group")
-version = projectProperty<String>("openssl.version")
+//group = projectProperty<String>("openssl.group")
+//version = projectProperty<String>("openssl.version")
 val xtras = xtrasExtension
 
 kotlin {
