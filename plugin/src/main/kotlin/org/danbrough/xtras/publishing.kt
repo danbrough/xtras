@@ -10,6 +10,7 @@ import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.internal.extensions.core.extra
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
@@ -87,7 +88,7 @@ private fun Project.xtrasPublishToLocal() =
 private fun Project.xtrasPublishToSonatype() {
 
   logInfo("$name::xtrasPublishToSonatype")
-  if (parent == null)
+
     registerSonatypeTasks()
 
   val baseURL =
@@ -122,10 +123,12 @@ private fun Project.xtrasPublishToSonatype() {
 
     tasks.withType<PublishToMavenRepository>().filter { it.repository?.name == SONATYPE_REPO_NAME }
       .forEach { publishTask ->
-        if (openRepository) publishTask.dependsOn(":${Xtras.Constants.TaskNames.SONATYPE_OPEN_REPO}")
+        if (openRepository) publishTask.dependsOn(Xtras.Constants.TaskNames.SONATYPE_OPEN_REPO)
         if (closeRepository)
-          publishTask.finalizedBy(":${Xtras.Constants.TaskNames.SONATYPE_CLOSE_REPO}")
+          publishTask.finalizedBy(Xtras.Constants.TaskNames.SONATYPE_CLOSE_REPO)
         publishTask.doFirst {
+
+
           publishing.repositories.getByName(SONATYPE_REPO_NAME)
             .apply {
               this as MavenArtifactRepository

@@ -5,7 +5,10 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.internal.extensions.core.extra
+import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.w3c.dom.Element
 import java.io.InputStream
 import java.io.PrintWriter
@@ -21,7 +24,9 @@ internal fun Project.registerSonatypeTasks() {
   registerSonatypeCloseRepository()
 }
 
+
 private fun Project.registerSonatypeOpenRepository() {
+
   tasks.register(Xtras.Constants.TaskNames.SONATYPE_OPEN_REPO) {
     description = """
       Open a new sonatype repository and prints it to stdout.
@@ -41,14 +46,15 @@ private fun Project.registerSonatypeOpenRepository() {
 
       if (xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID) == null) {
         logDebug("getting sonatype repo ID")
+
         if (!repoFile.exists()) {
+
           val response = sonatypeOpenRepository(
             xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PROFILE_ID) { error("${Xtras.Constants.Properties.SONATYPE_PROFILE_ID} not set") },
             xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_DESCRIPTION) {
-              val description =
-                "${this@registerSonatypeOpenRepository.name}:${this@registerSonatypeOpenRepository.version}"
-              logWarn("using default SONATYPE_DESCRIPTION: ")
-              description
+              "${project.group}:${project.name}:${project.version}".also {
+                logWarn("using default sonatype.description: $it")
+              }
             },
             xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_USERNAME) { error("${Xtras.Constants.Properties.SONATYPE_USERNAME} not set") },
             xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PASSWORD) { error("${Xtras.Constants.Properties.SONATYPE_PASSWORD} not set") },
