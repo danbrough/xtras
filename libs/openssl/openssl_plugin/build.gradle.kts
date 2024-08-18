@@ -15,6 +15,7 @@ repositories {
   google()
 }
 
+
 java {
   withSourcesJar()
 //  withJavadocJar()
@@ -29,13 +30,17 @@ dependencies {
   compileOnly("com.android.tools.build:gradle:8.5.2")
 }
 
+
 gradlePlugin {
   plugins {
-    create("duckdb") {
+    create("openssl") {
       id = group.toString()
-      implementationClass = "$group.DuckDBPlugin"
-      displayName = "DuckDB Plugin"
-      description = "Kotlin multiplatform support plugin for duckdb"
+      implementationClass = "$group.plugin.OpenSSLPlugin"
+      displayName = "OpenSSL Plugin"
+      description = "Kotlin multiplatform support plugin for openssl"
     }
   }
 }
+
+
+

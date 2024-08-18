@@ -2,12 +2,9 @@
 @file:Suppress("SpellCheckingInspection")
 
 
-import org.danbrough.xtras.core.openssl
-import org.danbrough.xtras.logDebug
-import org.danbrough.xtras.logError
-import org.danbrough.xtras.projectProperty
-import org.danbrough.xtras.xtrasExtension
+
 import org.danbrough.xtras.xtrasAndroidConfig
+import org.danbrough.xtras.xtrasExtension
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -16,19 +13,12 @@ import org.jetbrains.kotlin.konan.target.HostManager
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   id("com.android.library")
+  id("org.danbrough.openssl")
   `maven-publish`
 }
 
-buildscript {
-  dependencies {
-    //noinspection UseTomlInstead
-    classpath("org.danbrough.xtras:core")
-  }
-}
-
-//group = projectProperty<String>("openssl.group")
-//version = projectProperty<String>("openssl.version")
 val xtras = xtrasExtension
+
 
 kotlin {
   withSourcesJar(publish = true)
@@ -126,9 +116,4 @@ xtras.androidConfig {
   minSDKVersion = 24
   compileSDKVersion = 24
 }
-
-openssl {
-
-}
-
 

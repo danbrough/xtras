@@ -15,12 +15,14 @@ plugins {
 rootProject.name = "xtras"
 
 includeBuild("plugin")
+includeBuild("libs/openssl/openssl_plugin")
+
 
 val pluginOnly:String? by settings
 
 
 if (pluginOnly == null) {
-  includeBuild("core")
+  //includeBuild("core")
 
   listOf(
 //  "logging",
