@@ -13,9 +13,11 @@ cd build
 if [ ! -d src ]; then
     git clone $GIT_URL src
 fi
-#pushd src > /dev/null
-#git clean -xdf && git checkout "$GIT_COMMIT"
-#popd
+
+pushd src > /dev/null && git clean -xdf && git checkout "$GIT_COMMIT" && popd > /dev/null
+
+
+
 
 
 
