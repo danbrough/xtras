@@ -125,6 +125,3 @@ val KonanTarget.opensslPlatform: String
   }
 
 
-fun Project.openSSLMessage() {
-  logInfo("openSSLMessage() called from $group:$version")
-}
