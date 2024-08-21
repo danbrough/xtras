@@ -3,6 +3,7 @@
 
 
 
+import org.danbrough.openssl.plugin.openssl
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasExtension
 import org.danbrough.xtras.xtrasTesting
@@ -19,6 +20,9 @@ plugins {
 
 val xtras = xtrasExtension
 
+openssl {
+
+}
 
 kotlin {
   withSourcesJar(publish = true)
