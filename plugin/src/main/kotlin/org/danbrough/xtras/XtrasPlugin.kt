@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.SharedLibrary
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
+import java.io.File
 
 
 class XtrasPlugin : Plugin<Any> {
@@ -53,6 +54,10 @@ class XtrasPlugin : Plugin<Any> {
         xtras.repoIDFile.convention(xtras.repoIDFileName.map {
           rootProject.layout.buildDirectory.file(it).get()
         })
+
+        (System.getenv("ANDROID_NDK") ?: System.getenv("ANDROID_NDK_ROOT"))?.also {
+          xtras.androidConfig.ndkDir = File(it)
+        }
 
         val xtrasJvmTarget = xtras.jvmTarget
 
