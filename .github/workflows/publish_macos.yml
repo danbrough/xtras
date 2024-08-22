@@ -100,6 +100,7 @@ jobs:
       - name: publish_support
         shell: bash
         run: |
-          ./gradlew :plugin:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
-          ./gradlew :support:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
-          ./gradlew :jni:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
+          ./gradlew :openssl_plugin:publishAllPublicationsToSonatypeRepository :openssl:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
+          #./gradlew :plugin:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
+          #./gradlew :support:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
+          #./gradlew :jni:publishAllPublicationsToSonatypeRepository -Psonatype.closeRepository=1
