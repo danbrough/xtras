@@ -52,6 +52,7 @@ private fun XtrasEnvironment.environmentApple(target: KonanTarget) {
 
 fun XtrasEnvironment.environmentNDK(xtras: Xtras, target: KonanTarget, project: Project) {
   put("ANDROID_NDK_ROOT", xtras.androidConfig.ndkDir)
+  put("ANDROID_NDK", xtras.androidConfig.ndkDir)
 
   val archFolder = when {
     HostManager.hostIsLinux -> "linux-x86_64"
