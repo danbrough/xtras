@@ -42,7 +42,7 @@ kotlin {
   }
 
   mingwX64()
-  linuxX64()
+
 
   androidNativeArm64()
   androidNativeX64()
@@ -55,6 +55,7 @@ kotlin {
     //iosSimulatorArm64()
   } else {
     linuxArm64()
+    linuxX64()
   }
 
   sourceSets {
