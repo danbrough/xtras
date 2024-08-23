@@ -5,6 +5,7 @@ import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.environmentKonan
 import org.danbrough.xtras.environmentNDK
 import org.danbrough.xtras.logInfo
+import org.danbrough.xtras.macArch
 import org.danbrough.xtras.registerXtrasGitLibrary
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
@@ -64,7 +65,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
           put("CC", "x86_64-w64-mingw32-gcc")
           put("RC", "x86_64-w64-mingw32-windres")
         } else if (target.family.isAppleFamily) {
-          cflags += " -arch ${target.architecture.name.lowercase()}"
+          cflags += " -arch ${target.macArch}"
         }
         put("CFLAGS", cflags)
       }

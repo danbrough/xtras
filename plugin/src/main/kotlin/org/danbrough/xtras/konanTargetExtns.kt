@@ -135,7 +135,12 @@ val KonanTarget.supportsJNI: Boolean
   get() = this in jniTargets
 
 
-
+val KonanTarget.macArch: String?
+  get() = when (this) {
+    KonanTarget.MACOS_X64 -> "x86_64"
+    KonanTarget.MACOS_ARM64 -> "arm64"
+    else -> null
+  }
 
 
 
