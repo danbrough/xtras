@@ -32,15 +32,24 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
       //targetWriterFilter = { target -> target == KonanTarget.LINUX_ARM64 }
 
       buildCommand { target ->
-        writer.println(
-          """
-          |[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} \
-          |${if (target.family == Family.ANDROID) "-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion}" else ""} \
-          |no-tests threads zlib --prefix=$${ENV_BUILD_DIR} --libdir=lib
-          |make || exit 1
-          |make install_sw || exit 1
-        """.trimMargin()
-        )
+        writer.println("[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} \\")
+
+        when {
+          target.family == Family.ANDROID ->
+            writer.println("-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion} \\")
+
+          target == KonanTarget.MACOS_X64 -> {
+            writer.println("-arch x86_64")
+          }
+
+          target == KonanTarget.MACOS_ARM64 -> {
+            writer.println("-arch arm64")
+          }
+        }
+        writer.println("-Os no-engine no-asm no-tests threads zlib --prefix=\$${ENV_BUILD_DIR} --libdir=lib")
+        writer.println("make || exit 1")
+        writer.println("make install_sw || exit 1")
+
       }
 
       /*      afterEvaluate {
@@ -62,10 +71,10 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
         else if (target.family == Family.MINGW) {
           put("CC", "x86_64-w64-mingw32-gcc")
           put("RC", "x86_64-w64-mingw32-windres")
-        } else if (target.family.isAppleFamily){
+        } else if (target.family.isAppleFamily) {
           cflags += " -arch ${target.architecture.name}"
         }
-        put("CFLAGS",cflags)
+        put("CFLAGS", cflags)
       }
     }
 
