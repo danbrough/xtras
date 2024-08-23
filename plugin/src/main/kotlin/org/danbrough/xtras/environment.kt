@@ -19,6 +19,7 @@ val Xtras.INITIAL_ENVIRONMENT: XtrasEnvironmentConfig
 
 
     put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")
+    put("MAKEOPTS", "-j${Runtime.getRuntime().availableProcessors()}")
 
     if (HostManager.hostIsMingw) {
       put(

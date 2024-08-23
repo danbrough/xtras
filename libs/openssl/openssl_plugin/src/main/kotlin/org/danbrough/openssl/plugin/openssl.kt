@@ -73,9 +73,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
     /*    configureSource { target ->
           outputs.file(workingDir.resolve("Makefile"))
-
           var command ="./Configure ${target.opensslPlatform} no-tests threads zlib --prefix=${buildDir(target)} --libdir=lib"
-
 
           if (target.family == Family.ANDROID)
             command += "-D__ANDROID_API__=${xtras.androidConfig.ndkApiVersion}"
@@ -86,14 +84,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
           commandLine(xtras.sh,"-c",command)
         }
-
-        compileSource {
-          commandLine(xtras.sh,"-c","make")
-        }
-
-        installSource {
-          commandLine(xtras.sh,"-c","make")
-        }*/
+*/
 
     block()
   }
