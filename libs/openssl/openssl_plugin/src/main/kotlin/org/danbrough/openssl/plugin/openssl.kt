@@ -37,16 +37,8 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
         when {
           target.family == Family.ANDROID ->
             writer.println("-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion} \\")
-
-          target == KonanTarget.MACOS_X64 -> {
-            writer.println("-arch x86_64")
-          }
-
-          target == KonanTarget.MACOS_ARM64 -> {
-            writer.println("-arch arm64")
-          }
         }
-        writer.println("-Os no-engine no-asm no-tests threads zlib --prefix=\$${ENV_BUILD_DIR} --libdir=lib")
+        writer.println("no-engine no-asm no-tests threads zlib --prefix=\$${ENV_BUILD_DIR} --libdir=lib")
         writer.println("make || exit 1")
         writer.println("make install_sw || exit 1")
 
@@ -63,7 +55,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
 
     environment { target ->
       if (target != null) {
-        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined"
+        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
         if (target.family == Family.ANDROID)
           environmentNDK(xtras, target, project)
         else if (target.family == Family.LINUX)
@@ -72,7 +64,7 @@ fun Project.openssl(libName: String = "openssl", block: XtrasLibrary.() -> Unit 
           put("CC", "x86_64-w64-mingw32-gcc")
           put("RC", "x86_64-w64-mingw32-windres")
         } else if (target.family.isAppleFamily) {
-          cflags += " -arch ${target.architecture.name}"
+          cflags += " -arch ${target.architecture.name.lowercase()}"
         }
         put("CFLAGS", cflags)
       }
