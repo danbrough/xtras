@@ -14,7 +14,6 @@ plugins {
 }
 
 
-
 /*
 java {
   sourceCompatibility = JavaConfig.javaVersion
@@ -23,22 +22,28 @@ java {
 
 
 kotlin {
-  withSourcesJar(publish = true)
- // applyDefaultHierarchyTemplate()
 
-  linuxX64()
-  linuxArm64()
-  mingwX64()
-  if (HostManager.hostIsMac) {
-    macosArm64()
-    macosX64()
-  }
-  androidNativeArm64()
-  androidNativeX64()
-  androidNativeArm32()
+  withSourcesJar(publish = true)
+  // applyDefaultHierarchyTemplate()
+
 
   jvm()
   androidTarget()
+
+
+  if (HostManager.hostIsMac) {
+    macosArm64()
+    macosX64()
+  } else {
+    linuxX64()
+    linuxArm64()
+    mingwX64()
+
+    androidNativeArm64()
+    androidNativeX64()
+    androidNativeArm32()
+  }
+
 
   sourceSets {
     all {
