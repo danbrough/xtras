@@ -4,14 +4,10 @@
 
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 xtras = { id = "org.danbrough.xtras" }
-xtras-openssl = { id = "org.danbrough.xtras.openssl", version.ref = "xtras-openssl" }
-xtras-mqtt = { id = "org.danbrough.xtras.mqtt", version.ref = "xtras-mqtt" }
-duckdb = { id = "org.danbrough.duckdb", version.ref = "duckdb-plugin" }
 
 [versions]
 
@@ -54,8 +50,8 @@ slf4j-simple = "2.0.12"
 logback-classic = "1.5.7"
 
 kotlinx-coroutines = "1.8.1"
-klog = "0.0.3-beta05"
-kotlinx-datetime = "0.6.0"
+klog = "0.0.3-beta06"
+kotlinx-datetime = "0.6.1"
 
 [libraries]
 
