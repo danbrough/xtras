@@ -66,19 +66,6 @@ kotlin {
       }
     }
 
-    jvmMain {
-      dependencies {
-        api(libs.slf4j.api)
-        api(libs.logback.classic)
-      }
-    }
-
-    androidMain {
-      dependencies {
-        api(libs.slf4j.api)
-        api(libs.slf4j.android)
-      }
-    }
   }
 
 
