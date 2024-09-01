@@ -26,10 +26,8 @@ kotlin {
   withSourcesJar(publish = true)
   // applyDefaultHierarchyTemplate()
 
-
   jvm()
   androidTarget()
-
 
   if (HostManager.hostIsMac) {
     macosArm64()
@@ -43,7 +41,6 @@ kotlin {
     androidNativeX64()
     androidNativeArm32()
   }
-
 
   sourceSets {
     all {
@@ -65,7 +62,6 @@ kotlin {
         implementation(kotlin("test"))
       }
     }
-
   }
 
 
