@@ -29,10 +29,10 @@ kotlin {
   jvm()
   androidTarget()
 
-  if (HostManager.hostIsMac) {
+//  if (HostManager.hostIsMac) {
     macosArm64()
     macosX64()
-  } else {
+ // } else {
     linuxX64()
     linuxArm64()
     mingwX64()
@@ -40,7 +40,7 @@ kotlin {
     androidNativeArm64()
     androidNativeX64()
     androidNativeArm32()
-  }
+  //}
 
   sourceSets {
     all {
