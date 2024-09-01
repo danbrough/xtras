@@ -24,7 +24,7 @@ java {
 kotlin {
 
   withSourcesJar(publish = true)
-  // applyDefaultHierarchyTemplate()
+  applyDefaultHierarchyTemplate()
 
   jvm()
   androidTarget()
