@@ -89,7 +89,7 @@ private fun Project.xtrasPublishToSonatype() {
 
   logInfo("$name::xtrasPublishToSonatype")
 
-    registerSonatypeTasks()
+  registerSonatypeTasks()
 
   val baseURL =
     xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_BASE_URL) { "https://s01.oss.sonatype.org" }
@@ -97,6 +97,7 @@ private fun Project.xtrasPublishToSonatype() {
   val snapshot = xtrasProperty(Xtras.Constants.Properties.SONATYPE_SNAPSHOT) { false }
 
   val openRepository = xtrasProperty(Xtras.Constants.Properties.SONATYPE_OPEN_REPOSITORY) { true }
+
   val closeRepository =
     xtrasProperty(Xtras.Constants.Properties.SONATYPE_CLOSE_REPOSITORY) { false }
 
@@ -146,7 +147,7 @@ private fun Project.xtrasPublishToSonatype() {
                     "$baseURL/service/local/staging/deploy/maven2/"
 
 
-              logDebug("sonatype publish url: $sonatypeURL")
+              logWarn("sonatype publish url: $sonatypeURL")
 
               this.url = URI.create(sonatypeURL)
             }

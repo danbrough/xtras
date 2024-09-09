@@ -70,9 +70,10 @@ class XtrasPlugin : Plugin<Any> {
           }
 
           registerMiscTasks()
+          configureExtras(xtras)
         }
 
-        configureExtras(xtras)
+
       }
     }
   }

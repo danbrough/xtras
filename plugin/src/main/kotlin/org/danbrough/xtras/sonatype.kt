@@ -20,6 +20,7 @@ import java.util.Base64
 import javax.xml.parsers.DocumentBuilderFactory
 
 internal fun Project.registerSonatypeTasks() {
+  logDebug("registerSonatypeTasks()")
   registerSonatypeOpenRepository()
   registerSonatypeCloseRepository()
 }

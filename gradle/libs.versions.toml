@@ -13,16 +13,7 @@ xtras = { id = "org.danbrough.xtras" }
 
 duckdb-plugin = "0.0.1-beta01"
 
-agp = "8.6.0"
-##⬆= "8.7.0-alpha01"
-##⬆= "8.7.0-alpha02"
-##⬆= "8.7.0-alpha03"
-##⬆= "8.7.0-alpha04"
-##⬆= "8.7.0-alpha05"
-##⬆= "8.7.0-alpha06"
-##⬆= "8.7.0-alpha07"
-##⬆= "8.7.0-alpha08"
-##⬆= "8.7.0-alpha09"
+agp = "8.7.0-beta01"
 
 kotlin = "2.0.20"
 
@@ -38,7 +29,7 @@ slf4j-api = "2.0.16"
 ##     ⬆ = "2.1.0-alpha0"
 ##     ⬆ = "2.1.0-alpha1"
 slf4j-simple = "2.0.12"
-logback-classic = "1.5.7"
+logback-classic = "1.5.8"
 
 kotlinx-coroutines = "1.8.1"
 klog = "0.0.3-beta06"
