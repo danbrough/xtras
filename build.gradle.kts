@@ -8,8 +8,7 @@ plugins {
   alias(libs.plugins.android.application) apply false
   alias(libs.plugins.android.library) apply false
   alias(libs.plugins.dokka) apply false
-
-
+  alias(libs.plugins.openssl) apply false
   signing
   `maven-publish`
   alias(libs.plugins.xtras)

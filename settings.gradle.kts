@@ -25,17 +25,9 @@ if (pluginOnly == null) {
   //includeBuild("core")
 
   listOf(
-//  "logging",
     "support",
     "jni",
-    //"duckdb",
     "openssl",
-
-
-    //"ssh2",
-    //"postgres",
-    //"sqlite",
-    //"jwt",
   ).forEach {
     include(":$it")
     project(":$it").projectDir = file("libs/$it")

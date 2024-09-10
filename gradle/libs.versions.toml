@@ -8,6 +8,7 @@ dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 xtras = { id = "org.danbrough.xtras" }
+openssl = { id = "org.danbrough.openssl" }
 
 [versions]
 

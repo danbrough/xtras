@@ -15,6 +15,7 @@ repositories {
   google()
 }
 
+group = "org.danbrough.openssl"
 
 java {
   withSourcesJar()
