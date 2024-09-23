@@ -14,7 +14,7 @@ openssl = { id = "org.danbrough.openssl" }
 
 duckdb-plugin = "0.0.1-beta01"
 
-agp ="8.8.0-alpha01"
+agp ="8.7.0-beta02"
 
 kotlin = "2.0.20"
 
