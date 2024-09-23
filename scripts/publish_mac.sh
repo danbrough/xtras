@@ -3,4 +3,5 @@ PACKAGE=:$1
 $PACKAGE:publishMacosArm64PublicationToSonatypeRepository \
 $PACKAGE:publishMacosX64PublicationToSonatypeRepository \
 $PACKAGE:publishOpensslBinariesMacosArm64PublicationToSonatypeRepository \
-$PACKAGE:publishOpensslBinariesMacosX64PublicationToSonatypeRepository 
+$PACKAGE:publishOpensslBinariesMacosX64PublicationToSonatypeRepository  $2 $3 $4
+
