@@ -1,7 +1,9 @@
-PACKAGE=:$1
-./gradlew -Psonatype.repoID=orgdanbrough-1783 -Psonatype.closeRepository=0 \
+PACKAGE=:openssl
+
+./gradlew -Psonatype.repoID=orgdanbrough-$1 -Psonatype.closeRepository=0 \
 $PACKAGE:publishMacosArm64PublicationToSonatypeRepository \
 $PACKAGE:publishMacosX64PublicationToSonatypeRepository \
 $PACKAGE:publishOpensslBinariesMacosArm64PublicationToSonatypeRepository \
-$PACKAGE:publishOpensslBinariesMacosX64PublicationToSonatypeRepository  $2 $3 $4
+$PACKAGE:publishOpensslBinariesMacosX64PublicationToSonatypeRepository 
+
 
