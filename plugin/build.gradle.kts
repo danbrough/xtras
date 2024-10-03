@@ -6,12 +6,14 @@ plugins {
   `maven-publish`
   alias(libs.plugins.dokka)
   signing
-  id("org.danbrough.xtras") version "0.0.1-beta10"
+  id("org.danbrough.xtras") version "0.0.1-beta11"
 }
 
 group = "org.danbrough.xtras"
 
 repositories {
+  //maven("file:///files/xtras/maven")
+  maven("https://s01.oss.sonatype.org/content/groups/staging/")
   mavenCentral()
   google()
 }
@@ -38,7 +40,7 @@ dependencies {
 gradlePlugin {
   plugins {
     create("xtras") {
-      id = group.toString()
+      id = "org.danbrough.xtras"
       implementationClass = "$group.XtrasPlugin"
       displayName = "Xtras Plugin"
       description = "Kotlin multiplatform support plugin"
