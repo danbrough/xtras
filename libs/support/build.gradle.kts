@@ -1,19 +1,14 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import org.danbrough.xtras.xtrasAndroidConfig
-import org.danbrough.xtras.xtrasExtension
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.android.library)
 }
-
-
 
 
 /*
@@ -27,10 +22,10 @@ kotlin {
   withSourcesJar(publish = true)
   applyDefaultHierarchyTemplate()
 
-/*  compilerOptions {
-    languageVersion = JavaConfig.kotlinLanguageVersion
-    apiVersion = JavaConfig.kotlinApiVersion
-  }*/
+  /*  compilerOptions {
+      languageVersion = JavaConfig.kotlinLanguageVersion
+      apiVersion = JavaConfig.kotlinApiVersion
+    }*/
 
   linuxX64()
   linuxArm64()

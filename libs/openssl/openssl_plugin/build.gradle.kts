@@ -5,8 +5,8 @@ plugins {
   `java-gradle-plugin`
   `maven-publish`
   signing
-  id("org.jetbrains.dokka") version "1.9.20"
-  id("org.danbrough.xtras") version "0.0.1-beta10"
+  alias(libs.plugins.dokka)
+  alias(libs.plugins.xtras)
 }
 
 repositories {
@@ -29,9 +29,11 @@ java {
 dependencies {
   compileOnly(kotlin("gradle-plugin"))
   //noinspection UseTomlInstead
-  implementation("org.danbrough.xtras:plugin:0.0.1-beta10")
-  //noinspection UseTomlInstead
-  compileOnly("com.android.tools.build:gradle:8.5.2")
+  //implementation("org.danbrough.xtras:plugin:0.0.1-beta12")
+  compileOnly(libs.xtras.plugin)
+
+  //compileOnly("com.android.tools.build:gradle:8.5.2")
+  compileOnly(libs.gradle.android)
 }
 
 

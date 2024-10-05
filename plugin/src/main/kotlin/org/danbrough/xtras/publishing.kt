@@ -18,6 +18,9 @@ import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
+import org.jetbrains.dokka.DokkaDefaults.pluginsConfiguration
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.model.doc.Html
 import java.io.File
 import java.net.URI
 
@@ -208,21 +211,17 @@ internal fun Project.xtrasPublishing() {
   if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_DOCS) { false }) {
     logTrace("configuring docs..")
     pluginManager.apply("org.jetbrains.dokka")
-
-
     val javadocTask = tasks.create("javadocJar", Jar::class.java) {
+
       group = JavaBasePlugin.DOCUMENTATION_GROUP
       archiveClassifier.set("javadoc")
-      from(tasks.getByName("dokkaHtml"))
+      //from(tasks.getByName("dokkaHtml"))
+
+      from(tasks.getByName("dokkaGenerateModuleHtml"))
+      //from(tasks.getByName("dokkaGeneratePublicationHtml"))
+
     }
 
-
-    //
-//A problem was found with the configuration of task ':core:signAndroidNativeX64Publication' (type 'Sign').
-//  - Gradle detected a problem with the following location: '/home/dan/workspace/kotlin/klog/core/build/libs/core-0.0.3-beta04-javadoc.jar.asc'.
-//
-//    Reason: Task ':core:publishAndroidNativeArm64PublicationToXtrasRepository' uses this output of task
-//    //':core:signAndroidNativeX64Publication' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
 
     withPublishing {
       publications.all {
@@ -230,7 +229,6 @@ internal fun Project.xtrasPublishing() {
           artifact(javadocTask)
         }
       }
-
 
       val signingTasks = tasks.withType<Sign>()
       tasks.withType<PublishToMavenRepository> {
