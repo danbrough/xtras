@@ -1,5 +1,6 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
+import org.danbrough.xtras.logError
 import org.danbrough.xtras.supportsJNI
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
@@ -13,13 +14,7 @@ plugins {
   id("com.android.library")
 }
 
-
-/*
-java {
-  sourceCompatibility = JavaConfig.javaVersion
-  targetCompatibility = JavaConfig.javaVersion
-}*/
-
+group = "org.danbrough"
 
 kotlin {
 
@@ -30,16 +25,16 @@ kotlin {
   androidTarget()
 
 //  if (HostManager.hostIsMac) {
-    macosArm64()
-    macosX64()
- // } else {
-    linuxX64()
-    linuxArm64()
-    mingwX64()
+  macosArm64()
+  macosX64()
+  // } else {
+  linuxX64()
+  linuxArm64()
+  mingwX64()
 
-    androidNativeArm64()
-    androidNativeX64()
-    androidNativeArm32()
+  androidNativeArm64()
+  androidNativeX64()
+  androidNativeArm32()
   //}
 
   sourceSets {
@@ -67,12 +62,14 @@ kotlin {
 
   targets.withType<KotlinNativeTarget> {
     if (konanTarget.supportsJNI) {
+      logError("Creating interops for $konanTarget")
       /**
        * Generate the platform.android jni header bindings for targets that aren't android
        */
       compilations["main"].cinterops {
         create("jni") {
-          packageName = "${project.group}.jni"
+          packageName = "${project.group}.jni.cinterops"
+          logError("packageName: $packageName")
           val headersDir = project.file("src").resolve("headers")
           val osDir = when (konanTarget.family) {
             Family.LINUX -> "linux"
@@ -86,6 +83,7 @@ kotlin {
             headers(osDir.resolve("jni.h"))
             includeDirs(osDir)
           } else {
+            logError("HEADERS: ${headersDir.resolve("jni.h")} and ${osDir.resolve("jni_md.h")}")
             headers(headersDir.resolve("jni.h"), osDir.resolve("jni_md.h"))
             includeDirs(headersDir, osDir)
           }
