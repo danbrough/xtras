@@ -2,7 +2,6 @@
 @file:Suppress("SpellCheckingInspection")
 
 
-
 import org.danbrough.openssl.plugin.openssl
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasExtension
@@ -40,13 +39,13 @@ kotlin {
 
   androidTarget {
   }
-  
+
 
   if (HostManager.hostIsMac) {
     macosX64()
     macosArm64()
     //iosX64()
-    iosArm64()
+    //iosArm64()
     //iosSimulatorArm64()
   } else {
     linuxArm64()
