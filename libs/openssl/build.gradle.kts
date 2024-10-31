@@ -34,7 +34,6 @@ kotlin {
   }
 
   applyDefaultHierarchyTemplate()
-
   jvm()
 
   androidTarget {
