@@ -12,24 +12,18 @@ openssl = { id = "org.danbrough.openssl" }
 
 [versions]
 
-dokka-gradle-plugin = "2.0.0-Beta"
+dokka-gradle-plugin = "2.0.21"
 duckdb-plugin = "0.0.1-beta01"
 
-agp = "8.7.2"
-##⬆= "8.8.0-alpha01"
-##⬆= "8.8.0-alpha02"
-##⬆= "8.8.0-alpha03"
-##⬆= "8.8.0-alpha04"
-##⬆= "8.8.0-alpha05"
-##⬆= "8.8.0-alpha06"
-##⬆= "8.8.0-alpha07"
-##⬆= "8.8.0-alpha08"
-##⬆= "8.8.0-alpha09"
+agp = "8.8.0-beta01"
+##⬆= "8.9.0-alpha01"
+##⬆= "8.9.0-alpha02"
 
 kotlin = "2.0.21"
 ##  ⬆ = "2.1.0-Beta1"
 ##  ⬆ = "2.1.0-Beta2"
 ##  ⬆ = "2.1.0-RC"
+##  ⬆ = "2.1.0-RC2"
 
 xtras-publish = "0.0.1-beta02"
 xtras-openssl = "0.0.1-alpha01"
