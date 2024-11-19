@@ -53,11 +53,8 @@ gradlePlugin {
 }
 
 dokka {
-
   pluginsConfiguration {
-
     html {
-
       footerMessage = "Dan Brough Org"
     }
   }

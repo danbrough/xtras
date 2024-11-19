@@ -23,7 +23,7 @@ val pluginOnly: String? by settings
 if (pluginOnly == null) {
   //includeBuild("core")
   includeBuild("libs/openssl/openssl_plugin")
-  includeBuild("libs/ssh2/ssh2_plugin")
+  //includeBuild("libs/ssh2/ssh2_plugin")
 
   listOf(
     "support",
