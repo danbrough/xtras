@@ -15,15 +15,13 @@ openssl = { id = "org.danbrough.openssl" }
 dokka-gradle-plugin = "2.0.21"
 duckdb-plugin = "0.0.1-beta01"
 
-agp = "8.8.0-beta01"
+agp = "8.8.0-rc01"
 ##⬆= "8.9.0-alpha01"
 ##⬆= "8.9.0-alpha02"
+##⬆= "8.9.0-alpha03"
+##⬆= "8.9.0-alpha04"
 
-kotlin = "2.0.21"
-##  ⬆ = "2.1.0-Beta1"
-##  ⬆ = "2.1.0-Beta2"
-##  ⬆ = "2.1.0-RC"
-##  ⬆ = "2.1.0-RC2"
+kotlin = "2.1.0"
 
 xtras-publish = "0.0.1-beta02"
 xtras-openssl = "0.0.1-alpha01"
