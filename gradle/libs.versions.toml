@@ -15,11 +15,13 @@ openssl = { id = "org.danbrough.openssl" }
 dokka-gradle-plugin = "2.0.21"
 duckdb-plugin = "0.0.1-beta01"
 
-agp = "8.8.0-rc01"
+agp = "8.8.0-rc02"
 ##⬆= "8.9.0-alpha01"
 ##⬆= "8.9.0-alpha02"
 ##⬆= "8.9.0-alpha03"
 ##⬆= "8.9.0-alpha04"
+##⬆= "8.9.0-alpha05"
+##⬆= "8.9.0-alpha06"
 
 kotlin = "2.1.0"
 
@@ -29,13 +31,16 @@ xtras-mqtt = "0.0.1-alpha01"
 xtras-support = "0.0.1-beta01"
 #xtras-core = "0.0.1-beta01"
 
-dokka = "2.0.0-Beta"
+dokka = "2.0.0"
 kotlinx-io = "0.5.4"
 slf4j-api = "2.0.16"
 ##     ⬆ = "2.1.0-alpha0"
 ##     ⬆ = "2.1.0-alpha1"
 slf4j-simple = "2.0.12"
-logback-classic = "1.5.12"
+logback-classic = "1.5.15"
+##           ⬆ = "1.5.13"
+##           ⬆ = "1.5.14"
+##           ⬆ = "1.5.15"
 
 kotlinx-coroutines = "1.9.0"
 klog = "0.0.4"
