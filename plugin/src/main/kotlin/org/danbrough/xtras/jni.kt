@@ -25,6 +25,7 @@ fun Project.xtrasAndroidConfig(
   extensions.getByType<LibraryExtension>().apply {
     //logWarn("$name::xtrasAndroidCOnfig() namespace=$namespace")
     this.compileSdk = compileSdk
+
     this.namespace = namespace
 
     defaultConfig {
