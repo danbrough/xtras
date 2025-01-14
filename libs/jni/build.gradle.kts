@@ -14,7 +14,6 @@ plugins {
   id("com.android.library")
 }
 
-group = "org.danbrough"
 
 kotlin {
 
