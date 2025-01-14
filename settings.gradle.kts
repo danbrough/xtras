@@ -38,6 +38,6 @@ if (pluginOnly == null) {
   }
 }
 
-
+include(":test")
 
 

@@ -1,4 +1,5 @@
 package org.danbrough.jni
 
 
-private fun placeholder() {}
+private fun placeholder() {
+}

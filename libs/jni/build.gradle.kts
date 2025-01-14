@@ -14,6 +14,7 @@ plugins {
   id("com.android.library")
 }
 
+group = "org.danbrough"
 
 kotlin {
 
@@ -67,7 +68,7 @@ kotlin {
        */
       compilations["main"].cinterops {
         create("jni") {
-          packageName = "${project.group}.jni.cinterops"
+          packageName = "org.danbrough.jni.cinterops"
           logError("packageName: $packageName")
           val headersDir = project.file("src").resolve("headers")
           val osDir = when (konanTarget.family) {
@@ -97,3 +98,6 @@ xtrasAndroidConfig { }
 
 xtrasTesting { }
 
+afterEvaluate {
+  println("PROJECT GROUP: ${project.group}")
+}
