@@ -15,6 +15,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.maven
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
@@ -77,7 +78,11 @@ fun Publication.xtrasPom(
 
 internal fun Project.withPublishing(block: PublishingExtension.() -> Unit) {
   //findProperty("publishing") ?: apply<MavenPublishPlugin>()
-  extensions.getByType<PublishingExtension>().block()
+  runCatching {
+    extensions.findByType<PublishingExtension>()?.block()
+  }.exceptionOrNull()?.also {
+    logError("FAILED withPublishing!! ", it)
+  }
 }
 
 private fun Project.xtrasPublishToXtras() = registerPublishRepo(XTRAS_REPO_NAME, xtrasMavenDir)
@@ -105,9 +110,9 @@ private fun Project.xtrasPublishToSonatype() {
     xtrasProperty(Xtras.Constants.Properties.SONATYPE_CLOSE_REPOSITORY) { false }
 
 
-  val publishing =
-    extensions.findByType<PublishingExtension>() ?: error("PublishingExtension not found")
-  publishing.apply {
+//  val publishing =
+//    extensions.findByType<PublishingExtension>() ?: error("PublishingExtension not found")
+  withPublishing {
     repositories {
       maven {
         name = SONATYPE_REPO_NAME
@@ -133,27 +138,29 @@ private fun Project.xtrasPublishToSonatype() {
         publishTask.doFirst {
 
 
-          publishing.repositories.getByName(SONATYPE_REPO_NAME)
-            .apply {
-              this as MavenArtifactRepository
-              val repoID =
-                xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
-                  ?: xtrasExtension.repoIDFile.get().asFile.let {
-                    if (it.exists()) it.readText().trim() else null
-                  }
+          withPublishing {
+            repositories.getByName(SONATYPE_REPO_NAME)
+              .apply {
+                this as MavenArtifactRepository
+                val repoID =
+                  xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
+                    ?: xtrasExtension.repoIDFile.get().asFile.let {
+                      if (it.exists()) it.readText().trim() else null
+                    }
 
 
-              val sonatypeURL =
-                if (snapshot) "$baseURL/content/repositories/snapshots/"
-                else
-                  if (repoID != null) "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
-                    "$baseURL/service/local/staging/deploy/maven2/"
+                val sonatypeURL =
+                  if (snapshot) "$baseURL/content/repositories/snapshots/"
+                  else
+                    if (repoID != null) "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
+                      "$baseURL/service/local/staging/deploy/maven2/"
 
 
-              logWarn("sonatype publish url: $sonatypeURL")
+                logWarn("sonatype publish url: $sonatypeURL")
 
-              this.url = URI.create(sonatypeURL)
-            }
+                this.url = URI.create(sonatypeURL)
+              }
+          }
         }
       }
   }
@@ -171,8 +178,6 @@ private fun Project.registerPublishRepo(repoName: String, url: Any) {
 
 
 internal fun Project.xtrasPublishing() {
-
-
   withPublishing {
     publications.all {
       xtrasPom(
@@ -211,7 +216,7 @@ internal fun Project.xtrasPublishing() {
   if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_DOCS) { false }) {
     logTrace("configuring docs..")
     pluginManager.apply("org.jetbrains.dokka")
-    val javadocTask = tasks.create("javadocJar", Jar::class.java) {
+    val javadocTask = tasks.register<Jar>("javadocJar") {
 
       group = JavaBasePlugin.DOCUMENTATION_GROUP
       archiveClassifier.set("javadoc")

@@ -27,53 +27,22 @@ class XtrasPlugin : Plugin<Any> {
   override fun apply(target: Any) {
     if (target !is Project) return
     target.run {
+
       if (parent != null) error("Xtras plugin should be applied to the root project only")
+      logError("XtrasPlugin APPLY: $path")
 
       //logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
 
       allprojects {
-        logInfo("applying XtrasPlugin")
-        apply<MavenPublishPlugin>()
-        apply<SigningPlugin>()
+        logWarn("APPLY XtrasPlugin $path")
 
         val xtras = xtrasExtension
 
-        xtras.nativeTargets.convention(providers.provider {
-          val kotlin = extensions.findByName("kotlin")
-          if (kotlin is KotlinMultiplatformExtension) {
-            kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget }
-          } else emptyList()
-        })
+        apply<MavenPublishPlugin>()
+        apply<SigningPlugin>()
 
-
-        xtras.repoIDFileName.convention(project.provider {
-          "sonatypeRepoID_${rootProject.name}_${rootProject.group}"
-        })
-        //by default share a single repoID for entire project
-
-        xtras.repoIDFile.convention(xtras.repoIDFileName.map {
-          rootProject.layout.buildDirectory.file(it).get()
-        })
-
-        (System.getenv("ANDROID_NDK") ?: System.getenv("ANDROID_NDK_ROOT"))?.also {
-          xtras.androidConfig.ndkDir = File(it)
-        }
-
-        val xtrasJvmTarget = xtras.jvmTarget
-
-        afterEvaluate {
-
-          tasks.withType<KotlinJvmCompile> {
-            compilerOptions {
-              this.jvmTarget = xtrasJvmTarget
-            }
-          }
-
-          registerMiscTasks()
-          configureExtras(xtras)
-        }
-
-
+        configureExtras(xtras)
+        registerMiscTasks(xtras)
       }
     }
   }
@@ -86,37 +55,64 @@ val Project.xtrasExtension: Xtras
     Xtras::class.java
   )
 
-internal fun Project.registerMiscTasks() {
+internal fun Project.registerMiscTasks(xtras: Xtras) {
 
-  val kotlin = extensions.findByName("kotlin")
+  afterEvaluate {
+    val kotlin = extensions.findByName("kotlin")
 
-  if (kotlin is KotlinMultiplatformExtension) {
-    tasks.register("xtrasTargets") {
-      group = XTRAS_TASK_GROUP
-      description = "Lists all of the active kotlin targets"
+    if (kotlin is KotlinMultiplatformExtension) {
+      tasks.register("xtrasTargets") {
+        group = XTRAS_TASK_GROUP
+        description = "Lists all of the active kotlin targets"
 
-      doFirst {
-        kotlin.targets.all {
-          logInfo("${project.group}.${project.name} -> target: $targetName")
+        doFirst {
+          kotlin.targets.all {
+            logInfo("${project.group}.${project.name} -> target: $targetName")
+          }
         }
+      }
+    }
+
+    tasks.withType<KotlinJvmCompile> {
+      compilerOptions {
+        jvmTarget = xtras.jvmTarget
       }
     }
   }
 }
 
 private fun Project.configureExtras(xtras: Xtras) {
-  //logDebug("configureExtras(): $name")
+  logDebug("configureExtras(): $path")
+
+  xtras.nativeTargets.convention(providers.provider {
+    val kotlin = extensions.findByName("kotlin")
+    if (kotlin is KotlinMultiplatformExtension) {
+      kotlin.targets.withType<KotlinNativeTarget>().map { it.konanTarget }
+    } else emptyList()
+  })
+
+  xtras.repoIDFileName.convention(project.provider {
+    "sonatypeRepoID_${rootProject.name}_${rootProject.group}"
+  })
+  //by default share a single repoID for entire project
+
+  xtras.repoIDFile.convention(xtras.repoIDFileName.map {
+    rootProject.layout.buildDirectory.file(it).get()
+  })
+
+  (System.getenv("ANDROID_NDK") ?: System.getenv("ANDROID_NDK_ROOT"))?.also {
+    xtras.androidConfig.ndkDir = File(it)
+  }
 
   findProperty(Xtras.Constants.Properties.PROJECT_GROUP)?.also {
     group = it.toString()
-  } ?: logTrace("${Xtras.Constants.Properties.PROJECT_GROUP} not specified. Defaulting to $group")
+  }
+    ?: logTrace("${Xtras.Constants.Properties.PROJECT_GROUP} not specified. Defaulting to $group")
 
   findProperty(Xtras.Constants.Properties.PROJECT_VERSION)?.also {
     version = it.toString()
   }
     ?: logTrace("${Xtras.Constants.Properties.PROJECT_VERSION} not specified. Defaulting to $version")
-
-  logDebug("name:$name $group:$version")
 
   xtrasPublishing()
 
@@ -130,10 +126,11 @@ private fun Project.configureExtras(xtras: Xtras) {
  */
 private fun Project.configureProjectTasks(xtras: Xtras) {
 
-  val prepareJniTask = tasks.create<Task>(Xtras.Constants.TaskNames.XTRAS_PREPARE_JNI_LIBS) {
-    group = XTRAS_TASK_GROUP
-    description = "Copy required files into jniLibs dir for android packaging"
-  }
+  val prepareJniTask =
+    tasks.register<Task>(Xtras.Constants.TaskNames.XTRAS_PREPARE_JNI_LIBS, fun Task.() {
+      group = XTRAS_TASK_GROUP
+      description = "Copy required files into jniLibs dir for android packaging"
+    })
 
   afterEvaluate {
     logDebug("configureProjectTasks()")
@@ -158,9 +155,10 @@ private fun Project.configureProjectTasks(xtras: Xtras) {
       val copyTaskName =
         Xtras.Constants.TaskNames.copyAndroidLibsToJniFolderTaskName(lib)
       tasks.register<Copy>(copyTaskName) {
-        val sharedLibDir = lib.linkTask.destinationDirectory.get().asFile
-        dependsOn(lib.linkTask)
-        prepareJniTask.dependsOn(name)
+
+        val sharedLibDir = lib.linkTaskProvider.get().destinationDirectory.asFile
+        dependsOn(lib.linkTaskProvider)
+        prepareJniTask.get().dependsOn(name)
         from(sharedLibDir)
         into(lib.jniLibsDir)
         doLast {
@@ -176,7 +174,7 @@ private fun Project.configureProjectTasks(xtras: Xtras) {
         val copyTaskName =
           Xtras.Constants.TaskNames.copyXtrasLibsToJniFolderTaskName(lib, androidTarget)
         tasks.register<Copy>(copyTaskName) {
-          prepareJniTask.dependsOn(copyTaskName)
+          prepareJniTask.get().dependsOn(copyTaskName)
           dependsOn(PackageTaskName.EXTRACT.taskName(lib, androidTarget))
           val srcDir = lib.libsDir.invoke(androidTarget).resolve("lib")
           from(srcDir)
