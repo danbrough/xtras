@@ -13,6 +13,8 @@ plugins {
   alias(libs.plugins.xtras)
 }
 
+group = "org.danbrough.xtras"
+
 allprojects {
   repositories {
     maven("https://s01.oss.sonatype.org/content/groups/staging/")

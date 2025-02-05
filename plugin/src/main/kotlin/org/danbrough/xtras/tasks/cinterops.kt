@@ -27,7 +27,7 @@ internal fun XtrasLibrary.registerCInteropsTasks() {
   if (kotlin !is KotlinMultiplatformExtension) return
   kotlin.targets.withType<KotlinNativeTarget> {
     compilations["main"].cinterops.create(this@registerCInteropsTasks.name) {
-      defFile = config.defFile
+      definitionFile.set(config.defFile)
       config.codeFile?.also {
         includeDirs(it.parentFile)
       }

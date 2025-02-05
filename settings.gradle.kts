@@ -37,7 +37,7 @@ if (pluginOnly == null) {
     project(":$it").projectDir = file("libs/$it")
   }
   
-  include(":test")
+//  include(":test")
 
 }
 
