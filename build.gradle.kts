@@ -13,7 +13,7 @@ plugins {
   alias(libs.plugins.xtras)
 }
 
-group = "org.danbrough.xtras"
+group = "org.danbrough"
 
 allprojects {
   repositories {
