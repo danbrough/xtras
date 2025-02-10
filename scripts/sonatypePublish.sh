@@ -14,10 +14,14 @@ else
 fi
 
 echo open $OPEN close $CLOSE REPO $REPO
-exit 0
-./gradle -Ppublish.docs=1 -Ppublish.sign=1 \
+
+CMD="./gradlew -Ppublish.docs=1 -Ppublish.sign=1 \
 	-Psonatype.closeRepository=$CLOSE -Psonatype.openRepository=$OPEN \
-	$REPO $@
+	$REPO $@"
+
+echo running: $CMD
+$CMD
+
 
 
 
