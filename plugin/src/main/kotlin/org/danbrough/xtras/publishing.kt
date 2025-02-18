@@ -8,20 +8,18 @@ import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.internal.extensions.core.extra
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
-import org.jetbrains.dokka.DokkaDefaults.pluginsConfiguration
-import org.jetbrains.dokka.gradle.DokkaExtension
-import org.jetbrains.dokka.model.doc.Html
+import org.gradle.plugins.signing.SigningPlugin
 import java.io.File
 import java.net.URI
 
@@ -137,26 +135,20 @@ private fun Project.xtrasPublishToSonatype() {
           publishTask.finalizedBy(Xtras.Constants.TaskNames.SONATYPE_CLOSE_REPO)
         publishTask.doFirst {
 
-
           withPublishing {
             repositories.getByName(SONATYPE_REPO_NAME)
               .apply {
                 this as MavenArtifactRepository
-                val repoID =
-                  xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
-                    ?: xtrasExtension.repoIDFile.get().asFile.let {
-                      if (it.exists()) it.readText().trim() else null
-                    }
-
+                val repoID = "not_set"
 
                 val sonatypeURL =
                   if (snapshot) "$baseURL/content/repositories/snapshots/"
                   else
-                    if (repoID != null) "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
+                    if (repoID != "") "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
                       "$baseURL/service/local/staging/deploy/maven2/"
 
 
-                logWarn("sonatype publish url: $sonatypeURL")
+                logWarn("sonatype:publish url: $sonatypeURL")
 
                 this.url = URI.create(sonatypeURL)
               }
@@ -178,6 +170,9 @@ private fun Project.registerPublishRepo(repoName: String, url: Any) {
 
 
 internal fun Project.xtrasPublishing() {
+  apply<MavenPublishPlugin>()
+  apply<SigningPlugin>()
+
   withPublishing {
     publications.all {
       xtrasPom(
@@ -243,19 +238,11 @@ internal fun Project.xtrasPublishing() {
     }
   }
 
+  xtrasPublishToLocal()
 
-  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_LOCAL) { false }) {
-    xtrasPublishToLocal()
-  }
+  xtrasPublishToXtras()
 
-  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_XTRAS) { false }) {
-    xtrasPublishToXtras()
-  }
-
-  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_SONATYPE) { false }) {
-    xtrasPublishToSonatype()
-  }
-
+  xtrasPublishToSonatype()
 
 }
 

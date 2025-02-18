@@ -9,7 +9,6 @@ import org.danbrough.xtras.logInfo
 import org.danbrough.xtras.logTrace
 import org.danbrough.xtras.unixPath
 import org.gradle.api.tasks.Exec
-import org.gradle.kotlin.dsl.environment
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.ByteArrayInputStream
@@ -54,18 +53,21 @@ private fun XtrasLibrary.registerDownloadTask() {
       }
 
       if (!repoDir.resolve("HEAD").exists()) {
+
         actions.add {
+
           exec {
             //xtrasCommandLine("git", "init", "--bare", repoDir)
             environment(loadEnvironment())
             logError("environment: $environment")
-            commandLine(xtras.sh,"-c","git init --bare ${project.unixPath(repoDir)}")
+            commandLine(xtras.sh, "-c", "git init --bare ${project.unixPath(repoDir)}")
             logTrace("running ${commandLine.joinToString(" ")}")
           }
+
           exec {
             workingDir(repoDir)
             environment(loadEnvironment())
-            commandLine(xtras.sh,"-c","git remote add origin  ${config.url}")
+            commandLine(xtras.sh, "-c", "git remote add origin  ${config.url}")
 
             //xtrasCommandLine("git", "remote", "add", "origin", config.url)
             logTrace("running ${commandLine.joinToString(" ")}")
@@ -74,12 +76,13 @@ private fun XtrasLibrary.registerDownloadTask() {
       }
 
       actions.add {
-        exec {
+
+        project.providers.exec {
           workingDir(repoDir)
           environment(loadEnvironment())
-          commandLine(xtras.sh,"-c","git fetch --depth 1 origin ${config.commit}")
+          commandLine(xtras.sh, "-c", "git fetch --depth 1 origin ${config.commit}")
           logTrace("running: ${commandLine.joinToString(" ")}")
-        }
+        }.result.get()
 
         repoDir.resolve("FETCH_HEAD").bufferedReader().use {
           val commit = it.readLine().split("\\s+".toRegex(), limit = 2).first()
@@ -88,13 +91,12 @@ private fun XtrasLibrary.registerDownloadTask() {
             writer.write(commit)
           }
         }
-
-        exec {
+        project.providers.exec {
           workingDir(repoDir)
           environment(loadEnvironment())
           val commit = commitFile.readText()
           //xtrasCommandLine("git", "reset", "--soft", commit)
-          commandLine(xtras.sh,"-c","git reset --soft $commit")
+          commandLine(xtras.sh, "-c", "git reset --soft $commit")
 
           logTrace("running: ${commandLine.joinToString(" ")}")
         }
@@ -115,7 +117,7 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
     val commitFile = srcDir.resolve(".commit_${sourceConfig.hashCode()}")
     //inputs.dir(downloadsDir)
     outputs.file(commitFile)
-    onlyIf { !packageFile(target).exists()  || project.hasProperty("forceBuild")}
+    onlyIf { !packageFile(target).exists() || project.hasProperty("forceBuild") }
     dependsOn(SourceTaskName.DOWNLOAD.taskName(this@registerSourceExtractTask))
 
     doFirst {
@@ -125,7 +127,11 @@ private fun XtrasLibrary.registerSourceExtractTask(target: KonanTarget) {
 
     //xtrasCommandLine("git", "clone", downloadsDir, srcDir)
     environment(loadEnvironment())
-    commandLine(xtras.sh,"-c","git clone  ${project.unixPath(downloadsDir)} ${project.unixPath(srcDir)}")
+    commandLine(
+      xtras.sh,
+      "-c",
+      "git clone  ${project.unixPath(downloadsDir)} ${project.unixPath(srcDir)}"
+    )
 
 
     doLast {
@@ -145,7 +151,7 @@ private fun XtrasLibrary.registerGitTagsTask() {
     description = "Prints out the tags from the remote repository"
     environment(loadEnvironment())
 
-    commandLine(xtras.sh,"-c","git ls-remote -q --refs -t ${config.url}")
+    commandLine(xtras.sh, "-c", "git ls-remote -q --refs -t ${config.url}")
 
     /*
     xtrasCommandLine(

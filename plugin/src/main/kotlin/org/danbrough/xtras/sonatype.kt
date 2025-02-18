@@ -2,19 +2,12 @@ package org.danbrough.xtras
 
 
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.internal.extensions.core.extra
-import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.w3c.dom.Element
+import java.io.File
 import java.io.InputStream
 import java.io.PrintWriter
 import java.net.HttpURLConnection
 import java.net.URI
-import java.net.URL
 import java.nio.charset.Charset
 import java.util.Base64
 import javax.xml.parsers.DocumentBuilderFactory
@@ -35,20 +28,19 @@ private fun Project.registerSonatypeOpenRepository() {
       """.trimMargin()
     group = XTRAS_TASK_GROUP
 
-    val repoIDFile = xtrasExtension.repoIDFile
+    val repoIDFile = sonatypeRepoIDFile
     outputs.file(repoIDFile)
 
     onlyIf {
-      !repoIDFile.get().asFile.exists()
+      !repoIDFile.exists()
     }
 
     actions.add {
-      val repoFile = repoIDFile.get().asFile
 
       if (xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID) == null) {
         logDebug("getting sonatype repo ID")
 
-        if (!repoFile.exists()) {
+        if (!repoIDFile.exists()) {
 
           val response = sonatypeOpenRepository(
             xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_PROFILE_ID) { error("${Xtras.Constants.Properties.SONATYPE_PROFILE_ID} not set") },
@@ -63,7 +55,7 @@ private fun Project.registerSonatypeOpenRepository() {
           )
 
           logDebug("sonatypeResponse: $response")
-          repoFile.printWriter().use {
+          repoIDFile.printWriter().use {
             it.println(response.repositoryId)
           }
         }
@@ -79,9 +71,10 @@ private fun Project.registerSonatypeCloseRepository() {
 
     doLast {
       val explicitRepoID = xtrasProperty<String?>(Xtras.Constants.Properties.SONATYPE_REPO_ID)
+      val repoIDFile = sonatypeRepoIDFile
       val repoID =
         explicitRepoID
-          ?: xtrasExtension.repoIDFile.get().asFile.let {
+          ?: repoIDFile.let {
             if (it.exists()) it.readText().trim() else null
           }
 
@@ -109,8 +102,7 @@ private fun Project.registerSonatypeCloseRepository() {
           baseURL
         )
 
-        if (explicitRepoID == null) {
-          val repoIDFile = xtrasExtension.repoIDFile.get().asFile
+        if (explicitRepoID == null && repoIDFile.exists()) {
           logInfo("deleting $repoIDFile")
           repoIDFile.delete()
         }
@@ -222,3 +214,5 @@ private fun Project.sonatypeCloseRepository(
   }
 }
 
+private val Project.sonatypeRepoIDFile: File
+  get() = rootProject.layout.buildDirectory.file("sonatype_repoID").get().asFile

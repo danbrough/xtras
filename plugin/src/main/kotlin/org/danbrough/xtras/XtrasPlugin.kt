@@ -4,15 +4,11 @@ import org.danbrough.xtras.tasks.PackageTaskName
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.Copy
-import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.assign
-import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
-import org.gradle.plugins.signing.SigningPlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.Executable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -34,12 +30,8 @@ class XtrasPlugin : Plugin<Any> {
       //logInfo("XtrasPlugin.apply() project:${target.path} parent: ${parent?.name}")
 
       allprojects {
-        logWarn("APPLY XtrasPlugin $path")
-
+        logWarn("XtrasPlugin::apply: path:$path")
         val xtras = xtrasExtension
-
-        apply<MavenPublishPlugin>()
-        apply<SigningPlugin>()
 
         configureExtras(xtras)
         registerMiscTasks(xtras)
@@ -91,14 +83,11 @@ private fun Project.configureExtras(xtras: Xtras) {
     } else emptyList()
   })
 
-  xtras.repoIDFileName.convention(project.provider {
-    "sonatypeRepoID_${rootProject.name}_${rootProject.group}"
-  })
+  /*  xtras.repoIDFileName.convention(project.provider {
+      "sonatypeRepoID_${rootProject.name}_${rootProject.group}"
+    })*/
   //by default share a single repoID for entire project
 
-  xtras.repoIDFile.convention(xtras.repoIDFileName.map {
-    rootProject.layout.buildDirectory.file(it).get()
-  })
 
   (System.getenv("ANDROID_NDK") ?: System.getenv("ANDROID_NDK_ROOT"))?.also {
     xtras.androidConfig.ndkDir = File(it)
@@ -114,7 +103,8 @@ private fun Project.configureExtras(xtras: Xtras) {
   }
     ?: logTrace("${Xtras.Constants.Properties.PROJECT_VERSION} not specified. Defaulting to $version")
 
-  xtrasPublishing()
+  if (xtrasProperty(Xtras.Constants.Properties.XTRAS_PUBLISHING) { false })
+    xtrasPublishing()
 
   registerKonanDepsTasks()
 

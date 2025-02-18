@@ -4,11 +4,7 @@ package org.danbrough.xtras
 
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.file.FileSystemLocationProperty
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
@@ -43,15 +39,15 @@ abstract class Xtras(val project: Project) {
 
       const val PUBLISH_SIGN = "publish.sign"
       const val PUBLISH_DOCS = "publish.docs"
-      const val PUBLISH_LOCAL = "publish.local"
-      const val PUBLISH_XTRAS = "publish.xtras"
 
       /**
-       * Whether to enable publishing to sonatype
+       * Whether to enable xtras publishing configuration
        */
-      const val PUBLISH_SONATYPE = "publish.sonatype"
+      const val XTRAS_PUBLISHING = "xtras.publishing"
       const val SONATYPE_USERNAME = "sonatype.username"
       const val SONATYPE_PASSWORD = "sonatype.password"
+
+
       const val SONATYPE_PROFILE_ID = "sonatype.profileID"
 
       /**
@@ -111,6 +107,12 @@ abstract class Xtras(val project: Project) {
   }
 
 
+  /* var message:String by lazy {
+     project.xtrasProperty("xtras.message"){
+       "No message"
+     }
+   }*/
+
   @XtrasDSL
   var javaVersion = JavaVersion.VERSION_11
 
@@ -131,9 +133,16 @@ abstract class Xtras(val project: Project) {
   @XtrasDSL
   abstract val libraries: ListProperty<XtrasLibrary>
 
+  var sonatypeRepoID: String = ""
 
-  abstract val repoIDFileName: Property<String>
-  abstract val repoIDFile: RegularFileProperty
+  /*
+    val repoIDFileName: Property<String> =
+      project.objects.property<String>().convention(project.provider {
+        "sonatypeRepoID_${project.rootProject.name}_${project.rootProject.group}"
+      })
+  */
+
+  // abstract val repoIDFile: RegularFileProperty
 
   fun loadEnvironment(env: XtrasEnvironment, target: KonanTarget?): XtrasEnvironment {
     environment(env, target)
@@ -152,7 +161,7 @@ abstract class Xtras(val project: Project) {
 
   data class AndroidConfig(
     var ndkDir: File,
-    var compileSDKVersion: Int = 34,
+    var compileSDKVersion: Int = 35,
     var minSDKVersion: Int = 21,
     var ndkApiVersion: Int = minSDKVersion
   )
