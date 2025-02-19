@@ -31,9 +31,11 @@ private fun Project.registerSonatypeOpenRepository() {
     val repoIDFile = sonatypeRepoIDFile
     outputs.file(repoIDFile)
 
-    onlyIf {
-      !repoIDFile.exists()
-    }
+    /*
+        onlyIf {
+          !repoIDFile.exists()
+        }
+    */
 
     actions.add {
 
@@ -214,5 +216,5 @@ private fun Project.sonatypeCloseRepository(
   }
 }
 
-private val Project.sonatypeRepoIDFile: File
+internal val Project.sonatypeRepoIDFile: File
   get() = rootProject.layout.buildDirectory.file("sonatype_repoID").get().asFile

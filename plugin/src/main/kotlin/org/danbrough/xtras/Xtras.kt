@@ -133,7 +133,7 @@ abstract class Xtras(val project: Project) {
   @XtrasDSL
   abstract val libraries: ListProperty<XtrasLibrary>
 
-  var sonatypeRepoID: String = ""
+  //var sonatypeRepoID: String = ""
 
   /*
     val repoIDFileName: Property<String> =

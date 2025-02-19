@@ -139,7 +139,9 @@ private fun Project.xtrasPublishToSonatype() {
             repositories.getByName(SONATYPE_REPO_NAME)
               .apply {
                 this as MavenArtifactRepository
-                val repoID = "not_set"
+                val repoID = sonatypeRepoIDFile.exists().let {
+                  if (it) sonatypeRepoIDFile.readText().trim() else error("Failed to open sonatype")
+                }
 
                 val sonatypeURL =
                   if (snapshot) "$baseURL/content/repositories/snapshots/"
@@ -186,7 +188,7 @@ internal fun Project.xtrasPublishing() {
     }
   }
 
-  val signPublications = xtrasProperty(Xtras.Constants.Properties.PUBLISH_SIGN) { false }
+  val signPublications = xtrasProperty(Xtras.Constants.Properties.PUBLISH_SIGN) { true }
 
   if (signPublications) {
     logTrace("configuring signing..")
@@ -208,7 +210,7 @@ internal fun Project.xtrasPublishing() {
     }
   }
 
-  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_DOCS) { false }) {
+  if (xtrasProperty<Boolean>(Xtras.Constants.Properties.PUBLISH_DOCS) { true }) {
     logTrace("configuring docs..")
     pluginManager.apply("org.jetbrains.dokka")
     val javadocTask = tasks.register<Jar>("javadocJar") {
