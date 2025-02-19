@@ -140,7 +140,8 @@ private fun Project.xtrasPublishToSonatype() {
               .apply {
                 this as MavenArtifactRepository
                 val repoID = sonatypeRepoIDFile.exists().let {
-                  if (it) sonatypeRepoIDFile.readText().trim() else error("Failed to open sonatype")
+                  if (it) sonatypeRepoIDFile.readText()
+                    .trim() else error("Failed read repoID from $sonatypeRepoIDFile")
                 }
 
                 val sonatypeURL =
