@@ -42,11 +42,10 @@ fun Publication.xtrasPom(
       url.set(website)
 
       licenses {
-        if (licenseApache2)
-          license {
-            name.set("Apache-2.0")
-            url.set("https://opensource.org/licenses/Apache-2.0")
-          }
+        if (licenseApache2) license {
+          name.set("Apache-2.0")
+          url.set("https://opensource.org/licenses/Apache-2.0")
+        }
       }
 
       scm {
@@ -55,11 +54,10 @@ fun Publication.xtrasPom(
         url.set(website)
       }
 
-      if (issuesSite != null)
-        issueManagement {
-          system.set("GitHub")
-          url.set(issuesSite)
-        }
+      if (issuesSite != null) issueManagement {
+        system.set("GitHub")
+        url.set(issuesSite)
+      }
 
       developers {
         developer {
@@ -131,25 +129,21 @@ private fun Project.xtrasPublishToSonatype() {
     tasks.withType<PublishToMavenRepository>().filter { it.repository?.name == SONATYPE_REPO_NAME }
       .forEach { publishTask ->
         if (openRepository) publishTask.dependsOn(Xtras.Constants.TaskNames.SONATYPE_OPEN_REPO)
-        if (closeRepository)
-          publishTask.finalizedBy(Xtras.Constants.TaskNames.SONATYPE_CLOSE_REPO)
+        if (closeRepository) publishTask.finalizedBy(Xtras.Constants.TaskNames.SONATYPE_CLOSE_REPO)
         publishTask.doFirst {
 
           withPublishing {
-            repositories.getByName(SONATYPE_REPO_NAME)
-              .apply {
+            repositories.getByName(SONATYPE_REPO_NAME).apply {
                 this as MavenArtifactRepository
-                val repoID = sonatypeRepoIDFile.exists().let {
-                  if (it) sonatypeRepoIDFile.readText()
-                    .trim() else error("Failed read repoID from $sonatypeRepoIDFile")
+                val repoID = xtrasProperty<String>(Xtras.Constants.Properties.SONATYPE_REPO_ID) {
+                  if (sonatypeRepoIDFile.exists()) sonatypeRepoIDFile.readText().trim() else ""
                 }
 
-                val sonatypeURL =
-                  if (snapshot) "$baseURL/content/repositories/snapshots/"
-                  else
-                    if (repoID != "") "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
-                      "$baseURL/service/local/staging/deploy/maven2/"
 
+                val sonatypeURL = if (snapshot) "$baseURL/content/repositories/snapshots/"
+                else if (repoID != "") "$baseURL/service/local/staging/deployByRepositoryId/$repoID" else
+                //"$baseURL/service/local/staging/deploy/maven2/"
+                  error("Sonatype repoID not specified")
 
                 logWarn("sonatype:publish url: $sonatypeURL")
 
@@ -184,8 +178,7 @@ internal fun Project.xtrasPublishing() {
           project.description.also {
             logWarn("${Xtras.Constants.Properties.PROJECT_DESCRIPTION} should be set instead of ${this@xtrasPublishing.name}.description")
           } ?: ""
-        }
-      )
+        })
     }
   }
 
@@ -197,8 +190,7 @@ internal fun Project.xtrasPublishing() {
 
       val signingKey =
         xtrasProperty<String>(Xtras.Constants.Properties.SIGNING_KEY) { error("${Xtras.Constants.Properties.SIGNING_KEY} not set") }.replace(
-          "\\n",
-          "\n"
+          "\\n", "\n"
         )
       val signingPassword =
         xtrasProperty<String>(Xtras.Constants.Properties.SIGNING_PASSWORD) { error("${Xtras.Constants.Properties.SIGNING_PASSWORD} not set") }
