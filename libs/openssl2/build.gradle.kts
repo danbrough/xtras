@@ -1,3 +1,4 @@
+import org.danbrough.xtras.XtrasProperty.Companion.getXtrasProperty
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -8,9 +9,13 @@ kotlin {
   linuxX64()
 }
 
-tasks.register("thang"){
-  doFirst {
+xtras2 {
+  //description = "Hello World!"
+}
 
+tasks.register("thang") {
+  doFirst {
+    println("xtras2.message: ${getXtrasProperty<String?>("xtras2.message",null)}")
   }
 }
 

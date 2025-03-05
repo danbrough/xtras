@@ -17,6 +17,7 @@ dokka-gradle-plugin = "2.0.21"
 duckdb-plugin = "0.0.1-beta01"
 
 agp = "8.9.0-rc02"
+##⬆= "8.9.0"
 ##⬆= "8.10.0-alpha01"
 ##⬆= "8.10.0-alpha02"
 ##⬆= "8.10.0-alpha03"
