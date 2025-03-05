@@ -98,6 +98,3 @@ xtrasAndroidConfig { }
 
 xtrasTesting { }
 
-afterEvaluate {
-  println("PROJECT GROUP: ${project.group}")
-}

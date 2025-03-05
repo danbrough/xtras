@@ -15,6 +15,7 @@ plugins {
 rootProject.name = "xtras"
 
 includeBuild("plugin")
+includeBuild("plugin2")
 
 
 val pluginOnly: String? by settings
@@ -31,7 +32,8 @@ if (pluginOnly == null) {
   listOf(
     "support",
     "jni",
-    "openssl",
+    //"openssl",
+    "openssl2",
   ).forEach {
     include(":$it")
     project(":$it").projectDir = file("libs/$it")
