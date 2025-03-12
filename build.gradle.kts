@@ -10,16 +10,8 @@ plugins {
   alias(libs.plugins.dokka)
   signing
   `maven-publish`
-  alias(libs.plugins.xtras)
+  //alias(libs.plugins.xtras)
 }
 
 group = "org.danbrough"
-
-allprojects {
-  repositories {
-    maven("https://s01.oss.sonatype.org/content/groups/staging/")
-    mavenCentral()
-    google()
-  }
-}
 

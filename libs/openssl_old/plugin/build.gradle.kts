@@ -2,12 +2,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   `kotlin-dsl`
-  alias(libs.plugins.gradle.publish)
-//  `java-gradle-plugin`
-//  `maven-publish`
-//  signing
-  //alias(libs.plugins.dokka)
-  //alias(libs.plugins.xtras)
+  `java-gradle-plugin`
+  `maven-publish`
+  signing
+  alias(libs.plugins.dokka)
+  alias(libs.plugins.xtras)
 }
 
 repositories {
@@ -17,7 +16,6 @@ repositories {
 }
 
 group = "org.danbrough.openssl"
-version = "0.0.1-alpha1"
 
 java {
   withSourcesJar()
@@ -30,12 +28,12 @@ java {
 
 dependencies {
   compileOnly(kotlin("gradle-plugin"))
-  //compileOnly(libs.xtras.plugin)
-  compileOnly("org.danbrough.xtras:plugin")
+  //noinspection UseTomlInstead
   //implementation("org.danbrough.xtras:plugin:0.0.1-beta12")
-  //compileOnly(libs.xtras.plugin)
+  compileOnly(libs.xtras.plugin)
 
   //compileOnly("com.android.tools.build:gradle:8.5.2")
+  compileOnly(libs.gradle.android)
 }
 
 
@@ -51,10 +49,4 @@ gradlePlugin {
 }
 
 
-tasks.register("thang2"){
-  doFirst {
-    //project.xtrasLogger.info("hello from thang2!")
-    println("thang2!")
-  }
-}
 

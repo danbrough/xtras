@@ -1,122 +1,30 @@
-@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
-@file:Suppress("SpellCheckingInspection")
-
-
-import org.danbrough.openssl.plugin.openssl
-import org.danbrough.xtras.xtrasAndroidConfig
-import org.danbrough.xtras.xtrasExtension
-import org.danbrough.xtras.xtrasTesting
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.konan.target.HostManager
+import org.danbrough.xtras.XtrasLogger.Companion.xtrasLogger
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  id("com.android.library")
-  id("org.danbrough.openssl")
-  `maven-publish`
-}
-
-val xtras = xtrasExtension
-
-openssl {
-
+  alias(libs.plugins.xtras)
 }
 
 kotlin {
-  withSourcesJar(publish = true)
+  linuxX64()
+}
 
-  compilerOptions {
-    freeCompilerArgs = listOf("-Xexpect-actual-classes")
-
-    languageVersion = xtras.kotlinLanguageVersion
-    apiVersion = xtras.kotlinApiVersion
-  }
-
-  applyDefaultHierarchyTemplate()
-  jvm()
-
-  androidTarget {
-  }
-
-
-  if (HostManager.hostIsMac) {
-    macosX64()
-    macosArm64()
-    //iosX64()
-    //iosArm64()
-    //iosSimulatorArm64()
-  } else {
-    linuxArm64()
-    linuxX64()
-    mingwX64()
-    androidNativeArm64()
-    androidNativeX64()
-  }
-
-  sourceSets {
-    all {
-      languageSettings {
-        listOf(
-          "kotlin.ExperimentalStdlibApi",
-          "kotlin.io.encoding.ExperimentalEncodingApi",
-          "kotlin.experimental.ExperimentalNativeApi",
-          "kotlinx.cinterop.ExperimentalForeignApi",
-        ).forEach(::optIn)
-      }
-    }
-
-    val commonMain by getting {
-      dependencies {
-        implementation(project(":support")) //or implementation(project(":libs:support"))
-        //implementation(libs.kotlinx.coroutines)
-        //implementation(libs.kotlinx.io)
-      }
-    }
-
-    commonTest {
-      dependencies {
-        implementation(kotlin("test"))
-      }
-    }
-
-    val jniMain by creating {
-      dependsOn(commonMain)
-    }
-
-    jvmMain {
-      dependsOn(jniMain)
-    }
-
-    jvmTest {
-      dependencies {
-        implementation(kotlin("stdlib"))
-      }
-    }
-
-    androidMain {
-      dependsOn(jniMain)
-    }
-  }
-
-  targets.withType<KotlinNativeTarget> {
-    binaries {
-      sharedLib("xtras_openssl")
-    }
+xtras {
+  logging {
+    println("log name: $name")
   }
 }
 
+tasks.register("thang") {
+  doFirst {
+    val log = xtrasLogger
+    log.trace("logger tag trace: ${log.tag}")
+    log.debug("logger tag debug: ${log.tag}")
+    log.info("logger tag info: ${log.tag}")
+    log.warn("logger tag warn: ${log.tag}")
+    log.error("logger tag error: ${log.tag}")
+    log.info("sdkVersion: ${xtras.android.sdkVersion.get()}")
+  }
 
-xtrasTesting {
-}
-
-xtrasAndroidConfig {
-
-}
-
-xtras.androidConfig {
-  ndkApiVersion = 24
-  minSDKVersion = 24
-  compileSDKVersion = 24
 }
 

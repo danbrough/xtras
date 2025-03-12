@@ -1,9 +1,19 @@
+@file:Suppress("UnstableApiUsage")
+
 pluginManagement {
   repositories {
     mavenCentral()
     google()
     gradlePluginPortal()
     maven("https://s01.oss.sonatype.org/content/groups/staging/")
+  }
+}
+
+dependencyResolutionManagement {
+  repositories {
+    maven("https://s01.oss.sonatype.org/content/groups/staging")
+    google()
+    mavenCentral()
   }
 }
 
@@ -14,8 +24,8 @@ plugins {
 
 rootProject.name = "xtras"
 
+//includeBuild("plugin")
 includeBuild("plugin")
-includeBuild("plugin2")
 
 
 val pluginOnly: String? by settings
@@ -23,17 +33,21 @@ val pluginOnly: String? by settings
 
 if (pluginOnly == null) {
   //includeBuild("core")
+  /*includeBuild("libs/openssl/plugin") {
+    name = "openssl_plugin"
+  }*/
+
   includeBuild("libs/openssl/plugin") {
-    this.name = "openssl_plugin"
+    name = "openssl_plugin"
   }
 
   //includeBuild("libs/ssh2/ssh2_plugin")
 
   listOf(
-    "support",
-    "jni",
+    //"support",
+    //"jni",
     //"openssl",
-    "openssl2",
+    "openssl",
   ).forEach {
     include(":$it")
     project(":$it").projectDir = file("libs/$it")

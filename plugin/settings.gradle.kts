@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 pluginManagement {
   repositories {
     //maven("file:///files/xtras/maven")
@@ -9,12 +11,16 @@ pluginManagement {
 
 
 dependencyResolutionManagement {
+  repositories {
+    maven("https://s01.oss.sonatype.org/content/groups/staging")
+    google()
+    mavenCentral()
+  }
   versionCatalogs {
     create("libs") {
       from(files("../gradle/libs.versions.toml"))
     }
   }
 }
-
 
 
