@@ -52,6 +52,8 @@ if (pluginOnly == null) {
     include(":$it")
     project(":$it").projectDir = file("libs/$it")
   }
+
+  include(":test2")
   
 //  include(":test")
 

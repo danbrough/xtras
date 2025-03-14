@@ -1,10 +1,19 @@
 package org.danbrough.openssl.plugin
 
-val message = "openssl_plugin message"
+import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.git
+import org.danbrough.xtras.xTrace
+import org.danbrough.xtras.xtrasRegisterLibrary
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 
-fun printMessage(){
-  println(message)
 
+class OpenSSLPlugin : Plugin<Project> {
+  override fun apply(target: Project) = target.xtrasRegisterLibrary<XtrasLibrary>("openssl"){
+    git {
+      target.xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
+    }
+  }
 }
 
 //

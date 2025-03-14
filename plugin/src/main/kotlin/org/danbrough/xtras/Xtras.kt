@@ -15,15 +15,10 @@ open class Xtras @Inject constructor(project: Project) {
     internal fun Project.createXtrasExtension() = extensions.create<Xtras>("xtras")
   }
 
-  init {
-    println("CREATING XTRAS EXTENSION FOR: ${project.path}")
-  }
-
   val description: Property<String?> =
     project.xtrasProperty<String?>("xtras.description", null)
 
-  val message: Property<String?> = project.objects.property<String?>()
-  val logger = XtrasLogger(project)
+  val logger: XtrasLogger = XtrasLogger(project)
 
   fun logging(action: Action<XtrasLogger>) {
     action.invoke(logger)

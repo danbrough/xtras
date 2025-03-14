@@ -24,7 +24,7 @@ internal fun String.colored(level: LogLevel) =
 
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class XtrasLogger @Inject constructor(val project: Project) {
+class XtrasLogger @Inject constructor(val project: Project) {
   val tag: String = project.xtrasProperty("xtras.logger.tag") { "XTRAS" }.get()
 
   val logToStdout: Property<Boolean> = project.xtrasProperty("xtras.log.stdout", true)
@@ -32,18 +32,16 @@ open class XtrasLogger @Inject constructor(val project: Project) {
 
   //private val output: StyledTextOutput = project.gradle.serviceOf<StyledTextOutputFactory>().create("XtrasLogOutput")
 
-
-  fun log(msg: String, level: LogLevel = LogLevel.INFO, err: Throwable? = null) {
-
+  fun log(msg: String, level: LogLevel, err: Throwable?) {
     if (logToStdout.get()) {
-      val logName = when (level) {
+/*      val logName = when (level) {
         LogLevel.DEBUG -> "TRACE"
         LogLevel.INFO -> "DEBUG"
         LogLevel.LIFECYCLE -> "DEBUG"
-        LogLevel.WARN -> "INFO"
-        LogLevel.QUIET -> "WARN"
+        LogLevel.WARN -> " INFO"
+        LogLevel.QUIET -> " WARN"
         LogLevel.ERROR -> "ERROR"
-      }
+      }*/
       println(
         "${if (tag.length == 4) " " else ""}${tag.colored(level)}: ${
           project.name.colored(level)
@@ -58,28 +56,38 @@ open class XtrasLogger @Inject constructor(val project: Project) {
     if (logToGradle.get()) project.logger.log(level, msg)
   }
 
-  inline fun xtrasLog(msg: String, level: LogLevel, err: Throwable?) =
-    log(msg, level, err)
-
   inline fun trace(msg: String, err: Throwable? = null) =
-    xtrasLog(msg, LogLevel.DEBUG, err)
+    log(msg, LogLevel.DEBUG, err)
 
   inline fun debug(msg: String, err: Throwable? = null) =
-    xtrasLog(msg, LogLevel.INFO, err)
+    log(msg, LogLevel.INFO, err)
 
   inline fun info(msg: String, err: Throwable? = null) =
-    xtrasLog(msg, LogLevel.WARN, err)
+    log(msg, LogLevel.WARN, err)
 
   inline fun warn(msg: String, err: Throwable? = null) =
-    xtrasLog(msg, LogLevel.QUIET, err)
+    log(msg, LogLevel.QUIET, err)
 
   inline fun error(msg: String, err: Throwable? = null) =
-    xtrasLog(msg, LogLevel.ERROR, err)
+    log(msg, LogLevel.ERROR, err)
 
-  companion object {
-    val Project.xtrasLogger: XtrasLogger
-      get() = extensions.getByType<Xtras>().logger
-
-
-  }
 }
+
+val Project.xtrasLogger: XtrasLogger
+  get() = extensions.getByType<Xtras>().logger
+
+inline fun Project.xTrace(msg: String, err: Throwable? = null) =
+  xtrasLogger.log(msg, LogLevel.DEBUG, err)
+
+inline fun Project.xDebug(msg: String, err: Throwable? = null) =
+  xtrasLogger.log(msg, LogLevel.INFO, err)
+
+inline fun Project.xInfo(msg: String, err: Throwable? = null) =
+  xtrasLogger.log(msg, LogLevel.WARN, err)
+
+inline fun Project.xWarn(msg: String, err: Throwable? = null) =
+  xtrasLogger.log(msg, LogLevel.QUIET, err)
+
+inline fun Project.xError(msg: String, err: Throwable? = null) =
+  xtrasLogger.log(msg, LogLevel.ERROR, err)
+

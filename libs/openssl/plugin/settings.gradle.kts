@@ -1,4 +1,4 @@
-
+@file:Suppress("UnstableApiUsage")
 
 pluginManagement {
   repositories {
@@ -6,18 +6,17 @@ pluginManagement {
     mavenCentral()
     gradlePluginPortal()
   }
-/*
 
-  plugins{
-    id("org.danbrough.xtras.settings")
-  }
-*/
-
+  includeBuild("../../../plugin")
 }
 
-includeBuild("../../../plugin")
 
 dependencyResolutionManagement {
+  repositories {
+    maven("https://s01.oss.sonatype.org/content/groups/staging/")
+    mavenCentral()
+    gradlePluginPortal()
+  }
   versionCatalogs {
     create("libs") {
       from(files("../../../gradle/libs.versions.toml"))
@@ -25,5 +24,11 @@ dependencyResolutionManagement {
   }
 }
 
+
+plugins {
+  id("org.danbrough.xtras.settings")
+}
+
+//includeBuild("../../../plugin")
 
 rootProject.name = "plugin"

@@ -32,6 +32,7 @@ kotlin = "2.1.10"
 ##  ⬆ = "2.1.20-Beta2"
 ##  ⬆ = "2.1.20-RC"
 ##  ⬆ = "2.1.20-RC2"
+##  ⬆ = "2.1.20-RC3"
 
 xtras-publish = "0.0.1-beta02"
 xtras-openssl = "0.0.1-alpha01"
@@ -63,6 +64,7 @@ dokka-gradle-plugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plug
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
+plugin = { module = "org.danbrough.xtras:plugin" }
 xtras-plugin = { module = "org.danbrough.xtras:plugin" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
