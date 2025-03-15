@@ -2,16 +2,20 @@ package org.danbrough.xtras
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
+import org.jetbrains.kotlin.konan.target.HostManager
 
 class XtrasBinaries(project: Project) {
+
   companion object {
-    const val PROPERTY_XTRAS_BIN = "$XTRAS_PROPERTY.bin"
+    private const val PROPERTY_XTRAS_BIN = "$XTRAS_EXTN_NAME.bin"
+
+    private fun Project.xtrasBinProperty(name: String) =
+      project.xtrasProperty("$PROPERTY_XTRAS_BIN.$name") {
+        if (HostManager.hostIsLinux) "/usr/bin/$name" else name
+      }
   }
 
-  val git: Property<String> = project.xtrasProperty("$PROPERTY_XTRAS_BIN.git") {
+  val sh: Property<String> = project.xtrasBinProperty("sh")
 
-    ""
-  }
-
+  val git: Property<String> = project.xtrasBinProperty("git")
 }

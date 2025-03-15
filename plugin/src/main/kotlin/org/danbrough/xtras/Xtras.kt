@@ -3,24 +3,26 @@ package org.danbrough.xtras
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.invoke
-import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 @Suppress("MemberVisibilityCanBePrivate")
 open class Xtras @Inject constructor(project: Project) {
 
-  companion object {
-    internal fun Project.createXtrasExtension() = extensions.create<Xtras>("xtras")
-  }
 
   val description: Property<String?> =
-    project.xtrasProperty<String?>("xtras.description", null)
+    project.xtrasProperty<String?>("$XTRAS_EXTN_NAME.description", null)
 
-  val logger: XtrasLogger = XtrasLogger(project)
+  val logger: Logger by lazy {
+    XtrasLoggerImpl(
+      project,
+      project.getXtrasPropertyValue("$XTRAS_EXTN_NAME.log.tag") { "XTRAS" },
+      logToStdout = project.getXtrasPropertyValue("$XTRAS_EXTN_NAME.log.stdout") { true },
+      logToGradle = project.getXtrasPropertyValue("$XTRAS_EXTN_NAME.log.gradle") { false }
+    )
+  }
 
-  fun logging(action: Action<XtrasLogger>) {
+  fun logging(action: Action<Logger>) {
     action.invoke(logger)
   }
 
@@ -29,4 +31,8 @@ open class Xtras @Inject constructor(project: Project) {
   fun android(action: Action<XtrasAndroid>) {
     action.invoke(android)
   }
+
+  val binaries = XtrasBinaries(project)
+
+  fun binaries(action: Action<XtrasBinaries>) = action.invoke(binaries)
 }

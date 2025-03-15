@@ -9,9 +9,14 @@ import org.gradle.api.Project
 
 
 class OpenSSLPlugin : Plugin<Project> {
-  override fun apply(target: Project) = target.xtrasRegisterLibrary<XtrasLibrary>("openssl"){
-    git {
-      target.xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
+  override fun apply(target: Project) {
+    target.xtrasRegisterLibrary<XtrasLibrary>("openssl") {
+      git {
+        target.xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
+      }
+
+      target.xTrace("git binary: ${xtras.binaries.git.get()}")
+
     }
   }
 }

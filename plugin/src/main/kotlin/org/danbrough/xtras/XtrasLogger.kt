@@ -4,6 +4,7 @@ package org.danbrough.xtras
 
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.getByType
 import javax.inject.Inject
@@ -22,39 +23,10 @@ private val LogLevel.color: Int
 internal fun String.colored(level: LogLevel) =
   "\u001b[0;${level.color}m$this\u001b[0m"
 
+abstract class Logger {
+  abstract val tag:String
 
-@Suppress("MemberVisibilityCanBePrivate")
-class XtrasLogger @Inject constructor(val project: Project) {
-  val tag: String = project.xtrasProperty("xtras.logger.tag") { "XTRAS" }.get()
-
-  val logToStdout: Property<Boolean> = project.xtrasProperty("xtras.log.stdout", true)
-  val logToGradle: Property<Boolean> = project.xtrasProperty("xtras.log.gradle", false)
-
-  //private val output: StyledTextOutput = project.gradle.serviceOf<StyledTextOutputFactory>().create("XtrasLogOutput")
-
-  fun log(msg: String, level: LogLevel, err: Throwable?) {
-    if (logToStdout.get()) {
-/*      val logName = when (level) {
-        LogLevel.DEBUG -> "TRACE"
-        LogLevel.INFO -> "DEBUG"
-        LogLevel.LIFECYCLE -> "DEBUG"
-        LogLevel.WARN -> " INFO"
-        LogLevel.QUIET -> " WARN"
-        LogLevel.ERROR -> "ERROR"
-      }*/
-      println(
-        "${if (tag.length == 4) " " else ""}${tag.colored(level)}: ${
-          project.name.colored(level)
-        }: ${msg.colored(level)} ${
-          err?.message?.colored(
-            level
-          ) ?: ""
-        }"
-      )
-    }
-
-    if (logToGradle.get()) project.logger.log(level, msg)
-  }
+  abstract fun log(msg: String, level: LogLevel, err: Throwable?)
 
   inline fun trace(msg: String, err: Throwable? = null) =
     log(msg, LogLevel.DEBUG, err)
@@ -70,13 +42,45 @@ class XtrasLogger @Inject constructor(val project: Project) {
 
   inline fun error(msg: String, err: Throwable? = null) =
     log(msg, LogLevel.ERROR, err)
-
 }
 
-val Project.xtrasLogger: XtrasLogger
+@Suppress("MemberVisibilityCanBePrivate")
+class XtrasLoggerImpl @Inject constructor(val project:Project?,override val tag:String,val logToStdout:Boolean, val logToGradle:Boolean) : Logger() {
+
+
+
+  //private val output: StyledTextOutput = project.gradle.serviceOf<StyledTextOutputFactory>().create("XtrasLogOutput")
+
+  override fun log(msg: String, level: LogLevel, err: Throwable?) {
+    if (logToStdout) {
+      /*      val logName = when (level) {
+              LogLevel.DEBUG -> "TRACE"
+              LogLevel.INFO -> "DEBUG"
+              LogLevel.LIFECYCLE -> "DEBUG"
+              LogLevel.WARN -> " INFO"
+              LogLevel.QUIET -> " WARN"
+              LogLevel.ERROR -> "ERROR"
+            }*/
+      println(
+        "${if (tag.length == 4) " " else ""}${tag.colored(level)}: ${
+          tag.colored(level)
+        }: ${msg.colored(level)} ${
+          err?.message?.colored(
+            level
+          ) ?: ""
+        }"
+      )
+    }
+
+    if (logToGradle) project!!.logger.log(level, msg)
+  }
+}
+
+val Project.xtrasLogger: Logger
   get() = extensions.getByType<Xtras>().logger
 
-inline fun Project.xTrace(msg: String, err: Throwable? = null) =
+
+fun Project.xTrace(msg: String, err: Throwable? = null) =
   xtrasLogger.log(msg, LogLevel.DEBUG, err)
 
 inline fun Project.xDebug(msg: String, err: Throwable? = null) =
