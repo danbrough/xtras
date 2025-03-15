@@ -4,8 +4,6 @@ package org.danbrough.xtras
 
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
-import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.getByType
 import javax.inject.Inject
 
@@ -24,7 +22,7 @@ internal fun String.colored(level: LogLevel) =
   "\u001b[0;${level.color}m$this\u001b[0m"
 
 abstract class Logger {
-  abstract val tag:String
+  abstract val tag: String
 
   abstract fun log(msg: String, level: LogLevel, err: Throwable?)
 
@@ -45,8 +43,12 @@ abstract class Logger {
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
-class XtrasLoggerImpl @Inject constructor(val project:Project?,override val tag:String,val logToStdout:Boolean, val logToGradle:Boolean) : Logger() {
-
+class XtrasLoggerImpl @Inject constructor(
+  val project: Project?,
+  override val tag: String,
+  val logToStdout: Boolean,
+  val logToGradle: Boolean
+) : Logger() {
 
 
   //private val output: StyledTextOutput = project.gradle.serviceOf<StyledTextOutputFactory>().create("XtrasLogOutput")
@@ -62,9 +64,7 @@ class XtrasLoggerImpl @Inject constructor(val project:Project?,override val tag:
               LogLevel.ERROR -> "ERROR"
             }*/
       println(
-        "${if (tag.length == 4) " " else ""}${tag.colored(level)}: ${
-          tag.colored(level)
-        }: ${msg.colored(level)} ${
+        "${if (tag.length == 4) " " else ""}${tag.colored(level)}: ${msg.colored(level)} ${
           err?.message?.colored(
             level
           ) ?: ""

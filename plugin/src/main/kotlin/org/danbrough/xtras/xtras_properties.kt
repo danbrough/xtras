@@ -8,11 +8,11 @@ import java.io.File
 const val XTRAS_EXTN_NAME = "xtras"
 
 const val PROPERTY_XTRAS_DIR = "$XTRAS_EXTN_NAME.dir"
-const val PROPERTY_XTRAS_DOWNLOADS_DIR = "$PROPERTY_XTRAS_DIR.downloads"
+const val PROPERTY_XTRAS_CACHE_DIR = "$PROPERTY_XTRAS_DIR.cache"
 const val PROPERTY_XTRAS_BUILD_DIR = "$PROPERTY_XTRAS_DIR.dir.build"
 
 val Project.xtrasDir: File
-  get() = getXtrasPropertyValue(PROPERTY_XTRAS_DIR) {
+  get() = xtrasPropertyValue(PROPERTY_XTRAS_DIR) {
     rootDir.resolve("build").resolve(XTRAS_EXTN_NAME).absoluteFile
   }
 
@@ -24,13 +24,13 @@ val Settings.xtrasDir: File
     return File(path)
   }
 
-val Project.xtrasDownloadsDir: File
-  get() = getXtrasPropertyValue(PROPERTY_XTRAS_DOWNLOADS_DIR) {
-    xtrasDir.resolve("downloads")
+val Project.xtrasCacheDir: File
+  get() = xtrasPropertyValue(PROPERTY_XTRAS_CACHE_DIR) {
+    xtrasDir.resolve("cache")
   }
 
 val Project.xtrasBuildDir: File
-  get() = getXtrasPropertyValue(PROPERTY_XTRAS_BUILD_DIR) {
+  get() = xtrasPropertyValue(PROPERTY_XTRAS_BUILD_DIR) {
     layout.buildDirectory.dir(XTRAS_EXTN_NAME).get().asFile
   }
 

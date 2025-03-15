@@ -14,14 +14,14 @@ inline fun <reified T : Any?> Project.xtrasProperty(
   noinline defaultValue: () -> T = { error("$key not set") }
 ): Property<T> = objects.property(T::class.java).apply {
   convention(provider {
-    getXtrasPropertyValue<T>(key, T::class, defaultValue)
+    xtrasPropertyValue<T>(key, T::class, defaultValue)
   })
 }
 
 inline fun <reified T : Any?> Project.xtrasProperty(key: String, defaultValue: T) =
   xtrasProperty(key) { defaultValue }
 
-inline fun <reified T : Any?> ExtensionAware.getXtrasPropertyValue(
+inline fun <reified T : Any?> ExtensionAware.xtrasPropertyValue(
   key: String,
   type: KClass<*> = T::class,
   noinline defaultValue: () -> T = { error("$key not specified") }

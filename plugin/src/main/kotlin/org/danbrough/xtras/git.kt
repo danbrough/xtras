@@ -15,12 +15,25 @@ internal class GitSourceConfigImpl(private val library: XtrasLibrary) :
   private val log = library.project.xtrasLogger
 
   override fun configureTasks() {
-    log.info("configureTasks() ${url.get()}:${commit.get()} git: ${library.xtras.binaries.git.get()}")
-
+    log.info("${library.project.path}:${library.name} configureTasks()")
+    library.registerGitSourceDownloadTask()
   }
 
 }
 
 fun XtrasLibrary.git(block: XtrasLibrary.GitSourceConfig.() -> Unit) {
   sourceConfig = GitSourceConfigImpl(this).apply(block)
+}
+
+private fun XtrasLibrary.registerGitSourceDownloadTask() {
+  project.run {
+    tasks.register(Tasks.TASK_SOURCE_DOWNLOAD) {
+      group = Tasks.XTRAS_TASK_GROUP
+      description = "Download required commits from remote repository to $xtrasCacheDir"
+      doFirst {
+        val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig
+        xInfo("running $name with ${gitConfig.url.get()} commit: ${gitConfig.commit.get()}")
+      }
+    }
+  }
 }

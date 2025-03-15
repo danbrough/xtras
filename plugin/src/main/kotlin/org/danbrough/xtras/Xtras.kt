@@ -16,9 +16,9 @@ open class Xtras @Inject constructor(project: Project) {
   val logger: Logger by lazy {
     XtrasLoggerImpl(
       project,
-      project.getXtrasPropertyValue("$XTRAS_EXTN_NAME.log.tag") { "XTRAS" },
-      logToStdout = project.getXtrasPropertyValue("$XTRAS_EXTN_NAME.log.stdout") { true },
-      logToGradle = project.getXtrasPropertyValue("$XTRAS_EXTN_NAME.log.gradle") { false }
+      project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.tag") { "XTRAS" },
+      logToStdout = project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.stdout") { true },
+      logToGradle = project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.gradle") { false }
     )
   }
 
