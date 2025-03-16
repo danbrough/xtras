@@ -1,10 +1,12 @@
-package org.danbrough.xtras
+package org.danbrough.xtras.git
 
+import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.xtrasLogger
+import org.danbrough.xtras.xtrasProperty
 import org.gradle.api.provider.Property
 import java.net.URI
 
 internal class GitSourceConfigImpl(private val library: XtrasLibrary) :
-
   XtrasLibrary.GitSourceConfig {
 
   override val url: Property<URI> = library.project.xtrasProperty("${library.name}.git.url")
@@ -16,7 +18,9 @@ internal class GitSourceConfigImpl(private val library: XtrasLibrary) :
 
   override fun configureTasks() {
     log.info("${library.project.path}:${library.name} configureTasks()")
+    library.registerGitSourceTagsTask()
     library.registerGitSourceDownloadTask()
+    library.registerGitSourceExtractTasks()
   }
 
 }
@@ -25,15 +29,3 @@ fun XtrasLibrary.git(block: XtrasLibrary.GitSourceConfig.() -> Unit) {
   sourceConfig = GitSourceConfigImpl(this).apply(block)
 }
 
-private fun XtrasLibrary.registerGitSourceDownloadTask() {
-  project.run {
-    tasks.register(Tasks.TASK_SOURCE_DOWNLOAD) {
-      group = Tasks.XTRAS_TASK_GROUP
-      description = "Download required commits from remote repository to $xtrasCacheDir"
-      doFirst {
-        val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig
-        xInfo("running $name with ${gitConfig.url.get()} commit: ${gitConfig.commit.get()}")
-      }
-    }
-  }
-}

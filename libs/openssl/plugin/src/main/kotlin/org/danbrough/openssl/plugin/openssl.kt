@@ -1,7 +1,7 @@
 package org.danbrough.openssl.plugin
 
 import org.danbrough.xtras.XtrasLibrary
-import org.danbrough.xtras.git
+import org.danbrough.xtras.git.git
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
