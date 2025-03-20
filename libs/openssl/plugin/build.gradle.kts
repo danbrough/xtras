@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   `kotlin-dsl`
@@ -22,7 +21,7 @@ java {
 //  withJavadocJar()
 }
 
-kotlin{
+kotlin {
   compilerOptions.jvmTarget = JvmTarget.JVM_11
 }
 
@@ -50,9 +49,8 @@ gradlePlugin {
 }
 
 
-tasks.register("thang2"){
+tasks.register("thang2") {
   doFirst {
-
 
   }
 }

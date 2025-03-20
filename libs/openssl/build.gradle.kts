@@ -6,8 +6,6 @@ import org.danbrough.xtras.xtrasBuildDir
 import org.danbrough.xtras.xtrasCacheDir
 import org.danbrough.xtras.xtrasDir
 import org.danbrough.xtras.xtrasLogger
-import org.danbrough.xtras.xtrasName
-import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -18,9 +16,14 @@ group = "org.danbrough.openssl"
 
 kotlin {
   linuxX64()
+  linuxArm64()
+  androidNativeX64()
+
+  openssl {
+  }
 }
 
-openssl {}
+
 
 xtras {
   logging {}
@@ -38,8 +41,8 @@ tasks.register("thang") {
     xInfo("sdkVersion: ${xtras.android.sdkVersion.get()}")
     xDebug("xtrasDir: ${xtrasDir.absolutePath} downloadsDir: ${xtrasCacheDir.absolutePath} buildDir: ${xtrasBuildDir.absolutePath}")
     //val target = KonanTarget.LINUX_ARM32_HFP
-    for (target in KonanTarget.predefinedTargets.values) {
-      xInfo("target: $target -> ${target.xtrasName}")
+    openssl.buildTargets.get().forEach {
+      xInfo("NATIVE TARGET: $it name: ${it.name}")
     }
   }
 }

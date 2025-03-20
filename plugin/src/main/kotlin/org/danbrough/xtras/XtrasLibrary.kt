@@ -1,20 +1,24 @@
 package org.danbrough.xtras
 
 import org.gradle.api.Project
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.listProperty
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 import java.net.URI
 
+typealias ScriptEnvironment = MutableMap<String, Any>
 
 @Suppress("MemberVisibilityCanBePrivate")
 open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String) {
 
-  interface SourceConfig {
-    fun configureTasks()
-  }
+  interface SourceConfig
 
   interface GitSourceConfig : SourceConfig {
     val url: Property<URI>
@@ -34,10 +38,34 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
   val buildDir: File
     get() = project.xtrasBuildDir
 
-  val srcDir: File
-    get() = buildDir.resolve("src")
+  var srcDir: File = buildDir.resolve("src")
 
-  fun srcDir(target: KonanTarget) = srcDir.resolve(target.xtrasName)
+  val subPathMap: File.(KonanTarget) -> File = { target ->
+    resolve("${this@XtrasLibrary.name}_${version.get()}").resolve(target.xtrasName)
+  }
+
+  var installDir: (KonanTarget) -> File = {
+    buildDir.subPathMap(it)
+  }
+
+  var sourcesDirMap: (KonanTarget) -> File = {
+    srcDir.subPathMap(it)
+  }
+
+  var scriptFileMap: (String, KonanTarget) -> File = { name, target ->
+    sourcesDirMap(target).resolve("xtras_${name}_${target.xtrasName}.sh")
+  }
+
+  var buildTargets: ListProperty<KonanTarget> =
+    project.objects.listProperty<KonanTarget>().convention(project.provider {
+      val kotlin = project.kotlinExtension
+      if (kotlin is KotlinMultiplatformExtension) {
+        kotlin.targets.filterIsInstance<KotlinNativeTarget>().map { it.konanTarget }
+      } else emptyList()
+    })
+
+  var defaultEnvironent: (ScriptEnvironment) -> Unit = {}
+
 
 }
 
@@ -53,12 +81,8 @@ inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
   val xtras =
     extensions.findByType<Xtras>() ?: error("Expecting Xtras extension to have been created")
 
-  return extensions.create<T>(name, xtras, this, name).apply {
-    block()
-    project.afterEvaluate {
-      sourceConfig?.configureTasks()
-    }
-  }
+  return extensions.create<T>(name, xtras, this, name).apply(block)
+
 }
 
 

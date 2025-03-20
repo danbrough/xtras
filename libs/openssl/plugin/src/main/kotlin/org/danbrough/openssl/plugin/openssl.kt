@@ -2,21 +2,47 @@ package org.danbrough.openssl.plugin
 
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.git.git
+import org.danbrough.xtras.tasks.configure
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 
 class OpenSSLPlugin : Plugin<Project> {
-  override fun apply(target: Project) {
-    target.xtrasRegisterLibrary<XtrasLibrary>("openssl") {
+  override fun apply(project: Project) {
+
+    project.xtrasRegisterLibrary<XtrasLibrary>("openssl") {
       git {
-        target.xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
+        project.xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
       }
 
-      target.xTrace("git binary: ${xtras.binaries.git.get()}")
+      configure {
+        val outputFile = File("Makefile")
+        task.outputs.file(outputFile)
+        task.onlyIf { !outputFile.exists() }
 
+        scriptWriter.println("[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} \\")
+        if (target.family == Family.ANDROID)
+          scriptWriter.println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
+
+        scriptWriter.println("no-engine no-asm no-tests threads zlib --prefix=\"$installDir\" --libdir=lib")
+
+        /*
+        //      buildCommand { target ->
+//        writer.println("[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} \\")
+//
+//        when {
+//          target.family == Family.ANDROID ->
+//            writer.println("-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion} \\")
+//        }
+//        writer.println("no-engine no-asm no-tests threads zlib --prefix=\$${ENV_BUILD_DIR} --libdir=lib")
+         */
+
+      }
     }
   }
 }
@@ -113,30 +139,31 @@ class OpenSSLPlugin : Plugin<Project> {
 //  }
 //
 //
-//val KonanTarget.opensslPlatform: String
-//  get() = when (this) {
-//    KonanTarget.LINUX_X64 -> "linux-x86_64"
-//    KonanTarget.LINUX_ARM64 -> "linux-aarch64"
-//    //  KonanTarget.LINUX_ARM32_HFP -> "linux-armv4"
-////    KonanTarget.LINUX_MIPS32 -> TODO()
-////    KonanTarget.LINUX_MIPSEL32 -> TODO()
-//    KonanTarget.ANDROID_ARM32 -> "android-arm"
-//    KonanTarget.ANDROID_ARM64 -> "android-arm64"
-//    KonanTarget.ANDROID_X86 -> "android-x86"
-//    KonanTarget.ANDROID_X64 -> "android-x86_64"
-//    KonanTarget.MINGW_X64 -> "mingw64"
-//    //KonanTarget.MINGW_X86 -> "mingw"
-//
-//
-//    KonanTarget.MACOS_X64 -> "darwin64-x86_64"
-//    KonanTarget.MACOS_ARM64 -> "darwin64-arm64-cc"
-//    //KonanTarget.IOS_ARM32 -> "ios-cross" //ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun iphoneos-cross
-//
-//    KonanTarget.IOS_ARM64 -> "ios64-cross" //ios-cross ios-xcrun
-//    //KonanTarget.IOS_SIMULATOR_ARM64 -> "iossimulator-xcrun"
-//    KonanTarget.IOS_X64 -> "ios64-cross"
-//
-//    else -> throw Error("$this not supported for openssl")
-//  }
-//
-//
+
+val KonanTarget.opensslPlatform: String
+  get() = when (this) {
+    KonanTarget.LINUX_X64 -> "linux-x86_64"
+    KonanTarget.LINUX_ARM64 -> "linux-aarch64"
+    //  KonanTarget.LINUX_ARM32_HFP -> "linux-armv4"
+//    KonanTarget.LINUX_MIPS32 -> TODO()
+//    KonanTarget.LINUX_MIPSEL32 -> TODO()
+    KonanTarget.ANDROID_ARM32 -> "android-arm"
+    KonanTarget.ANDROID_ARM64 -> "android-arm64"
+    KonanTarget.ANDROID_X86 -> "android-x86"
+    KonanTarget.ANDROID_X64 -> "android-x86_64"
+    KonanTarget.MINGW_X64 -> "mingw64"
+    //KonanTarget.MINGW_X86 -> "mingw"
+
+
+    KonanTarget.MACOS_X64 -> "darwin64-x86_64"
+    KonanTarget.MACOS_ARM64 -> "darwin64-arm64-cc"
+    //KonanTarget.IOS_ARM32 -> "ios-cross" //ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun iphoneos-cross
+
+    KonanTarget.IOS_ARM64 -> "ios64-cross" //ios-cross ios-xcrun
+    //KonanTarget.IOS_SIMULATOR_ARM64 -> "iossimulator-xcrun"
+    KonanTarget.IOS_X64 -> "ios64-cross"
+
+    else -> throw Error("$this not supported for openssl")
+  }
+
+

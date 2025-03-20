@@ -2,16 +2,16 @@ package org.danbrough.xtras.git
 
 import org.danbrough.xtras.Tasks
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.taskNameSourceDownload
 import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xError
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasCacheDir
-import org.danbrough.xtras.xtrasSourceDownloadTaskName
 import java.io.File
 
 
 internal fun XtrasLibrary.registerGitSourceDownloadTask(): String {
-  val taskName = xtrasSourceDownloadTaskName()
+  val taskName = taskNameSourceDownload()
   project.run {
     tasks.register(taskName) {
       group = Tasks.XTRAS_TASK_GROUP

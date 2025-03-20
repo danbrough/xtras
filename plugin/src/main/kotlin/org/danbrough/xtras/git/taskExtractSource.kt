@@ -2,11 +2,11 @@ package org.danbrough.xtras.git
 
 import org.danbrough.xtras.Tasks
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.taskNameSourceDownload
+import org.danbrough.xtras.taskNameSourceExtract
 import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xWarn
-import org.danbrough.xtras.xtrasSourceDownloadTaskName
-import org.danbrough.xtras.xtrasSourceExtractTaskName
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -18,18 +18,19 @@ internal fun XtrasLibrary.registerGitSourceExtractTasks() {
 }
 
 internal fun XtrasLibrary.registerGitSourceExtractTask(target: KonanTarget): String {
-  val taskName = xtrasSourceExtractTaskName(target)
+  val taskName = taskNameSourceExtract(target)
 
   project.run {
     tasks.register(taskName) {
       group = Tasks.XTRAS_TASK_GROUP
 
 
-      val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig
-      val sourcesDir = srcDir(target).resolve(gitConfig.commit.get())
-      val outputFile = sourcesDir.resolve(".cloned")
+      //val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig
+      val sourcesDir = sourcesDirMap(target)
+      val outputFile = sourcesDir.resolve(".xtras_extracted")
+
       outputs.file(outputFile)
-      dependsOn(xtrasSourceDownloadTaskName())
+      dependsOn(taskNameSourceDownload())
 
       description = "Download required commits from remote repository to $sourcesDir"
 

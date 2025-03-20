@@ -6,6 +6,10 @@ import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.invoke
 import javax.inject.Inject
 
+
+//@DslMarker
+//annotation class XtrasDSL
+
 @Suppress("MemberVisibilityCanBePrivate")
 open class Xtras @Inject constructor(project: Project) {
 
