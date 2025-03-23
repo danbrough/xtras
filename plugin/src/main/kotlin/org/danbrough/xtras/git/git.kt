@@ -28,9 +28,13 @@ fun XtrasLibrary.git(block: XtrasLibrary.GitSourceConfig.() -> Unit) {
   */
 
   //register the git related source tasks
-  registerGitSourceTagsTask()
-  registerGitSourceDownloadTask()
-  registerGitSourceExtractTasks()
+  project.afterEvaluate {
+    registerGitSourceTagsTask()
+    registerGitSourceDownloadTask()
+    buildTargets.get().forEach { target ->
+      registerGitSourceExtractTask(target)
+    }
+  }
 
 }
 

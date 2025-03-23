@@ -7,15 +7,8 @@ import org.danbrough.xtras.taskNameSourceExtract
 import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xWarn
-import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
-
-internal fun XtrasLibrary.registerGitSourceExtractTasks() {
-  listOf(HostManager.host).forEach {
-    registerGitSourceExtractTask(it)
-  }
-}
 
 internal fun XtrasLibrary.registerGitSourceExtractTask(target: KonanTarget): String {
   val taskName = taskNameSourceExtract(target)

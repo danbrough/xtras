@@ -32,7 +32,7 @@ object Tasks {
 internal fun XtrasLibrary.taskNameSourceDownload() =
   create(Tasks.GROUP_SOURCE, Tasks.ACTION_DOWNLOAD, name)
 
-internal fun XtrasLibrary.taskNameSourceExtract(konanTarget: KonanTarget) =
+fun XtrasLibrary.taskNameSourceExtract(konanTarget: KonanTarget) =
   create(Tasks.GROUP_SOURCE, Tasks.ACTION_EXTRACT, name, konanTarget)
 
 internal fun XtrasLibrary.taskNameSourcePrepare(konanTarget: KonanTarget) =

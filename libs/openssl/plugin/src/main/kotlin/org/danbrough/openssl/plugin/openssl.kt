@@ -2,14 +2,14 @@ package org.danbrough.openssl.plugin
 
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.git.git
-import org.danbrough.xtras.tasks.configure
+import org.danbrough.xtras.tasks.configureSource
+import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import java.io.File
 
 
 class OpenSSLPlugin : Plugin<Project> {
@@ -20,27 +20,21 @@ class OpenSSLPlugin : Plugin<Project> {
         project.xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
       }
 
-      configure {
-        val outputFile = File("Makefile")
-        task.outputs.file(outputFile)
-        task.onlyIf { !outputFile.exists() }
+      configureSource {
+        task.outputs.file(task.workingDir.resolve("Makefile"))
+        //task.onlyIf { !outputFile.exists() }
 
-        scriptWriter.println("[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} \\")
-        if (target.family == Family.ANDROID)
-          scriptWriter.println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
+        script {
+          val installDir = installDirMap(target)
+          project.xInfo("openssl: writing taskConfigureSource script..")
+          println("echo running configure at `date` ..")
+          //println("[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} \\")
+          println("./Configure ${target.opensslPlatform} \\")
+          if (target.family == Family.ANDROID)
+            println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
 
-        scriptWriter.println("no-engine no-asm no-tests threads zlib --prefix=\"$installDir\" --libdir=lib")
-
-        /*
-        //      buildCommand { target ->
-//        writer.println("[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} \\")
-//
-//        when {
-//          target.family == Family.ANDROID ->
-//            writer.println("-D__ANDROID_API__=${xtras.androidConfig.compileSDKVersion} \\")
-//        }
-//        writer.println("no-engine no-asm no-tests threads zlib --prefix=\$${ENV_BUILD_DIR} --libdir=lib")
-         */
+          println("no-engine no-asm no-tests threads zlib --prefix=\"$installDir\" --libdir=lib")
+        }
 
       }
     }

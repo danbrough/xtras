@@ -1,11 +1,13 @@
 package org.danbrough.xtras
 
+import org.danbrough.xtras.tasks.ScriptTask
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -41,10 +43,10 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
   var srcDir: File = buildDir.resolve("src")
 
   val subPathMap: File.(KonanTarget) -> File = { target ->
-    resolve("${this@XtrasLibrary.name}_${version.get()}").resolve(target.xtrasName)
+    resolve("${this@XtrasLibrary.name}_${version.get()}_${target.xtrasName}")
   }
 
-  var installDir: (KonanTarget) -> File = {
+  var installDirMap: (KonanTarget) -> File = {
     buildDir.subPathMap(it)
   }
 
@@ -63,8 +65,6 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
         kotlin.targets.filterIsInstance<KotlinNativeTarget>().map { it.konanTarget }
       } else emptyList()
     })
-
-  var defaultEnvironent: (ScriptEnvironment) -> Unit = {}
 
 
 }
@@ -86,3 +86,12 @@ inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
 }
 
 
+inline fun XtrasLibrary.registerScriptTask(
+  name: String,
+  crossinline block: ScriptTask.() -> Unit
+) {
+  project.tasks.register<ScriptTask>(name) {
+    library = this@registerScriptTask
+    block()
+  }
+}
