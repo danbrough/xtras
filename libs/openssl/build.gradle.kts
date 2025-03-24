@@ -21,6 +21,7 @@ kotlin {
   linuxX64()
   linuxArm64()
   androidNativeX64()
+  macosX64()
 
   openssl {
   }
