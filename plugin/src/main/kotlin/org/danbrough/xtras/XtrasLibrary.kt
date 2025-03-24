@@ -1,13 +1,11 @@
 package org.danbrough.xtras
 
-import org.danbrough.xtras.tasks.ScriptTask
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.listProperty
-import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -85,13 +83,3 @@ inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
 
 }
 
-
-inline fun XtrasLibrary.registerScriptTask(
-  name: String,
-  crossinline block: ScriptTask.() -> Unit
-) {
-  project.tasks.register<ScriptTask>(name) {
-    library = this@registerScriptTask
-    block()
-  }
-}

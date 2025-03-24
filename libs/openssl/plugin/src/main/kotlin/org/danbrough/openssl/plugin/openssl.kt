@@ -21,7 +21,7 @@ class OpenSSLPlugin : Plugin<Project> {
       }
 
       configureSource {
-        task.outputs.file(task.workingDir.resolve("Makefile"))
+        outputs.file(workingDir.resolve("Makefile"))
         //task.onlyIf { !outputFile.exists() }
 
         script {

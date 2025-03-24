@@ -1,5 +1,6 @@
-import org.danbrough.xtras.registerScriptTask
-import org.danbrough.xtras.taskNameSourceExtract
+import org.danbrough.xtras.tasks.ScriptTask
+import org.danbrough.xtras.tasks.konanEnvironment
+import org.danbrough.xtras.tasks.scriptEnvironment
 import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xError
 import org.danbrough.xtras.xInfo
@@ -8,7 +9,6 @@ import org.danbrough.xtras.xtrasBuildDir
 import org.danbrough.xtras.xtrasCacheDir
 import org.danbrough.xtras.xtrasDir
 import org.danbrough.xtras.xtrasLogger
-import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -25,8 +25,6 @@ kotlin {
   openssl {
   }
 }
-
-
 
 xtras {
   logging {}
@@ -51,18 +49,31 @@ tasks.register("thang") {
   }
 }
 
-openssl.registerScriptTask("test") {
-  target = KonanTarget.LINUX_ARM64
-  dependsOn(openssl.taskNameSourceExtract(target))
-  scriptFile = file("/tmp/test.sh")
+
+tasks.register<ScriptTask>("foo") {
+//  target = KonanTarget.LINUX_ARM64
+//  dependsOn(openssl.taskNameSourceExtract(target))
+  workingDir("/tmp")
+
 
   script {
     println("echo the date is `date` and the message \$MESSAGE")
   }
+
+
   doFirst {
     xWarn("TEST: doFirst")
     environment.clear()
     environment["MESSAGE"] = "Set from gradle"
+  }
+}
+
+tasks.register("test") {
+  doFirst {
+    xInfo("konanEnv: defaultPath: ${xtras.environment.pathDefault.get()}")
+    val env = scriptEnvironment()
+    xtras.environment.konanEnvironment(env)
+    xInfo("env: $env")
   }
 }
 

@@ -34,4 +34,11 @@ val Project.xtrasBuildDir: File
     layout.buildDirectory.dir(XTRAS_EXTN_NAME).get().asFile
   }
 
+val Project.xtrasKonanDir: File
+  get() = System.getenv("KONAN_DATA_DIR")?.let { File(it) } ?: File(
+    System.getProperty("user.home")!!,
+    ".konan"
+  )
+
+
 

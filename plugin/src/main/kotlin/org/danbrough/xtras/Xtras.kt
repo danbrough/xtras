@@ -11,7 +11,7 @@ import javax.inject.Inject
 //annotation class XtrasDSL
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class Xtras @Inject constructor(project: Project) {
+open class Xtras @Inject constructor(val project: Project) {
 
   val description: Property<String?> =
     project.xtrasProperty<String?>("$XTRAS_EXTN_NAME.description", null)
@@ -38,4 +38,8 @@ open class Xtras @Inject constructor(project: Project) {
   val binaries = XtrasBinaries(project)
 
   fun binaries(action: Action<XtrasBinaries>) = action.invoke(binaries)
+
+  val environment = XtrasEnvironment(project)
+  
+  fun environment(action: Action<XtrasEnvironment>) = action.invoke(environment)
 }
