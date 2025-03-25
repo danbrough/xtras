@@ -1,13 +1,14 @@
 package org.danbrough.xtras.tasks
 
 import org.danbrough.xtras.Tasks
+import org.danbrough.xtras.Xtras.Companion.xtras
 import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xtrasName
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.jetbrains.kotlin.konan.target.HostManager
+import org.gradle.kotlin.dsl.property
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.PrintWriter
 import java.util.Date
@@ -25,11 +26,11 @@ abstract class ScriptTask : Exec() {
   }
 
   @Input
-  var target: KonanTarget = HostManager.host
+  val target = project.objects.property<KonanTarget>()
 
   @OutputFile
   val scriptFile = project.objects.fileProperty().convention {
-    workingDir.resolve("xtras_${name}_${target.xtrasName}.sh").also {
+    workingDir.resolve("xtras_${name}_${target.get().xtrasName}.sh").also {
       if (!it.exists()) it.createNewFile()
     }
   }
@@ -55,10 +56,10 @@ abstract class ScriptTask : Exec() {
     val env = envFile.get().asFile
     project.xDebug("$name: writing $env")
     env.printWriter().use { writer ->
-      writer.println("# generated ${Date()} by $name ${target.xtrasName}")
+      writer.println("# generated ${Date()} by $name ${target.get().xtrasName}")
       writer.println("#")
       environment.forEach { (key, value) ->
-        writer.println("$key=\"$value\"")
+        writer.println("export $key=\"$value\"")
       }
     }
 
@@ -66,16 +67,22 @@ abstract class ScriptTask : Exec() {
     project.xDebug("$name: writing $script")
 
     script.printWriter().use { writer ->
-      writer.println("# generated ${Date()} by $name ${target.xtrasName}")
+      writer.println("#!${project.xtras.binaries.sh.get()}")
+      writer.println("# generated ${Date()} by $name ${target.get().xtrasName}")
       writer.println("#")
       writer.println(". $env")
       writer.println()
       scriptBlock?.invoke(writer)
     }
 
-    commandLine("sh", scriptFile.get().asFile)
+    commandLine(project.xtras.binaries.sh.get(), scriptFile.get().asFile)
     project.xDebug("$name: running ${commandLine.joinToString(" ")}")
   }
 
+  fun clearEnvironment() = environment.apply { clear() }
+
+  fun defaultEnvironment(): ScriptEnvironment = environment.apply {
+    put("PATH", project.xtras.environment.pathDefault.get())
+  }
 
 }

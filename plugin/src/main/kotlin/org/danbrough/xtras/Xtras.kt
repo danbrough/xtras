@@ -3,6 +3,7 @@ package org.danbrough.xtras
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.invoke
 import javax.inject.Inject
 
@@ -40,6 +41,11 @@ open class Xtras @Inject constructor(val project: Project) {
   fun binaries(action: Action<XtrasBinaries>) = action.invoke(binaries)
 
   val environment = XtrasEnvironment(project)
-  
+
   fun environment(action: Action<XtrasEnvironment>) = action.invoke(environment)
+
+  companion object {
+    val Project.xtras: Xtras
+      get() = extensions.getByType<Xtras>()
+  }
 }

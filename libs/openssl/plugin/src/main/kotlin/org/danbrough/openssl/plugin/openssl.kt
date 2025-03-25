@@ -2,7 +2,7 @@ package org.danbrough.openssl.plugin
 
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.git.git
-import org.danbrough.xtras.tasks.configureSource
+import org.danbrough.xtras.tasks.buildScript
 import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasRegisterLibrary
@@ -20,22 +20,24 @@ class OpenSSLPlugin : Plugin<Project> {
         project.xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
       }
 
-      configureSource {
+      buildScript {
         outputs.file(workingDir.resolve("Makefile"))
-        //task.onlyIf { !outputFile.exists() }
 
         script {
-          val installDir = installDirMap(target)
+          val konanTarget = target.get()
+          val installDir = installDirMap(konanTarget)
+
           project.xInfo("openssl: writing taskConfigureSource script..")
           println("echo running configure at `date` ..")
-          //println("[ ! -f Makefile ] && ./Configure ${target.opensslPlatform} \\")
-          println("./Configure ${target.opensslPlatform} \\")
-          if (target.family == Family.ANDROID)
+          println("./Configure ${konanTarget.opensslPlatform} \\")
+          if (konanTarget.family == Family.ANDROID)
             println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
 
-          println("no-engine no-asm no-tests threads zlib --prefix=\"$installDir\" --libdir=lib")
+          println("no-engine no-asm no-tests threads zlib --prefix=\"$installDir\" --libdir=lib || exit 1")
+          println("echo source configured .. building in 5")
+          println("sleep 2")
+          println("make -j8 install_sw")
         }
-
       }
     }
   }
