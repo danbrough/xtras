@@ -15,7 +15,7 @@ class XtrasBinaries(project: Project) {
       }
   }
 
-  val sh: Property<String> = project.xtrasBinProperty("sh")
+  val bash: Property<String> = project.xtrasBinProperty("bash")
 
   val git: Property<String> = project.xtrasBinProperty("git")
 }

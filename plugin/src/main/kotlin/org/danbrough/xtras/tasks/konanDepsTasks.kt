@@ -1,7 +1,11 @@
-package org.danbrough.xtras
+package org.danbrough.xtras.tasks
 
+
+import org.danbrough.xtras.Tasks
+import org.danbrough.xtras.xtrasName
 import org.gradle.api.Project
 import org.gradle.api.tasks.GradleBuild
+import org.gradle.internal.extensions.stdlib.capitalized
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
@@ -11,14 +15,12 @@ import java.io.File
 
 
 val KonanTarget.konanDepsTaskName: String
-  get() = "xtrasKonanDeps${presetName.capitalized()}"
+  get() = "xtrasKonanDeps${xtrasName.capitalized()}"
 
 internal fun Project.registerKonanDepsTasks() {
 
-  if (parent == null) {
-    KonanTarget.predefinedTargets.values.forEach {
-      registerKonanDepsTask(it)
-    }
+  KonanTarget.predefinedTargets.values.forEach {
+    registerKonanDepsTask(it)
   }
 
   afterEvaluate {
@@ -34,13 +36,17 @@ internal fun Project.registerKonanDepsTasks() {
 }
 
 private fun Project.registerKonanDepsTask(target: KonanTarget) {
-  val generateDepsProjectTaskName = "xtrasGenerateKonanDepsProject${target.presetName}"
+
+  val generateDepsProjectTaskName = "xtrasGenerateKonanDepsProject${target.xtrasName.capitalized()}"
+  //xError("registerKonanDepsTask: $generateDepsProjectTaskName")
+//  xInfo("$name:registerKonanDepsTask() $generateDepsProjectTaskName")
 
   val depsProjectDir =
-    File(System.getProperty("java.io.tmpdir"), "konanDeps_${target.presetName}")
+    File(System.getProperty("java.io.tmpdir"), "konanDeps${target.xtrasName.capitalized()}")
 
-  rootProject.tasks.register(generateDepsProjectTaskName) {
+  tasks.register(generateDepsProjectTaskName) {
     outputs.dir(depsProjectDir)
+    //xError("registered task: $name")
     doFirst {
       depsProjectDir.mkdirs()
       depsProjectDir.resolve("gradle.properties").writeText(
@@ -48,7 +54,7 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
         kotlin.native.ignoreDisabledTargets=true
         org.gradle.parallel=false
         org.gradle.caching=false
-        
+
       """.trimIndent()
       )
 
@@ -61,9 +67,9 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
         output.println(
           """
           plugins {
-            kotlin("multiplatform") version "${kotlinExtension.compilerVersion.get()}"
+            kotlin("multiplatform") version "2.1.20"
           }
-   
+
           repositories {
             mavenCentral()
           }
@@ -89,14 +95,15 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
     }
   }
 
-  rootProject.tasks.register(
+
+  tasks.register(
     target.konanDepsTaskName, GradleBuild::class.java
   ) {
     dependsOn(generateDepsProjectTaskName)
-    group = XTRAS_TASK_GROUP
+    group = Tasks.XTRAS_TASK_GROUP
     description = "Placeholder task for pre-downloading konan $target dependencies"
     dir = depsProjectDir
-    val taskName = "compileKotlin${target.presetName.capitalized()}"
+    val taskName = "compileKotlin${target.xtrasName}"
     tasks = listOf(taskName)
   }
 }

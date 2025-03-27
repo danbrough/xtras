@@ -35,21 +35,16 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
   val cacheDir: File
     get() = project.xtrasCacheDir.resolve(name)
 
-  val buildDir: File
-    get() = project.xtrasBuildDir
-
-  var srcDir: File = buildDir.resolve("src")
-
-  val subPathMap: File.(KonanTarget) -> File = { target ->
+  var subPathMap: File.(KonanTarget) -> File = { target ->
     resolve("${this@XtrasLibrary.name}_${version.get()}_${target.xtrasName}")
   }
 
   var installDirMap: (KonanTarget) -> File = {
-    buildDir.subPathMap(it)
+    project.xtrasBuildDir.subPathMap(it)
   }
 
   var sourcesDirMap: (KonanTarget) -> File = {
-    srcDir.subPathMap(it)
+    project.xtrasSrcDir.subPathMap(it)
   }
 
   var scriptFileMap: (String, KonanTarget) -> File = { name, target ->

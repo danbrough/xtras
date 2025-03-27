@@ -11,8 +11,8 @@ class XtrasEnvironment(val project: Project) {
   }
 
   val pathDefault = project.xtrasProperty<String>("$XTRAS_ENV.bin") {
-    if (HostManager.hostIsLinux) "/bin:/usr/bin:/usr/local/bin"
-    else if (HostManager.hostIsMac) "/bin:/usr/bin:/usr/local/bin"
+    if (HostManager.hostIsLinux) "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    else if (HostManager.hostIsMac) "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     else TODO("Need to set a XtrasEnvironment.pathDefault for ${HostManager.host}")
   }
 }
@@ -43,46 +43,42 @@ fun XtrasEnvironment.konanEnvironment(
           depsDir.resolve(
             "x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
           )
-        }" +
-            " --sysroot=${
-              depsDir.resolveAll(
-                "x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2",
-                "x86_64-unknown-linux-gnu",
-                "sysroot"
-              )
-            }"
+        }" + " --sysroot=${
+          depsDir.resolveAll(
+            "x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2",
+            "x86_64-unknown-linux-gnu",
+            "sysroot"
+          )
+        }"
 
         KonanTarget.LINUX_ARM64 -> "--target=${target.hostTriplet} --gcc-toolchain=${
           depsDir.resolve(
             "aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2"
           )
-        }" +
-            " --sysroot=${
-              depsDir.resolveAll(
-                "aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2",
-                "aarch64-unknown-linux-gnu",
-                "sysroot"
-              )
-            }"
+        }" + " --sysroot=${
+          depsDir.resolveAll(
+            "aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2",
+            "aarch64-unknown-linux-gnu",
+            "sysroot"
+          )
+        }"
 
-        KonanTarget.MINGW_X64 ->
-          "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("msys2-mingw-w64-x86_64-2")}" +
-              " --sysroot=${
-                depsDir.resolveAll(
-                  "msys2-mingw-w64-x86_64-2",
-                  "x86_64-w64-mingw32",
-                  "sysroot"
-                )
-              }"
+        KonanTarget.MINGW_X64 -> "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("msys2-mingw-w64-x86_64-2")}" + " --sysroot=${
+          depsDir.resolveAll(
+            "msys2-mingw-w64-x86_64-2", "x86_64-w64-mingw32", "sysroot"
+          )
+        }"
 
-        KonanTarget.ANDROID_ARM64 ->
-          "--target=${target.hostTriplet} --gcc-toolchain=${depsDir.resolve("target-toolchain-2-linux-android_ndk")}" +
-              " --sysroot=${
-                depsDir.resolveAll(
-                  "target-toolchain-2-linux-android_ndk",
-                  "aarch64-linux-android",
-                )
-              }"
+        KonanTarget.ANDROID_ARM64 -> "--target=${target.hostTriplet} --gcc-toolchain=${
+          depsDir.resolve(
+            "target-toolchain-2-linux-android_ndk"
+          )
+        }" + " --sysroot=${
+          depsDir.resolveAll(
+            "target-toolchain-2-linux-android_ndk",
+            "aarch64-linux-android",
+          )
+        }"
 
         else -> error("Unhandled target: $target")
       }
@@ -94,6 +90,8 @@ fun XtrasEnvironment.konanEnvironment(
   env["CLANG_ARGS"] = clangArgs
   env["CC"] = "clang $clangArgs"
   env["CXX"] = "clang++ $clangArgs"
+  env["MAKEFLAGS"] = "-j${Runtime.getRuntime().availableProcessors()}"
+  env["MAKEOPTS"] = "-j${Runtime.getRuntime().availableProcessors()}"
 
   return env
 }

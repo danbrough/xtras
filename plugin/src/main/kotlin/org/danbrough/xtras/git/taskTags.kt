@@ -22,7 +22,7 @@ internal fun XtrasLibrary.registerGitSourceTagsTask(): String {
       doFirst {
         val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig
         commandLine(
-          xtras.binaries.sh.get(),
+          xtras.binaries.bash.get(),
           "-c",
           "git ls-remote -q --refs -t ${gitConfig.url.get()}"
         )

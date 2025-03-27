@@ -67,19 +67,20 @@ abstract class ScriptTask : Exec() {
     project.xDebug("$name: writing $script")
 
     script.printWriter().use { writer ->
-      writer.println("#!${project.xtras.binaries.sh.get()}")
+      writer.println("#!${project.xtras.binaries.bash.get()}")
       writer.println("# generated ${Date()} by $name ${target.get().xtrasName}")
       writer.println("#")
+      writer.println("""cd "${'$'}(dirname "${'$'}0")"""")
       writer.println(". $env")
       writer.println()
       scriptBlock?.invoke(writer)
     }
 
-    commandLine(project.xtras.binaries.sh.get(), scriptFile.get().asFile)
+    commandLine(project.xtras.binaries.bash.get(), scriptFile.get().asFile)
     project.xDebug("$name: running ${commandLine.joinToString(" ")}")
   }
 
-  fun clearEnvironment() = environment.apply { clear() }
+  fun clearEnvironment(): ScriptEnvironment = environment.apply { clear() }
 
   fun defaultEnvironment(): ScriptEnvironment = environment.apply {
     put("PATH", project.xtras.environment.pathDefault.get())

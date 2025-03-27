@@ -3,4 +3,4 @@
 cd "$(dirname "$0")"
 
 
-docker buildx . -t danbrough/xtras:latest
+docker buildx build . -t danbrough/xtras:latest

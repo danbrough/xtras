@@ -1,5 +1,3 @@
-import org.danbrough.xtras.konanEnvironment
-import org.danbrough.xtras.tasks.scriptEnvironment
 import org.danbrough.xtras.xInfo
 
 plugins {
@@ -12,22 +10,21 @@ group = "org.danbrough.openssl"
 kotlin {
   linuxX64()
   linuxArm64()
-  //androidNativeX64()
+  androidNativeArm64()
 //  macosX64()
 
 
 }
 
+xtras {
 
+}
 
 
 tasks.register("test") {
   doFirst {
-    xInfo("konanEnv: defaultPath: ${xtras.environment.pathDefault.get()}")
-    val env = scriptEnvironment()
-    env["PATH"] = xtras.environment.pathDefault.get()
-    xtras.environment.konanEnvironment(env)
-    xInfo("env: $env")
+    xInfo("message= ${project.property("message")}")
+
   }
 }
 

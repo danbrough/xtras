@@ -1,7 +1,6 @@
 package org.danbrough.xtras.tasks
 
 import org.danbrough.xtras.XtrasLibrary
-import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.taskNameSourceConfigure
 import org.danbrough.xtras.taskNameSourceExtract
 import org.danbrough.xtras.xInfo
@@ -10,6 +9,7 @@ import org.gradle.kotlin.dsl.register
 
 fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
   project.afterEvaluate {
+
     project.xInfo(
       "${this@buildScript.name}:configureSource(): targets: ${
         buildTargets.get().joinToString()
@@ -20,9 +20,6 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
       project.tasks.register<ScriptTask>(taskNameSourceConfigure(target)) {
         dependsOn(this@buildScript.taskNameSourceExtract(target))
         this.target.set(target)
-        clearEnvironment()
-        defaultEnvironment()
-        environment(xtras.environment.konanEnvironment(environment, target = target))
         workingDir = sourcesDirMap(target)
         description = "Configure the source for ${this@buildScript.name}"
         config()

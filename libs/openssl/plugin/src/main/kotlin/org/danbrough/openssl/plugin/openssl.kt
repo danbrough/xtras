@@ -2,7 +2,9 @@ package org.danbrough.openssl.plugin
 
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.git.git
+import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.tasks.buildScript
+import org.danbrough.xtras.tasks.konanDepsTaskName
 import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasRegisterLibrary
@@ -22,6 +24,13 @@ class OpenSSLPlugin : Plugin<Project> {
 
       buildScript {
         outputs.file(workingDir.resolve("Makefile"))
+        dependsOn(target.get().konanDepsTaskName)
+
+        doFirst {
+          clearEnvironment()
+          defaultEnvironment()
+          environment(xtras.environment.konanEnvironment(environment, target = target.get()))
+        }
 
         script {
           val konanTarget = target.get()
@@ -29,14 +38,17 @@ class OpenSSLPlugin : Plugin<Project> {
 
           project.xInfo("openssl: writing taskConfigureSource script..")
           println("echo running configure at `date` ..")
+          println("if [ ! -f Makefile ]; then")
           println("./Configure ${konanTarget.opensslPlatform} \\")
           if (konanTarget.family == Family.ANDROID)
             println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
+          println("no-engine no-asm no-tests threads zlib --prefix=\"$installDir\" --libdir=lib")
+          println("fi || exit 1")
 
-          println("no-engine no-asm no-tests threads zlib --prefix=\"$installDir\" --libdir=lib || exit 1")
-          println("echo source configured .. building in 5")
+          println("echo source configured .. building in 2")
           println("sleep 2")
-          println("make -j8 install_sw")
+          println("make || exit 1")
+          println("make install_sw")
         }
       }
     }
