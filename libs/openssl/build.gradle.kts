@@ -1,4 +1,5 @@
-import org.danbrough.xtras.xInfo
+import org.danbrough.xtras.xWarn
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -23,8 +24,8 @@ xtras {
 
 tasks.register("test") {
   doFirst {
-    xInfo("message= ${project.property("message")}")
 
+    xWarn("version = ${project.kotlinExtension.coreLibrariesVersion}")
   }
 }
 

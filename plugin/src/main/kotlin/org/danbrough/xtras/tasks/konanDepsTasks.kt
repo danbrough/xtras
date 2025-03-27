@@ -7,6 +7,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.GradleBuild
 import org.gradle.internal.extensions.stdlib.capitalized
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -67,7 +68,7 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
         output.println(
           """
           plugins {
-            kotlin("multiplatform") version "2.1.20"
+            kotlin("multiplatform") version "${project.kotlinExtension.coreLibrariesVersion}"
           }
 
           repositories {
@@ -99,11 +100,12 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
   tasks.register(
     target.konanDepsTaskName, GradleBuild::class.java
   ) {
+
     dependsOn(generateDepsProjectTaskName)
     group = Tasks.XTRAS_TASK_GROUP
     description = "Placeholder task for pre-downloading konan $target dependencies"
     dir = depsProjectDir
-    val taskName = "compileKotlin${target.xtrasName}"
+    val taskName = "build"
     tasks = listOf(taskName)
   }
 }
