@@ -27,13 +27,7 @@ kotlin {
 
 dependencies {
   compileOnly(kotlin("gradle-plugin"))
-//  compileOnly("org.danbrough.xtras:plugin")
   implementation(libs.xtras.plugin)
-
-  //implementation("org.danbrough.xtras:plugin:0.0.1-beta12")
-  //compileOnly(libs.xtras.plugin)
-
-  //compileOnly("com.android.tools.build:gradle:8.5.2")
 }
 
 
@@ -45,13 +39,6 @@ gradlePlugin {
       displayName = "OpenSSL Plugin"
       description = "Kotlin multiplatform support plugin for openssl"
     }
-  }
-}
-
-
-tasks.register("thang2") {
-  doFirst {
-
   }
 }
 

@@ -6,10 +6,13 @@ import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xtrasName
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 import java.io.PrintWriter
 import java.util.Date
 
@@ -27,6 +30,10 @@ abstract class ScriptTask : Exec() {
 
   @Input
   val target = project.objects.property<KonanTarget>()
+
+  @OutputDirectory
+  @Optional
+  val outputDirectory = project.objects.property<File>()
 
   @OutputFile
   val scriptFile = project.objects.fileProperty().convention {
@@ -49,6 +56,13 @@ abstract class ScriptTask : Exec() {
   fun script(block: PrintWriter.() -> Unit) {
     scriptBlock = block
   }
+
+
+  /*  private var envBlock: (PrintWriter.() -> Unit)? = null
+
+    fun env(block: PrintWriter.() -> Unit) {
+      envBlock = block
+    }*/
 
   @TaskAction
   fun run() {
@@ -82,8 +96,11 @@ abstract class ScriptTask : Exec() {
 
   fun clearEnvironment(): ScriptEnvironment = environment.apply { clear() }
 
+  @Suppress("SpellCheckingInspection")
   fun defaultEnvironment(): ScriptEnvironment = environment.apply {
     put("PATH", project.xtras.environment.pathDefault.get())
+    put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")
+    put("MAKEOPTS", "-j${Runtime.getRuntime().availableProcessors()}")
   }
 
 }

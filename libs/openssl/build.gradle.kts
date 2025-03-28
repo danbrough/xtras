@@ -12,9 +12,8 @@ kotlin {
   linuxX64()
   linuxArm64()
   androidNativeArm64()
+  androidNativeX64()
 //  macosX64()
-
-
 }
 
 xtras {
@@ -24,7 +23,6 @@ xtras {
 
 tasks.register("test") {
   doFirst {
-
     xWarn("version = ${project.kotlinExtension.coreLibrariesVersion}")
   }
 }

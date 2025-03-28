@@ -20,6 +20,7 @@ duckdb-plugin = "0.0.1-beta01"
 agp = "8.10.0-beta01"
 ##⬆= "8.11.0-alpha01"
 ##⬆= "8.11.0-alpha02"
+##⬆= "8.11.0-alpha03"
 
 kotlin = "2.1.20"
 

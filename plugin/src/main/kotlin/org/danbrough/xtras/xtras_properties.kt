@@ -9,8 +9,9 @@ const val XTRAS_EXTN_NAME = "xtras"
 
 const val PROPERTY_XTRAS_DIR = "$XTRAS_EXTN_NAME.dir"
 const val PROPERTY_XTRAS_CACHE_DIR = "$PROPERTY_XTRAS_DIR.cache"
-const val PROPERTY_XTRAS_BUILD_DIR = "$PROPERTY_XTRAS_DIR.dir.build"
-const val PROPERTY_XTRAS_SRC_DIR = "$PROPERTY_XTRAS_DIR.dir.src"
+const val PROPERTY_XTRAS_BUILD_DIR = "$PROPERTY_XTRAS_DIR.build"
+const val PROPERTY_XTRAS_SRC_DIR = "$PROPERTY_XTRAS_DIR.src"
+const val PROPERTY_XTRAS_PACKAGES_DIR = "$PROPERTY_XTRAS_DIR.packages"
 
 val Project.xtrasDir: File
   get() = xtrasPropertyValue(PROPERTY_XTRAS_DIR) {
@@ -34,14 +35,17 @@ val Project.xtrasCacheDir: File
 val Project.xtrasBuildDir: File
   get() = xtrasPropertyValue(PROPERTY_XTRAS_BUILD_DIR) {
     xtrasDir.resolve("build")
-    //layout.buildDirectory.dir(XTRAS_EXTN_NAME).get().asFile
   }
 
 
 val Project.xtrasSrcDir: File
   get() = xtrasPropertyValue(PROPERTY_XTRAS_SRC_DIR) {
-    //layout.buildDirectory.dir(XTRAS_EXTN_NAME).get().asFile
     xtrasDir.resolve("src")
+  }
+
+val Project.xtrasPackagesDir: File
+  get() = xtrasPropertyValue(PROPERTY_XTRAS_PACKAGES_DIR) {
+    xtrasDir.resolve("packages")
   }
 
 val Project.xtrasKonanDir: File

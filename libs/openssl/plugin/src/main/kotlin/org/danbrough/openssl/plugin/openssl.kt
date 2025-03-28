@@ -1,6 +1,8 @@
 package org.danbrough.openssl.plugin
 
+import org.danbrough.xtras.ScriptEnvironment
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.androidEnvironment
 import org.danbrough.xtras.git.git
 import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.tasks.buildScript
@@ -24,25 +26,35 @@ class OpenSSLPlugin : Plugin<Project> {
 
       buildScript {
         outputs.file(workingDir.resolve("Makefile"))
+        outputDirectory.convention(project.provider { installDirMap(target.get()) })
         dependsOn(target.get().konanDepsTaskName)
 
         doFirst {
           clearEnvironment()
           defaultEnvironment()
-          environment(xtras.environment.konanEnvironment(environment, target = target.get()))
+          val env = ScriptEnvironment(environment)
+          val konanTarget = target.get()
+          if (konanTarget.family == Family.ANDROID) {
+            environment(xtras.environment.androidEnvironment(env, target = konanTarget))
+            env["CFLAGS"] = buildString {
+              append("-Wno-macro-redefined ")
+              env["CFLAGS"]?.also {
+                append(it)
+              }
+            }
+          } else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
         }
 
         script {
           val konanTarget = target.get()
-          val installDir = installDirMap(konanTarget)
+
 
           project.xInfo("openssl: writing taskConfigureSource script..")
           println("echo running configure at `date` ..")
           println("if [ ! -f Makefile ]; then")
           println("./Configure ${konanTarget.opensslPlatform} \\")
-          if (konanTarget.family == Family.ANDROID)
-            println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
-          println("no-engine no-asm no-tests threads zlib --prefix=\"$installDir\" --libdir=lib")
+          if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
+          println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")
           println("fi || exit 1")
 
           println("echo source configured .. building in 2")

@@ -13,7 +13,8 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 import java.net.URI
 
-typealias ScriptEnvironment = MutableMap<String, Any>
+class ScriptEnvironment(env: MutableMap<String, Any> = mutableMapOf()) :
+  MutableMap<String, Any> by env
 
 @Suppress("MemberVisibilityCanBePrivate")
 open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String) {
@@ -36,7 +37,7 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
     get() = project.xtrasCacheDir.resolve(name)
 
   var subPathMap: File.(KonanTarget) -> File = { target ->
-    resolve("${this@XtrasLibrary.name}_${version.get()}_${target.xtrasName}")
+    resolve("${this@XtrasLibrary.name}_${target.xtrasName}_${version.get()}")
   }
 
   var installDirMap: (KonanTarget) -> File = {
@@ -45,6 +46,10 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
 
   var sourcesDirMap: (KonanTarget) -> File = {
     project.xtrasSrcDir.subPathMap(it)
+  }
+
+  var packagesDirMap: (KonanTarget) -> File = {
+    project.xtrasPackagesDir.subPathMap(it)
   }
 
   var scriptFileMap: (String, KonanTarget) -> File = { name, target ->
