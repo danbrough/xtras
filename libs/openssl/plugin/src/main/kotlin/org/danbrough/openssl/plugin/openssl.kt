@@ -18,49 +18,51 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 class OpenSSLPlugin : Plugin<Project> {
   override fun apply(project: Project) {
+    project.run {
 
-    project.xtrasRegisterLibrary<XtrasLibrary>("openssl") {
-      git {
-        project.xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
-      }
-
-      buildScript {
-        outputs.file(workingDir.resolve("Makefile"))
-        outputDirectory.convention(project.provider { installDirMap(target.get()) })
-        dependsOn(target.get().konanDepsTaskName)
-
-        doFirst {
-          clearEnvironment()
-          defaultEnvironment()
-          val env = ScriptEnvironment(environment)
-          val konanTarget = target.get()
-          if (konanTarget.family == Family.ANDROID) {
-            environment(xtras.environment.androidEnvironment(env, target = konanTarget))
-            env["CFLAGS"] = buildString {
-              append("-Wno-macro-redefined ")
-              env["CFLAGS"]?.also {
-                append(it)
-              }
-            }
-          } else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+      xtrasRegisterLibrary<XtrasLibrary>("openssl") {
+        git {
+          xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
         }
 
-        script {
+        buildScript {
+          //outputs.file(workingDir.resolve("Makefile"))
           val konanTarget = target.get()
+          outputDirectory.convention(provider { installDirMap(konanTarget) })
+          dependsOn(konanTarget.konanDepsTaskName)
 
 
-          project.xInfo("openssl: writing taskConfigureSource script..")
-          println("echo running configure at `date` ..")
-          println("if [ ! -f Makefile ]; then")
-          println("./Configure ${konanTarget.opensslPlatform} \\")
-          if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
-          println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")
-          println("fi || exit 1")
+          doFirst {
+            clearEnvironment()
+            defaultEnvironment()
+            val env = ScriptEnvironment(environment)
+            if (konanTarget.family == Family.ANDROID) {
+              environment(xtras.environment.androidEnvironment(env, target = konanTarget))
+              env["CFLAGS"] = buildString {
+                append("-Wno-macro-redefined ")
+                env["CFLAGS"]?.also {
+                  append(it)
+                }
+              }
+            } else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+          }
 
-          println("echo source configured .. building in 2")
-          println("sleep 2")
-          println("make || exit 1")
-          println("make install_sw")
+          script {
+
+
+            xInfo("openssl: writing taskConfigureSource script..")
+            println("echo running configure at `date` ..")
+            println("if [ ! -f Makefile ]; then")
+            println("./Configure ${konanTarget.opensslPlatform} \\")
+            if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
+            println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")
+            println("fi || exit 1")
+
+            println("echo source configured .. building in 2")
+            println("sleep 2")
+            println("make || exit 1")
+            println("make install_sw")
+          }
         }
       }
     }

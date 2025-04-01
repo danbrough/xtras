@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 import java.net.URI
+import kotlin.reflect.KClass
 
 class ScriptEnvironment(env: MutableMap<String, Any> = mutableMapOf()) :
   MutableMap<String, Any> by env
@@ -48,12 +49,18 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
     project.xtrasSrcDir.subPathMap(it)
   }
 
-  var packagesDirMap: (KonanTarget) -> File = {
-    project.xtrasPackagesDir.subPathMap(it)
+  var libDirMap: (KonanTarget) -> File = {
+    project.xtrasLibDir.subPathMap(it)
   }
 
-  var scriptFileMap: (String, KonanTarget) -> File = { name, target ->
-    sourcesDirMap(target).resolve("xtras_${name}_${target.xtrasName}.sh")
+  var packageFileMap: (KonanTarget) -> File = {
+    project.xtrasPackagesDir.resolveAll(
+      name,
+      group.get(),
+      version.get(),
+      it.xtrasName,
+      "xtras_${name}_${version.get()}_${it.xtrasName}.tgz"
+    )
   }
 
   var buildTargets: ListProperty<KonanTarget> =
@@ -65,13 +72,16 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
     })
 
 
+  override fun toString(): String = "$name:${version.get()}"
 }
 
-
 inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
-  name: String, block: T.() -> Unit = {}
-): T {
+  name: String, noinline block: T.() -> Unit = {}
+): T = xtrasRegisterLibrary(name, block, T::class)
 
+fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
+  name: String, block: T.() -> Unit = {}, type: KClass<T>
+): T {
   extensions.findByName(XTRAS_EXTN_NAME) ?: run {
     pluginManager.apply(XtrasPlugin::class.java)
   }
@@ -79,7 +89,12 @@ inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
   val xtras =
     extensions.findByType<Xtras>() ?: error("Expecting Xtras extension to have been created")
 
-  return extensions.create<T>(name, xtras, this, name).apply(block)
+  return extensions.create(name, type, xtras, this, name).apply(block).also {
+    xtrasConfigureLibrary(xtras, it)
+  }
 
 }
 
+internal fun Project.xtrasConfigureLibrary(xtras: Xtras, library: XtrasLibrary) {
+  xInfo("xtrasConfigureLibrary(): $library")
+}

@@ -43,3 +43,6 @@ internal fun XtrasLibrary.taskNameBuild(konanTarget: KonanTarget) =
 
 internal fun XtrasLibrary.taskNamePackage(konanTarget: KonanTarget) =
   create(Tasks.GROUP_PACKAGE, null, name, konanTarget)
+
+internal fun XtrasLibrary.taskNamePackageExtract(konanTarget: KonanTarget) =
+  create(Tasks.GROUP_PACKAGE, Tasks.ACTION_EXTRACT, name, konanTarget)

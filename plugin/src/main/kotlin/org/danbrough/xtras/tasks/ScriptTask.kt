@@ -36,6 +36,10 @@ abstract class ScriptTask : Exec() {
   val outputDirectory = project.objects.property<File>()
 
   @OutputFile
+  @Optional
+  val outputFile = project.objects.property<File>()
+
+  @OutputFile
   val scriptFile = project.objects.fileProperty().convention {
     workingDir.resolve("xtras_${name}_${target.get().xtrasName}.sh").also {
       if (!it.exists()) it.createNewFile()
