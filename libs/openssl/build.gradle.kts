@@ -18,6 +18,9 @@ kotlin {
 
 xtras {
 
+  android {
+    sdkVersion = 24
+  }
 }
 
 
