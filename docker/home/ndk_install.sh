@@ -5,8 +5,8 @@
 cd "$XTRAS_CACHE"
 
 
-[ -d ndk ] && exit 0
-NDK_VERSION=android-ndk-r27c
+[ -d "$NDK_VERSION" ] && exit 0
+
 ZIP=$NDK_VERSION-linux.zip
 
 if [ ! -f "$ZIP" ]; then
@@ -14,4 +14,5 @@ if [ ! -f "$ZIP" ]; then
 fi
 
 unzip "$ZIP"
+
 
