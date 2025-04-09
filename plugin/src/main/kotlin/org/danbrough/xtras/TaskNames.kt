@@ -3,10 +3,10 @@
 package org.danbrough.xtras
 
 
-import org.danbrough.xtras.Tasks.create
+import org.danbrough.xtras.TaskNames.create
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
-object Tasks {
+object TaskNames {
   const val XTRAS_TASK_GROUP = XTRAS_EXTN_NAME
   const val TASK_PREFIX = XTRAS_EXTN_NAME
 
@@ -19,6 +19,7 @@ object Tasks {
   const val GROUP_PACKAGE = "package"
 
   const val GROUP_SOURCE = "source"
+
 
   fun create(
     group: String, action: String?, libraryName: String? = null, target: KonanTarget? = null
@@ -33,16 +34,16 @@ object Tasks {
 }
 
 internal fun XtrasLibrary.taskNameSourceDownload() =
-  create(Tasks.GROUP_SOURCE, Tasks.ACTION_DOWNLOAD, name)
+  create(TaskNames.GROUP_SOURCE, TaskNames.ACTION_DOWNLOAD, name)
 
 fun XtrasLibrary.taskNameSourceExtract(konanTarget: KonanTarget) =
-  create(Tasks.GROUP_SOURCE, Tasks.ACTION_EXTRACT, name, konanTarget)
+  create(TaskNames.GROUP_SOURCE, TaskNames.ACTION_EXTRACT, name, konanTarget)
 
 internal fun XtrasLibrary.taskNameBuild(konanTarget: KonanTarget) =
-  create(Tasks.GROUP_BUILD, null, name, konanTarget)
+  create(TaskNames.GROUP_BUILD, null, name, konanTarget)
 
 internal fun XtrasLibrary.taskNamePackage(konanTarget: KonanTarget) =
-  create(Tasks.GROUP_PACKAGE, null, name, konanTarget)
+  create(TaskNames.GROUP_PACKAGE, null, name, konanTarget)
 
 internal fun XtrasLibrary.taskNamePackageExtract(konanTarget: KonanTarget) =
-  create(Tasks.GROUP_PACKAGE, Tasks.ACTION_EXTRACT, name, konanTarget)
+  create(TaskNames.GROUP_PACKAGE, TaskNames.ACTION_EXTRACT, name, konanTarget)

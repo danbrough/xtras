@@ -1,6 +1,6 @@
 package org.danbrough.xtras.git
 
-import org.danbrough.xtras.Tasks
+import org.danbrough.xtras.TaskNames
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.taskNameSourceDownload
 import org.danbrough.xtras.xDebug
@@ -14,7 +14,7 @@ internal fun XtrasLibrary.registerGitSourceDownloadTask(): String {
   val taskName = taskNameSourceDownload()
   project.run {
     tasks.register(taskName) {
-      group = Tasks.XTRAS_TASK_GROUP
+      group = TaskNames.XTRAS_TASK_GROUP
       description = "Download required commits from remote repository to $xtrasCacheDir"
 
       val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig

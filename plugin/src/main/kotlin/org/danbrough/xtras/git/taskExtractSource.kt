@@ -1,6 +1,6 @@
 package org.danbrough.xtras.git
 
-import org.danbrough.xtras.Tasks
+import org.danbrough.xtras.TaskNames
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.taskNameSourceDownload
 import org.danbrough.xtras.taskNameSourceExtract
@@ -15,7 +15,7 @@ internal fun XtrasLibrary.registerGitSourceExtractTask(target: KonanTarget): Str
 
   project.run {
     tasks.register(taskName) {
-      group = Tasks.XTRAS_TASK_GROUP
+      group = TaskNames.XTRAS_TASK_GROUP
 
 
       //val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig

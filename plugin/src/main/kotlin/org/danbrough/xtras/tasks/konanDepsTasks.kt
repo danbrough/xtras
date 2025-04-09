@@ -1,7 +1,7 @@
 package org.danbrough.xtras.tasks
 
 
-import org.danbrough.xtras.Tasks
+import org.danbrough.xtras.TaskNames
 import org.danbrough.xtras.xtrasName
 import org.gradle.api.Project
 import org.gradle.api.tasks.GradleBuild
@@ -31,6 +31,7 @@ internal fun Project.registerKonanDepsTasks() {
     }
 
     tasks.withType<KotlinNativeCompile> {
+      KonanTarget.predefinedTargets[this.target]
       dependsOn(":${KonanTarget.predefinedTargets[target]!!.konanDepsTaskName}")
     }
   }
@@ -102,7 +103,7 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
   ) {
 
     dependsOn(generateDepsProjectTaskName)
-    group = Tasks.XTRAS_TASK_GROUP
+    group = TaskNames.XTRAS_TASK_GROUP
     description = "Placeholder task for pre-downloading konan $target dependencies"
     dir = depsProjectDir
     val taskName = "build"

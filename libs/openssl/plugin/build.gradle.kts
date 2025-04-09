@@ -11,7 +11,7 @@ plugins {
 }
 
 
-group = "org.danbrough.openssl"
+group = "org.danbrough"
 version = "0.0.1-alpha1"
 
 java {
@@ -34,8 +34,8 @@ dependencies {
 gradlePlugin {
   plugins {
     create("openssl") {
-      id = group.toString()
-      implementationClass = "$group.plugin.OpenSSLPlugin"
+      id = "$group.openssl"
+      implementationClass = "$group.openssl.plugin.OpenSSLPlugin"
       displayName = "OpenSSL Plugin"
       description = "Kotlin multiplatform support plugin for openssl"
     }

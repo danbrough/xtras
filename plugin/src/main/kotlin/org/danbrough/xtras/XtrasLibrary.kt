@@ -1,14 +1,12 @@
 package org.danbrough.xtras
 
 import org.danbrough.xtras.tasks.CInteropsConfig
-import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Optional
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -22,6 +20,7 @@ import kotlin.reflect.KClass
 class ScriptEnvironment(env: MutableMap<String, Any> = mutableMapOf()) :
   MutableMap<String, Any> by env
 
+@XtrasDSL
 @Suppress("MemberVisibilityCanBePrivate")
 open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String) {
 
@@ -48,6 +47,11 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
 
   var installDirMap: (KonanTarget) -> File = {
     project.xtrasBuildDir.subPathMap(it)
+  }
+
+  var interopsFile = project.objects.fileProperty().convention {
+    project.xtrasBuildDir.resolve("interops")
+      .resolve("${this@XtrasLibrary.name}_${version.get()}.def")
   }
 
   var sourcesDirMap: (KonanTarget) -> File = {
@@ -78,19 +82,14 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
 
 
   @Optional
-  private val cinterops: Property<CInteropsConfig> = project.objects.property()
-
-  fun cinterops(action: Action<CInteropsConfig>) {
-    if (cinterops.isPresent) error("CInterops is already configured")
-    val config = CInteropsConfig(project)
-    cinterops.set(config)
-    action.invoke(config)
-  }
+  internal val cinterops: Property<CInteropsConfig> = project.objects.property()
 
 
   override fun toString(): String = "$name:${version.get()}"
 }
 
+
+@XtrasDSL
 inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
   name: String, noinline block: T.() -> Unit = {}
 ): T = xtrasRegisterLibrary(name, block, T::class)
@@ -105,12 +104,14 @@ fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
   val xtras =
     extensions.findByType<Xtras>() ?: error("Expecting Xtras extension to have been created")
 
-  return extensions.create(name, type, xtras, this, name).apply(block).also {
-    xtrasConfigureLibrary(xtras, it)
-  }
+  return extensions.create(name, type, xtras, this, name).apply(block)/*.also {
+  xtrasConfigureLibrary(xtras, it)
+}*/
 
 }
 
+/*
 internal fun Project.xtrasConfigureLibrary(xtras: Xtras, library: XtrasLibrary) {
   xInfo("xtrasConfigureLibrary(): $library xtras:$xtras")
 }
+*/

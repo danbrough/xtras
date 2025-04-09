@@ -1,5 +1,6 @@
 package org.danbrough.xtras.tasks
 
+import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.taskNameBuild
 import org.danbrough.xtras.taskNamePackage
@@ -10,7 +11,7 @@ import org.danbrough.xtras.xtrasName
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 
-
+@XtrasDSL
 fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
   project.afterEvaluate {
 

@@ -1,5 +1,6 @@
 package org.danbrough.xtras.git
 
+import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.xtrasProperty
 import org.gradle.api.provider.Property
@@ -15,6 +16,7 @@ internal class GitSourceConfigImpl(private val library: XtrasLibrary) :
 
 }
 
+@XtrasDSL
 fun XtrasLibrary.git(block: XtrasLibrary.GitSourceConfig.() -> Unit) {
   val gitConfig = GitSourceConfigImpl(this).apply(block)
   sourceConfig = gitConfig

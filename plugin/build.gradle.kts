@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   `kotlin-dsl`
-  `java-gradle-plugin`
+  //`java-gradle-plugin`
   `maven-publish`
 }
 
@@ -24,7 +24,8 @@ java {
 
 }
 
-kotlin{
+kotlin {
+  //println("KOTLIN_PLUGIN_VERSION: ${this.coreLibrariesVersion}")
   compilerOptions.jvmTarget = JvmTarget.JVM_11
 }
 

@@ -1,3 +1,4 @@
+import org.danbrough.xtras.tasks.cinterops
 import org.danbrough.xtras.xWarn
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
@@ -17,12 +18,15 @@ kotlin {
 }
 
 xtras {
-
   android {
     sdkVersion = 24
   }
 }
 
+openssl {
+  cinterops {
+  }
+}
 
 tasks.register("test") {
   doFirst {

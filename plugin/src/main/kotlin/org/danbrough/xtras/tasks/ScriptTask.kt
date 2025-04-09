@@ -1,6 +1,6 @@
 package org.danbrough.xtras.tasks
 
-import org.danbrough.xtras.Tasks
+import org.danbrough.xtras.TaskNames
 import org.danbrough.xtras.Xtras.Companion.xtras
 import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xtrasName
@@ -18,14 +18,12 @@ import java.util.Date
 
 typealias ScriptEnvironment = MutableMap<String, Any>
 
-fun scriptEnvironment(): ScriptEnvironment = mutableMapOf()
-
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class ScriptTask : Exec() {
 
   init {
-    group = Tasks.XTRAS_TASK_GROUP
+    group = TaskNames.XTRAS_TASK_GROUP
   }
 
   @Input
