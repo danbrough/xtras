@@ -27,6 +27,8 @@ internal fun XtrasLibrary.registerGitSourceExtractTask(target: KonanTarget): Str
 
       description = "Download required commits from remote repository to $sourcesDir"
 
+      packageFileMap.invoke(target)
+
       onlyIf {
         !outputFile.exists()
       }

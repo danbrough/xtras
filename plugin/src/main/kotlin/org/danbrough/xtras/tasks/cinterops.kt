@@ -24,7 +24,9 @@ class CInteropsConfig(private val library: XtrasLibrary) {
       "${library.group.get()}.cinterops"
     })
 
-  val enabled: Property<Boolean> = project.objects.property<Boolean>().convention(true)
+  ///val enabled: Property<Boolean> = project.objects.property<Boolean>().convention(true)
+
+  val codeFile = project.objects.fileProperty()
 
   internal var declaration: (PrintWriter.() -> Unit)? = null
 
@@ -57,9 +59,13 @@ private fun XtrasLibrary.configureCinterops(config: CInteropsConfig) {
       doFirst {
         val defFile = interopsFile.get().asFile
         xInfo("$name: generating cinterops file $defFile ..")
-        defFile.printWriter().use {
-          it.println("package = ${config.packageName.get()}")
-          config.declaration?.invoke(it)
+        defFile.printWriter().use { writer ->
+          writer.println("package = ${config.packageName.get()}")
+          config.declaration?.invoke(writer)
+          if (config.codeFile.isPresent) {
+            writer.println("---")
+            writer.println(config.codeFile.get().asFile.readText())
+          }
         }
       }
     }

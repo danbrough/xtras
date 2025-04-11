@@ -4,6 +4,7 @@ package org.danbrough.xtras.tasks
 import org.danbrough.xtras.TaskNames
 import org.danbrough.xtras.xtrasName
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.GradleBuild
 import org.gradle.internal.extensions.stdlib.capitalized
 import org.gradle.kotlin.dsl.withType
@@ -15,38 +16,44 @@ import org.jetbrains.kotlin.konan.target.presetName
 import java.io.File
 
 
-val KonanTarget.konanDepsTaskName: String
+private val KonanTarget.konanDepsTaskName: String
   get() = "xtrasKonanDeps${xtrasName.capitalized()}"
 
+fun Task.xtrasKonanDeps(target: KonanTarget) {
+  val depsTaskName = target.konanDepsTaskName
+  if (project.rootProject.tasks.findByName(depsTaskName) == null)
+    project.registerKonanDepsTask(target)
+
+  dependsOn(":$depsTaskName")
+}
+
 internal fun Project.registerKonanDepsTasks() {
-
-  KonanTarget.predefinedTargets.values.forEach {
-    registerKonanDepsTask(it)
-  }
-
   afterEvaluate {
 
     tasks.withType<CInteropProcess> {
-      dependsOn(":${konanTarget.konanDepsTaskName}")
+      xtrasKonanDeps(konanTarget)
     }
 
     tasks.withType<KotlinNativeCompile> {
-      KonanTarget.predefinedTargets[this.target]
-      dependsOn(":${KonanTarget.predefinedTargets[target]!!.konanDepsTaskName}")
+      @Suppress("MISSING_DEPENDENCY_SUPERCLASS_IN_TYPE_ARGUMENT")
+      xtrasKonanDeps(KonanTarget.predefinedTargets[target]!!)
     }
   }
 }
 
 private fun Project.registerKonanDepsTask(target: KonanTarget) {
 
-  val generateDepsProjectTaskName = "xtrasGenerateKonanDepsProject${target.xtrasName.capitalized()}"
+  val generateDepsProjectTaskName =
+    "xtrasGenerateKonanDepsProject${target.xtrasName.capitalized()}"
   //xError("registerKonanDepsTask: $generateDepsProjectTaskName")
 //  xInfo("$name:registerKonanDepsTask() $generateDepsProjectTaskName")
+
+  if (rootProject.tasks.findByName(generateDepsProjectTaskName) != null) return
 
   val depsProjectDir =
     File(System.getProperty("java.io.tmpdir"), "konanDeps${target.xtrasName.capitalized()}")
 
-  tasks.register(generateDepsProjectTaskName) {
+  rootProject.tasks.register(generateDepsProjectTaskName) {
     outputs.dir(depsProjectDir)
     //xError("registered task: $name")
     doFirst {
@@ -69,7 +76,7 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
         output.println(
           """
           plugins {
-            kotlin("multiplatform") version "${project.kotlinExtension.coreLibrariesVersion}"
+            kotlin("multiplatform") version "${this@registerKonanDepsTask.kotlinExtension.coreLibrariesVersion}"
           }
 
           repositories {
@@ -98,7 +105,7 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
   }
 
 
-  tasks.register(
+  rootProject.tasks.register(
     target.konanDepsTaskName, GradleBuild::class.java
   ) {
 

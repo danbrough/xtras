@@ -1,4 +1,3 @@
-import org.danbrough.xtras.tasks.cinterops
 import org.danbrough.xtras.xWarn
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
@@ -23,10 +22,7 @@ xtras {
   }
 }
 
-openssl {
-  cinterops {
-  }
-}
+openssl {}
 
 tasks.register("test") {
   doFirst {
@@ -34,4 +30,20 @@ tasks.register("test") {
   }
 }
 
+
+kotlin {
+  sourceSets {
+    commonMain {
+      dependencies {
+        implementation(libs.klog.core)
+      }
+    }
+
+    commonTest {
+      dependencies {
+        implementation(kotlin("test"))
+      }
+    }
+  }
+}
 

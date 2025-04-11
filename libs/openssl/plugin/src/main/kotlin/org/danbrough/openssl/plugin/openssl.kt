@@ -7,7 +7,6 @@ import org.danbrough.xtras.git.git
 import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.tasks.buildScript
 import org.danbrough.xtras.tasks.cinterops
-import org.danbrough.xtras.tasks.konanDepsTaskName
 import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasRegisterLibrary
@@ -55,7 +54,6 @@ private fun Project.registerOpensslLibrary() {
       //outputs.file(workingDir.resolve("Makefile"))
       val konanTarget = target.get()
       outputDirectory.convention(provider { installDirMap(konanTarget) })
-      dependsOn(konanTarget.konanDepsTaskName)
 
       doFirst {
         clearEnvironment()

@@ -49,10 +49,16 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
     project.xtrasBuildDir.subPathMap(it)
   }
 
-  var interopsFile = project.objects.fileProperty().convention {
+  val interopsFile = project.objects.fileProperty().convention {
     project.xtrasBuildDir.resolve("interops")
       .resolve("${this@XtrasLibrary.name}_${version.get()}.def")
   }
+
+  val buildEnabled =
+    project.objects.property<(KonanTarget) -> Boolean>().convention(project.provider {
+      { !packageFileMap.invoke(it).exists() }
+    })
+
 
   var sourcesDirMap: (KonanTarget) -> File = {
     project.xtrasSrcDir.subPathMap(it)
@@ -80,10 +86,8 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
       } else emptyList()
     })
 
-
   @Optional
   internal val cinterops: Property<CInteropsConfig> = project.objects.property()
-
 
   override fun toString(): String = "$name:${version.get()}"
 }
