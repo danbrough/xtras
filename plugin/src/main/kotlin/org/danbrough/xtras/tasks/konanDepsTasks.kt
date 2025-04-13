@@ -51,7 +51,7 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
   if (rootProject.tasks.findByName(generateDepsProjectTaskName) != null) return
 
   val depsProjectDir =
-    File(System.getProperty("java.io.tmpdir"), "konanDeps${target.xtrasName.capitalized()}")
+    File(System.getProperty("java.io.tmpdir"), ".konanDeps").resolve(target.xtrasName)
 
   rootProject.tasks.register(generateDepsProjectTaskName) {
     outputs.dir(depsProjectDir)
@@ -108,13 +108,17 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
   rootProject.tasks.register(
     target.konanDepsTaskName, GradleBuild::class.java
   ) {
-
     dependsOn(generateDepsProjectTaskName)
     group = TaskNames.XTRAS_TASK_GROUP
     description = "Placeholder task for pre-downloading konan $target dependencies"
     dir = depsProjectDir
-    val taskName = "build"
-    tasks = listOf(taskName)
+    tasks = listOf("build")
+    val outputFile = depsProjectDir.resolve("success")
+    onlyIf { !outputFile.exists() }
+    outputs.file(outputFile)
+    doLast {
+      outputFile.createNewFile()
+    }
   }
 }
 

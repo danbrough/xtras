@@ -1,4 +1,8 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
 import org.danbrough.xtras.xWarn
+import org.danbrough.xtras.xtrasTesting
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
 plugins {
@@ -22,7 +26,11 @@ xtras {
   }
 }
 
-openssl {}
+xtrasTesting {
+}
+
+openssl {
+}
 
 tasks.register("test") {
   doFirst {
@@ -32,6 +40,10 @@ tasks.register("test") {
 
 
 kotlin {
+  compilerOptions {
+    optIn = listOf("kotlinx.cinterop.ExperimentalForeignApi")
+  }
+
   sourceSets {
     commonMain {
       dependencies {
