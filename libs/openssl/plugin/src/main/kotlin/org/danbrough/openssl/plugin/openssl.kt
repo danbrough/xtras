@@ -29,14 +29,14 @@ private fun Project.registerOpensslLibrary() {
         println(
           """
         #staticLibraries =  libcrypto.a libssl.a
-        headerFilter = openssl/**
-        #headers = openssl/ssl.h openssl/err.h openssl/bio.h openssl/evp.h
+        #headerFilter = openssl/**
+        headers = openssl/ssl.h openssl/err.h openssl/bio.h openssl/evp.h
         excludeDependentModules = true
-        #linkerOpts.linux = -ldl -lc -lm -lssl -lcrypto -L/usr/lib 
-        #linkerOpts.android = -ldl -lc -lm -lssl -lcrypto
-        #linkerOpts.macos = -ldl -lc -lm -lssl -lcrypto
-        #linkerOpts.ios = -ldl -lc -lm -lssl -lcrypto
-        #linkerOpts.mingw = -lm -lssl -lcrypto
+        linkerOpts.linux = -ldl -lc -lm -lssl -lcrypto 
+        linkerOpts.android = -ldl -lc -lm -lssl -lcrypto
+        linkerOpts.macos = -ldl -lc -lm -lssl -lcrypto
+        linkerOpts.ios = -ldl -lc -lm -lssl -lcrypto
+        linkerOpts.mingw = -lm -lssl -lcrypto
         compilerOpts.android = -D__ANDROID_API__=${xtras.android.sdkVersion.get()}  
         compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
         #compilerOpts = -static

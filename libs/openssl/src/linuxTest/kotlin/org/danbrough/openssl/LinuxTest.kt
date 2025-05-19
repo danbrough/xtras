@@ -17,7 +17,9 @@ class LinuxTest {
     log.warn { "test1(): trace" }
     log.error { "test1(): trace" }
 
+
     testFunction()
 
+    
   }
 }

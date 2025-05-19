@@ -3,6 +3,7 @@ package org.danbrough.xtras.tasks
 import org.danbrough.xtras.TaskNames
 import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xInfo
 import org.gradle.api.Action
 import org.gradle.api.provider.Property
@@ -131,8 +132,10 @@ private fun XtrasLibrary.configureCinterops(config: CInteropsConfig) {
     }
 
     kotlin.targets.filterIsInstance<KotlinNativeTarget>().forEach { target ->
+      xInfo("creating interops for $target in ${this.path}")
       target.compilations["main"].cinterops.create(this@configureCinterops.name) {
         definitionFile.set(interopsFile)
+        xDebug("interops: file:${interopsFile.get().asFile} task: $interopProcessingTaskName")
         tasks[interopProcessingTaskName].dependsOn(
           extractPackagesTaskName, generateCinteropsTaskName
         )
