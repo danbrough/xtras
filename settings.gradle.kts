@@ -41,6 +41,11 @@ if (pluginOnly == null) {
     name = "openssl_plugin"
   }
 
+  includeBuild("libs/sqlite/plugin") {
+    name = "sqlite_plugin"
+  }
+
+
   //includeBuild("libs/ssh2/ssh2_plugin")
 
   listOf(
@@ -48,13 +53,14 @@ if (pluginOnly == null) {
     //"jni",
     //"openssl",
     "openssl",
+    "sqlite",
   ).forEach {
     include(":$it")
     project(":$it").projectDir = file("libs/$it")
   }
 
   include(":test2")
-  
+
 //  include(":test")
 
 }
