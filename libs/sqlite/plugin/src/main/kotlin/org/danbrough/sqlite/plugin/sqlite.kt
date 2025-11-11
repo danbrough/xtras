@@ -87,7 +87,8 @@ private fun Project.registerOpensslLibrary() {
         println("echo running configure at `date` ..")
         println("if [ ! -f Makefile ]; then")
         println("./configure --prefix=\"${outputDirectory.get()}\" \\")
-        println("--disable-tcl --disable-static --disable-readline")
+        //println("--disable-tcl --disable-static --disable-readline")
+        println("--disable-tcl --disable-static")
         /*println("./Configure ${konanTarget.opensslPlatform} \\")
         if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
         println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")*/
