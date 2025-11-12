@@ -11,6 +11,7 @@ class XtrasPlugin : Plugin<Project> {
     target.run {
       extensions.create<Xtras>(XTRAS_EXTN_NAME).also { xtras ->
         xInfo("$name: created xtras extension: $xtras")
+        //xWarn("not registering konan deps tasks")
         registerKonanDepsTasks()
       }
     }

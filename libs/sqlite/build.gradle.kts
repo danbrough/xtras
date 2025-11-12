@@ -15,7 +15,7 @@ group = "org.danbrough.sqlite"
 kotlin {
   linuxX64()
   linuxArm64()
-  //androidNativeArm64()
+  androidNativeArm64()
   //androidNativeX64()
 //  macosX64()
 }

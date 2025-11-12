@@ -28,15 +28,18 @@ fun Task.xtrasKonanDeps(target: KonanTarget) {
 }
 
 internal fun Project.registerKonanDepsTasks() {
+  val kotlinDownloadTaskName = "downloadKotlinNativeDistribution"
   afterEvaluate {
 
     tasks.withType<CInteropProcess> {
-      xtrasKonanDeps(konanTarget)
+      //xtrasKonanDeps(konanTarget)
+      dependsOn(kotlinDownloadTaskName)
     }
 
     tasks.withType<KotlinNativeCompile> {
-      @Suppress("MISSING_DEPENDENCY_SUPERCLASS_IN_TYPE_ARGUMENT")
-      xtrasKonanDeps(KonanTarget.predefinedTargets[target]!!)
+      dependsOn(kotlinDownloadTaskName)
+      /*@Suppress("MISSING_DEPENDENCY_SUPERCLASS_IN_TYPE_ARGUMENT")
+      xtrasKonanDeps(KonanTarget.predefinedTargets[target]!!)*/
     }
   }
 }
