@@ -9,7 +9,7 @@ import java.net.URI
 import kotlin.reflect.KClass
 
 
-inline fun <reified T : Any?> Project.xtrasProperty(
+inline fun <reified T : Any> Project.xtrasProperty(
   key: String,
   noinline defaultValue: () -> T = { error("$key not set") }
 ): Property<T> = objects.property(T::class.java).apply {
@@ -18,7 +18,8 @@ inline fun <reified T : Any?> Project.xtrasProperty(
   })
 }
 
-inline fun <reified T : Any?> Project.xtrasProperty(key: String, defaultValue: T) =
+
+inline fun <reified T : Any> Project.xtrasProperty(key: String, defaultValue: T) =
   xtrasProperty(key) { defaultValue }
 
 inline fun <reified T : Any?> ExtensionAware.xtrasPropertyValue(

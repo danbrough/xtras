@@ -14,8 +14,8 @@ annotation class XtrasDSL
 @Suppress("MemberVisibilityCanBePrivate")
 open class Xtras @Inject constructor(val project: Project) {
 
-  val description: Property<String?> =
-    project.xtrasProperty<String?>("$XTRAS_EXTN_NAME.description", null)
+  val description: Property<String> =
+    project.xtrasProperty<String>("$XTRAS_EXTN_NAME.description")
 
   val logger: Logger by lazy {
     XtrasLoggerImpl(
