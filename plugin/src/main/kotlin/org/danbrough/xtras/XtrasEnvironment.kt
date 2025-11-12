@@ -93,6 +93,7 @@ fun XtrasEnvironment.konanEnvironment(
 
   val konanPrebuiltDir = project.xtrasKonanDir.listFiles()
     ?.filter { it.isDirectory && it.name.startsWith("kotlin-native-prebuilt") }?.maxOrNull()
+    ?: error("Failed to find kotlin-native-prebuilt")
 
   val depsDir = project.xtrasKonanDir.resolve("dependencies")
   val llvmPrefix = if (HostManager.hostIsLinux || HostManager.hostIsMingw) "llvm-" else "apple-llvm"
@@ -100,7 +101,7 @@ fun XtrasEnvironment.konanEnvironment(
     it.isDirectory && it.name.startsWith(llvmPrefix)
   } ?: error("No directory beginning with \"llvm-\" found in $depsDir")
 
-  env["PATH"] = pathOf(konanPrebuiltDir?.resolve("bin"), llvmDir.resolve("bin"), env["PATH"])
+  env["PATH"] = pathOf(konanPrebuiltDir.resolve("bin"), llvmDir.resolve("bin"), env["PATH"])
 
   target ?: return env
 
@@ -139,6 +140,17 @@ fun XtrasEnvironment.konanEnvironment(
           )
         }"
 
+        KonanTarget.ANDROID_ARM64 -> "--target=${target.hostTriplet} --gcc-toolchain=${
+          depsDir.resolve(
+            "target-toolchain-2-linux-android_ndk"
+          )
+        }" + " --sysroot=${
+          depsDir.resolveAll(
+            "target-toolchain-2-linux-android_ndk",
+            "aarch64-linux-android",
+          )
+        }"
+        
         /*        KonanTarget.ANDROID_ARM64 -> "--target=${target.hostTriplet} --gcc-toolchain=${
                   depsDir.resolve(
                     "target-toolchain-2-linux-android_ndk"

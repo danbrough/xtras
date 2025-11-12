@@ -4,6 +4,7 @@ plugins {
   `kotlin-dsl`
   //`java-gradle-plugin`
   `maven-publish`
+  id("org.danbrough.xtras") version "0.0.1-beta14"
 }
 
 dependencies {
