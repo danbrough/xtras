@@ -17,7 +17,7 @@ kotlin {
   linuxArm64()
   androidNativeArm64()
   //androidNativeX64()
-//  macosX64()
+  macosX64()
 }
 
 xtras {
