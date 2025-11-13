@@ -8,16 +8,16 @@ import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  id("org.danbrough.sqlite")
+  id("org.danbrough.sodium")
 }
 
-group = "org.danbrough.sqlite"
+group = "org.danbrough.sodium"
 
 kotlin {
   linuxX64()
-  linuxArm64()
+  //linuxArm64()
   //androidNativeArm64()
-  // androidNativeX64()
+  //androidNativeX64()
   if (HostManager.hostIsMac) {
     macosX64()
   }
@@ -32,7 +32,7 @@ xtras {
 xtrasTesting {
 }
 
-sqlite {
+sodium {
 }
 
 tasks.register("test") {

@@ -45,6 +45,9 @@ if (pluginOnly == null) {
     name = "sqlite_plugin"
   }
 
+  includeBuild("libs/sodium/plugin") {
+    name = "sodium_plugin"
+  }
 
   //includeBuild("libs/ssh2/ssh2_plugin")
 
@@ -54,6 +57,7 @@ if (pluginOnly == null) {
     //"openssl",
     "openssl",
     "sqlite",
+    "sodium",
   ).forEach {
     include(":$it")
     project(":$it").projectDir = file("libs/$it")
