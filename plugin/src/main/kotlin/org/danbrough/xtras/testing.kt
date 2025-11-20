@@ -39,6 +39,7 @@ fun Project.xtrasTesting(block: AbstractTestTask.() -> Unit) =
   }
 
 
+/*
 fun Project.xtrasTestExecutables(
   configPrefix: String,
   tests: List<String>,
@@ -75,9 +76,11 @@ fun Project.xtrasTestExecutables(
 
   afterEvaluate {
 
-    /**
-     * Configure JVM tests as well
-     */
+    */
+/**
+ * Configure JVM tests as well
+ *//*
+
     tasks.withType<KotlinJvmTest> {
       if (!environment.contains("TMP"))
         environment("TMP", System.getProperty("java.io.tmpdir"))
@@ -94,3 +97,4 @@ fun Project.xtrasTestExecutables(
     }
   }
 }
+*/

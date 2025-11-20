@@ -1,6 +1,8 @@
 package org.danbrough.xtras
 
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.util.Locale
 
 val KonanTarget.xtrasName: String
   get() = name.split("_").let {
@@ -37,4 +39,24 @@ val KonanTarget.hostTriplet: String
     KonanTarget.WATCHOS_X64 -> "x86_64-apple-watchos-simulator"
     //KonanTarget.WATCHOS_X86 -> "x86-watchos-darwin"
     else -> TODO("Add KonanTarget.hostTriplet for $this")
+  }
+
+val KonanTarget.kotlinTargetName: String
+  get() {
+    if (family == Family.ANDROID) {
+      return when (this) {
+        KonanTarget.ANDROID_X64 -> "androidNativeX64"
+        KonanTarget.ANDROID_X86 -> "androidNativeX86"
+        KonanTarget.ANDROID_ARM64 -> "androidNativeArm64"
+        KonanTarget.ANDROID_ARM32 -> "androidNativeArm32"
+        else -> throw Error("Unhandled android target $this")
+      }
+    }
+    return name.split("_").joinToString("") {
+      it.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(
+          Locale.getDefault()
+        ) else it.toString()
+      }
+    }.decapitalized()
   }

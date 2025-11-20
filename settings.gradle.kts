@@ -49,6 +49,10 @@ if (pluginOnly == null) {
     name = "sodium_plugin"
   }
 
+  includeBuild("libs/zmq/plugin") {
+    name = "zmq_plugin"
+  }
+
   //includeBuild("libs/ssh2/ssh2_plugin")
 
   listOf(
@@ -58,6 +62,7 @@ if (pluginOnly == null) {
     "openssl",
     "sqlite",
     "sodium",
+    "zmq",
   ).forEach {
     include(":$it")
     project(":$it").projectDir = file("libs/$it")

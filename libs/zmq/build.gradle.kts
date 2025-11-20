@@ -8,10 +8,10 @@ import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  id("org.danbrough.sodium")
+  id("org.danbrough.zmq")
 }
 
-group = "org.danbrough.sodium"
+group = "org.danbrough.zmq"
 
 kotlin {
   linuxX64()
@@ -32,7 +32,8 @@ xtras {
 xtrasTesting {
 }
 
-sodium {
+zmq {
+  
 }
 
 tasks.register("test") {

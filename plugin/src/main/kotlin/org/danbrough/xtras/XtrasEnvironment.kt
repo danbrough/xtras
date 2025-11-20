@@ -62,6 +62,7 @@ fun XtrasEnvironment.androidEnvironment(
 
   env["ANDROID_NDK_ROOT"] = ndkDir
   env["ANDROID_NDK"] = ndkDir
+  env["ANDROID_NDK_HOME"] = ndkDir
 
   val archFolder = when {
     HostManager.hostIsLinux -> "linux-x86_64"
@@ -150,7 +151,7 @@ fun XtrasEnvironment.konanEnvironment(
             "aarch64-linux-android",
           )
         }"
-        
+
         /*        KonanTarget.ANDROID_ARM64 -> "--target=${target.hostTriplet} --gcc-toolchain=${
                   depsDir.resolve(
                     "target-toolchain-2-linux-android_ndk"

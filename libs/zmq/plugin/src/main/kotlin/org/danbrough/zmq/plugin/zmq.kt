@@ -1,12 +1,14 @@
-package org.danbrough.sodium.plugin
+package org.danbrough.zmq.plugin
 
 import org.danbrough.xtras.ScriptEnvironment
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.androidEnvironment
 import org.danbrough.xtras.git.git
 import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.tasks.buildScript
 import org.danbrough.xtras.tasks.cinterops
+import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
@@ -15,14 +17,14 @@ import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
-class SodiumPlugin : Plugin<Project> {
+class ZmqPlugin : Plugin<Project> {
   override fun apply(project: Project) {
-    project.registerSodiumLibrary()
+    project.registerZmqLibrary()
   }
 }
 
-private fun Project.registerSodiumLibrary() {
-  xtrasRegisterLibrary<XtrasLibrary>("sodium") {
+private fun Project.registerZmqLibrary() {
+  xtrasRegisterLibrary<XtrasLibrary>("zmq") {
     cinterops {
       declaration {
         println(
@@ -67,59 +69,70 @@ private fun Project.registerSodiumLibrary() {
       outputDirectory.convention(provider { installDirMap(konanTarget) })
 
       doFirst {
-
         clearEnvironment()
         defaultEnvironment()
-
         val env = ScriptEnvironment(environment)
         /*
         "$CFLAGS -march=armv8-a+crypto+aes"
          */
-        if (konanTarget.family != Family.ANDROID) {
-          environment(xtras.environment.konanEnvironment(env, target = konanTarget))
-          /*environment(xtras.environment.androidEnvironment(env, target = konanTarget))
+        if (konanTarget.family == Family.ANDROID) {
+          environment(xtras.environment.androidEnvironment(env, target = konanTarget))
           env["CFLAGS"] = buildString {
             //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
             append("-Wno-macro-redefined ")
             env["CFLAGS"]?.also {
               append(it)
             }
-          }*/
-        } else {
-          // environment(xtras.environment.androidEnvironment(env, target = konanTarget))
-        }
+          }
+        } else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
       }
 
       script {
-        //xInfo("openssl: writing taskConfigureSource script..")
-        if (konanTarget.family == Family.ANDROID) {
-          println("sed -e 's/export PREFIX/#export PREFIX/g' -i  dist-build/android-build.sh")
-          println("export PREFIX=\"${outputDirectory.get()}\"")
-          println("export ANDROID_NDK_HOME=\"${xtras.android.ndkDir.get()}\"")
-          when (konanTarget) {
-            KonanTarget.ANDROID_ARM64 -> println("dist-build/android-armv8-a.sh")
-            KonanTarget.ANDROID_X64 -> println("dist-build/android-x86_64.sh")
-            else -> {}
-          }
-        } else {
-          println("echo running configure at `date` ..")
-          println("if [ ! -f Makefile ]; then")
-          println("./configure --prefix=\"${outputDirectory.get()}\" \\")
-          //println("--disable-tcl --disable-static --disable-readline")
-          println("--enable-static=no --enable-shared=yes \\")
-          println("--host=${konanTarget.hostTriplet}")
-          /*println("./Configure ${konanTarget.opensslPlatform} \\")
+        xInfo("openssl: writing taskConfigureSource script..")
+        println("echo running configure at `date` ..")
+        println("if [ ! -f Makefile ]; then")
+        println("./configure --prefix=\"${outputDirectory.get()}\" \\")
+        //println("--disable-tcl --disable-static --disable-readline")
+        println("--enable-static=no --enable-shared=yes \\")
+        println("--host=${konanTarget.hostTriplet}")
+        /*println("./Configure ${konanTarget.opensslPlatform} \\")
         if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
         println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")*/
-          println("fi || exit 1")
+        println("fi || exit 1")
 
-          println("echo source configured .. building in 2")
-          println("sleep 2")
-          println("make || exit 1")
-          println("make install")
-        }
+        println("echo source configured .. building in 2")
+        println("sleep 2")
+        println("make || exit 1")
+        println("make install")
       }
     }
   }
 }
+
+val KonanTarget.opensslPlatform: String
+  get() = when (this) {
+    KonanTarget.LINUX_X64 -> "linux-x86_64"
+    KonanTarget.LINUX_ARM64 -> "linux-aarch64"
+    //  KonanTarget.LINUX_ARM32_HFP -> "linux-armv4"
+//    KonanTarget.LINUX_MIPS32 -> TODO()
+//    KonanTarget.LINUX_MIPSEL32 -> TODO()
+    KonanTarget.ANDROID_ARM32 -> "android-arm"
+    KonanTarget.ANDROID_ARM64 -> "android-arm64"
+    KonanTarget.ANDROID_X86 -> "android-x86"
+    KonanTarget.ANDROID_X64 -> "android-x86_64"
+    KonanTarget.MINGW_X64 -> "mingw64"
+    //KonanTarget.MINGW_X86 -> "mingw"
+
+
+    KonanTarget.MACOS_X64 -> "darwin64-x86_64"
+    KonanTarget.MACOS_ARM64 -> "darwin64-arm64-cc"
+    //KonanTarget.IOS_ARM32 -> "ios-cross" //ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun iphoneos-cross
+
+    KonanTarget.IOS_ARM64 -> "ios64-cross" //ios-cross ios-xcrun
+    //KonanTarget.IOS_SIMULATOR_ARM64 -> "iossimulator-xcrun"
+    KonanTarget.IOS_X64 -> "ios64-cross"
+
+    else -> throw Error("$this not supported for openssl")
+  }
+
 
