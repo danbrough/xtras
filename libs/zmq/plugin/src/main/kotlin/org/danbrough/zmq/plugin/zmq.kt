@@ -6,6 +6,7 @@ import org.danbrough.xtras.androidEnvironment
 import org.danbrough.xtras.git.git
 import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.konanEnvironment
+import org.danbrough.xtras.kotlinTargetName
 import org.danbrough.xtras.tasks.buildScript
 import org.danbrough.xtras.tasks.cinterops
 import org.danbrough.xtras.xInfo
@@ -24,6 +25,8 @@ class ZmqPlugin : Plugin<Project> {
 }
 
 private fun Project.registerZmqLibrary() {
+  //extensions.findByName("sodium") as? XtrasLibrary ?: error("sodium is not configured")
+
   xtrasRegisterLibrary<XtrasLibrary>("zmq") {
     cinterops {
       declaration {
@@ -31,9 +34,9 @@ private fun Project.registerZmqLibrary() {
           """
         ##staticLibraries =  libcrypto.a libssl.a
         #headerFilter = sodium/**
-        headers = sodium.h
+        headers = zmq.h zmq_utils.h
         #excludeDependentModules = true
-        linkerOpts = -lsodium
+        linkerOpts = -lsodium -lzmq
         #linkerOpts.linux = -ldl -lc -lm -lsqlite3 
         #linkerOpts.android = -ldl -lc -lm -lsqlite3
         #linkerOpts.macos = -ldl -lc -lm -lsqlite3
@@ -52,7 +55,7 @@ private fun Project.registerZmqLibrary() {
           """
             #include<stdio.h>
             void testFunction(){
-              printf("Sodium Test Function Works!!!\n");
+              printf("Zmq Test Function Works!!!\n");
             }
           """.trimIndent()
         )
@@ -83,28 +86,104 @@ private fun Project.registerZmqLibrary() {
             env["CFLAGS"]?.also {
               append(it)
             }
+            /*
+                 export sodium_CFLAGS="-I/files/cache/xtras/lib/sodium_linuxX64_1.0.20/include/"
+export sodium_LIBS="-L/files/cache/xtras/lib/sodium_linuxX64_1.0.20/lib -lsodium"
+export CFLAGS="$CFLAGS $sodium_CFLAGS"
+export LDFLAGS="$LDFALGS $sodium_LIBS"
+             */
+
           }
-        } else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+        } else {
+          environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+          env["sodium_CFLAGS"] =
+            "-I/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/include -Wno-error=unused-command-line-argument -Wno-gnu-statement-expression"
+          env["sodium_LIBS"] =
+            "-L/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/lib -lc -lm -lsodium "
+          env["CFLAGS"] = "${env["CFLAGS"] ?: ""} ${env["sodium_CFLAGS"]}"
+          env["CPPFLAGS"] = env["CFLAGS"].toString()
+          env["LDFLAGS"] =
+            "${env["LDFLAGS"] ?: ""} ${env["sodium_LIBS"]} -Wno-error=unused-command-line-argument  "
+          env["CLANG_ARGS"] = "${env["CLANG_ARGS"] ?: ""} -Wno-error=unused-command-line-argument "
+        }
       }
 
       script {
-        xInfo("openssl: writing taskConfigureSource script..")
+        xInfo("zmq: writing build script..for ${target.get().name}")
+        println("if [ ! -f configure ]; then")
+        println("   ./autogen.sh")
+        println("fi")
+
         println("echo running configure at `date` ..")
         println("if [ ! -f Makefile ]; then")
         println("./configure --prefix=\"${outputDirectory.get()}\" \\")
-        //println("--disable-tcl --disable-static --disable-readline")
-        println("--enable-static=no --enable-shared=yes \\")
-        println("--host=${konanTarget.hostTriplet}")
+        println("   --with-libsodium --enable-shared=yes --with-gnu-ld \\")
+        println("   --enable-static=no --enable-shared=yes  --enable-ws \\")
+        println("   --enable-libbsd=no --enable-libunwind=no \\")
+        println("   --host=${konanTarget.hostTriplet}")
         /*println("./Configure ${konanTarget.opensslPlatform} \\")
         if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
         println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")*/
         println("fi || exit 1")
 
         println("echo source configured .. building in 2")
-        println("sleep 2")
-        println("make || exit 1")
+        //println("sleep 2")
+        println("make -j4 || exit 1")
         println("make install")
       }
+      /*
+      export sodium_CFLAGS="-I/files/cache/xtras/lib/sodium_linuxX64_1.0.20/include/"
+export sodium_LIBS="-L/files/cache/xtras/lib/sodium_linuxX64_1.0.20/lib -lsodium"
+export CFLAGS="$CFLAGS $sodium_CFLAGS"
+export LDFLAGS="$LDFALGS $sodium_LIBS"
+
+echo running configure at `date` ..
+if [ ! -f Makefile ]; then
+./configure --prefix="/files/cache/xtras/build/zmq_linuxX64_4.3.5" \
+   --with-libsodium --enable-shared=yes \
+        --enable-libbsd=no --enable-libunwind=no \
+   --enable-static=no --enable-shared=yes --includedir=/usr/include \
+   --host=x86_64-unknown-linux-gnu
+fi || exit 1
+#echo source configured .. building in 2
+#sleep 2
+make -j4 || exit 1
+make install
+
+
+
+
+      cd "$(dirname "$0")"
+. /files/cache/xtras/src/zmq_linuxX64_4.3.5/xtras_xtrasZmqBuildLinuxX64_linuxX64_env.sh
+
+export CFLAGS="-I/files/cache/xtras/lib/sodium_linuxX64_1.0.20/include"
+export LDFLAGS="-L/files/cache/xtras/lib/sodium_linuxX64_1.0.20/lib -lsodium"
+export sodium_CFLAGS="$CFLAGS"
+export sodium_LIBS="$LDFLAGS"
+#export CFLAGS="$sodium_CFLAGS -pthread"
+#export CPPFLAGS="$sodium_CFLAGS"
+#export LDFLAGS="$sodium_LIBS -lm -lc -lsodium"
+
+if [ ! -f configure ]; then
+   ./autogen.sh
+fi
+
+
+#export LD_LIBRARY_PATH=/files/cache/xtras/lib/sodium_linuxX64_1.0.20/lib
+echo running configure at `date` ..
+#if [ ! -f Makefile ]; then
+./configure --prefix="/files/cache/xtras/build/zmq_linuxX64_4.3.5" \
+   --with-libsodium \
+   --enable-static=no --enable-shared=yes --includedir=/usr/include \
+   --host=x86_64-unknown-linux-gnu  \
+	--disable-libbsd --disable-libunwind
+#fi || exit 1
+#echo source configured .. building in 2
+#sleep 2
+make || exit 1
+make install
+
+       */
     }
   }
 }

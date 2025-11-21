@@ -1,4 +1,4 @@
-package org.danbrough.sqlite
+package org.danbrough.zmq
 
 fun test() {
 

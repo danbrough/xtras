@@ -26,6 +26,7 @@ private fun Project.registerOpensslLibrary() {
   xtrasRegisterLibrary<XtrasLibrary>("openssl") {
     cinterops {
       declaration {
+
         println(
           """
         #staticLibraries =  libcrypto.a libssl.a
