@@ -86,26 +86,20 @@ private fun Project.registerZmqLibrary() {
             env["CFLAGS"]?.also {
               append(it)
             }
-            /*
-                 export sodium_CFLAGS="-I/files/cache/xtras/lib/sodium_linuxX64_1.0.20/include/"
-export sodium_LIBS="-L/files/cache/xtras/lib/sodium_linuxX64_1.0.20/lib -lsodium"
-export CFLAGS="$CFLAGS $sodium_CFLAGS"
-export LDFLAGS="$LDFALGS $sodium_LIBS"
-             */
-
           }
         } else {
           environment(xtras.environment.konanEnvironment(env, target = konanTarget))
-          env["sodium_CFLAGS"] =
-            "-I/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/include -Wno-error=unused-command-line-argument -Wno-gnu-statement-expression"
-          env["sodium_LIBS"] =
-            "-L/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/lib -lc -lm -lsodium "
-          env["CFLAGS"] = "${env["CFLAGS"] ?: ""} ${env["sodium_CFLAGS"]}"
-          env["CPPFLAGS"] = env["CFLAGS"].toString()
-          env["LDFLAGS"] =
-            "${env["LDFLAGS"] ?: ""} ${env["sodium_LIBS"]} -Wno-error=unused-command-line-argument  "
-          env["CLANG_ARGS"] = "${env["CLANG_ARGS"] ?: ""} -Wno-error=unused-command-line-argument "
         }
+
+        env["sodium_CFLAGS"] =
+          "-I/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/include -Wno-error=unused-command-line-argument -Wno-gnu-statement-expression"
+        env["sodium_LIBS"] =
+          "-L/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/lib -lc -lm -lsodium "
+        env["CFLAGS"] = "${env["CFLAGS"] ?: ""} ${env["sodium_CFLAGS"]}"
+        env["CPPFLAGS"] = env["CFLAGS"].toString()
+        env["LDFLAGS"] =
+          "${env["LDFLAGS"] ?: ""} ${env["sodium_LIBS"]} -Wno-error=unused-command-line-argument  "
+        env["CLANG_ARGS"] = "${env["CLANG_ARGS"] ?: ""} -Wno-error=unused-command-line-argument "
       }
 
       script {
