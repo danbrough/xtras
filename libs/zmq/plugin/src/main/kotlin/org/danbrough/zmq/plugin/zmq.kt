@@ -2,7 +2,6 @@ package org.danbrough.zmq.plugin
 
 import org.danbrough.xtras.ScriptEnvironment
 import org.danbrough.xtras.XtrasLibrary
-import org.danbrough.xtras.androidEnvironment
 import org.danbrough.xtras.git.git
 import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.konanEnvironment
@@ -16,6 +15,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 
 class ZmqPlugin : Plugin<Project> {
@@ -23,6 +23,10 @@ class ZmqPlugin : Plugin<Project> {
     project.registerZmqLibrary()
   }
 }
+
+val File.checkedPath: String
+  get() = if (!this.exists()) error("$this does not exist") else absolutePath
+
 
 private fun Project.registerZmqLibrary() {
   //extensions.findByName("sodium") as? XtrasLibrary ?: error("sodium is not configured")
@@ -79,27 +83,21 @@ private fun Project.registerZmqLibrary() {
         "$CFLAGS -march=armv8-a+crypto+aes"
          */
         if (konanTarget.family == Family.ANDROID) {
-          environment(xtras.environment.androidEnvironment(env, target = konanTarget))
-          env["CFLAGS"] = buildString {
-            //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
-            append("-Wno-macro-redefined ")
-            env["CFLAGS"]?.also {
-              append(it)
-            }
-          }
+          environment(xtras.environment.androidEnvironmentZmq(this@buildScript, env))
         } else {
           environment(xtras.environment.konanEnvironment(env, target = konanTarget))
-        }
 
-        env["sodium_CFLAGS"] =
-          "-I/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/include -Wno-error=unused-command-line-argument -Wno-gnu-statement-expression"
-        env["sodium_LIBS"] =
-          "-L/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/lib -lc -lm -lsodium "
-        env["CFLAGS"] = "${env["CFLAGS"] ?: ""} ${env["sodium_CFLAGS"]}"
-        env["CPPFLAGS"] = env["CFLAGS"].toString()
-        env["LDFLAGS"] =
-          "${env["LDFLAGS"] ?: ""} ${env["sodium_LIBS"]} -Wno-error=unused-command-line-argument  "
-        env["CLANG_ARGS"] = "${env["CLANG_ARGS"] ?: ""} -Wno-error=unused-command-line-argument "
+
+          env["sodium_CFLAGS"] =
+            "-I/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/include -Wno-error=unused-command-line-argument -Wno-gnu-statement-expression"
+          env["sodium_LIBS"] =
+            "-L/files/cache/xtras/lib/sodium_${target.get().kotlinTargetName}_1.0.20/lib -lc -lm -lsodium "
+          env["CFLAGS"] = "${env["CFLAGS"] ?: ""} ${env["sodium_CFLAGS"]}"
+          env["CPPFLAGS"] = env["CFLAGS"].toString()
+          env["LDFLAGS"] =
+            "${env["LDFLAGS"] ?: ""} ${env["sodium_LIBS"]} -Wno-error=unused-command-line-argument  "
+          env["CLANG_ARGS"] = "${env["CLANG_ARGS"] ?: ""} -Wno-error=unused-command-line-argument "
+        }
       }
 
       script {
@@ -112,7 +110,7 @@ private fun Project.registerZmqLibrary() {
         println("if [ ! -f Makefile ]; then")
         println("./configure --prefix=\"${outputDirectory.get()}\" \\")
         println("   --with-libsodium --enable-shared=yes --with-gnu-ld \\")
-        println("   --enable-static=no --enable-shared=yes  --enable-ws \\")
+        println("   --enable-static=no --enable-shared=yes  --enable-ws --with-libsodium=yes \\")
         println("   --enable-libbsd=no --enable-libunwind=no \\")
         println("   --host=${konanTarget.hostTriplet}")
         /*println("./Configure ${konanTarget.opensslPlatform} \\")

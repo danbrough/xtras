@@ -18,7 +18,11 @@ import java.net.URI
 import kotlin.reflect.KClass
 
 class ScriptEnvironment(env: MutableMap<String, Any> = mutableMapOf()) :
-  MutableMap<String, Any> by env
+  MutableMap<String, Any> by env {
+  fun append(name: String, value: Any) {
+    set(name, get(name)?.let { "$it " } ?: value)
+  }
+}
 
 @XtrasDSL
 @Suppress("MemberVisibilityCanBePrivate")
