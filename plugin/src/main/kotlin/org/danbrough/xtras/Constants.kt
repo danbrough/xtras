@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 object Constants {
   const val XTRAS_GROUP = "org.danbrough.xtras"
   const val XTRAS_REPO_NAME = "Xtras"
-  const val XTRAS_LOCAL_REPO_NAME = "Local"
+
   const val XTRAS_SONATYPE_REPO_NAME = "Sonatype"
   const val XTRAS_TASK_GROUP = "xtras"
 
@@ -21,6 +21,8 @@ object Constants {
 
     const val PUBLISH_SIGN = "publish.sign"
     const val PUBLISH_DOCS = "publish.docs"
+
+    const val PROPERTY_XTRAS_DIR = "xtras.dir"
 
     /**
      * Whether to enable xtras publishing configuration

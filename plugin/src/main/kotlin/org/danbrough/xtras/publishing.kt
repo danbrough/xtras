@@ -6,7 +6,6 @@ import org.danbrough.xtras.Constants.Properties.PUBLISH_DOCS
 import org.danbrough.xtras.Constants.Properties.PUBLISH_SIGN
 import org.danbrough.xtras.Constants.Properties.SIGNING_KEY
 import org.danbrough.xtras.Constants.Properties.SIGNING_PASSWORD
-import org.danbrough.xtras.Constants.XTRAS_LOCAL_REPO_NAME
 import org.danbrough.xtras.Constants.XTRAS_REPO_NAME
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin
@@ -26,7 +25,6 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 import org.gradle.plugins.signing.SigningPlugin
-import java.io.File
 
 fun Publication.xtrasPom(
   projectName: String,
@@ -87,12 +85,6 @@ internal fun Project.withPublishing(block: PublishingExtension.() -> Unit) {
 }
 
 private fun Project.xtrasPublishToXtras() = registerPublishRepo(XTRAS_REPO_NAME, xtrasMavenDir)
-
-val Project.xtrasLocalRepoDir: File
-  get() = rootProject.layout.buildDirectory.file("m2").get().asFile
-
-private fun Project.xtrasPublishToLocal() =
-  registerPublishRepo(XTRAS_LOCAL_REPO_NAME, xtrasLocalRepoDir)
 
 /*private fun Project.xtrasPublishToSonatype() {
 
@@ -238,7 +230,7 @@ fun Project.xtrasPublishing() {
     }
   }
 
-  xtrasPublishToLocal()
+
 
   xtrasPublishToXtras()
 

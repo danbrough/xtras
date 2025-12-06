@@ -8,12 +8,12 @@ import java.io.File
 const val XTRAS_EXTN_NAME = "xtras"
 
 const val PROPERTY_XTRAS_DIR = "$XTRAS_EXTN_NAME.dir"
-const val PROPERTY_XTRAS_CACHE_DIR = "$PROPERTY_XTRAS_DIR.cache"
-const val PROPERTY_XTRAS_BUILD_DIR = "$PROPERTY_XTRAS_DIR.build"
-const val PROPERTY_XTRAS_SRC_DIR = "$PROPERTY_XTRAS_DIR.src"
-const val PROPERTY_XTRAS_PACKAGES_DIR = "$PROPERTY_XTRAS_DIR.packages"
+const val PROPERTY_XTRAS_CACHE_DIR = "${PROPERTY_XTRAS_DIR}.cache"
+const val PROPERTY_XTRAS_BUILD_DIR = "${PROPERTY_XTRAS_DIR}.build"
+const val PROPERTY_XTRAS_SRC_DIR = "${PROPERTY_XTRAS_DIR}.src"
+const val PROPERTY_XTRAS_PACKAGES_DIR = "${PROPERTY_XTRAS_DIR}.packages"
 
-const val PROPERTY_XTRAS_LIB_DIR = "$PROPERTY_XTRAS_DIR.lib"
+const val PROPERTY_XTRAS_LIB_DIR = "${PROPERTY_XTRAS_DIR}.lib"
 
 val Project.xtrasDir: File
   get() = xtrasPropertyValue(PROPERTY_XTRAS_DIR) {

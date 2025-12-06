@@ -41,17 +41,17 @@ if (pluginOnly == null) {
     name = "openssl_plugin"
   }
 
-  includeBuild("libs/sqlite/plugin") {
-    name = "sqlite_plugin"
-  }
+  /*  includeBuild("libs/sqlite/plugin") {
+      name = "sqlite_plugin"
+    }
 
-  includeBuild("libs/sodium/plugin") {
-    name = "sodium_plugin"
-  }
+    includeBuild("libs/sodium/plugin") {
+      name = "sodium_plugin"
+    }
 
-  includeBuild("libs/zmq/plugin") {
-    name = "zmq_plugin"
-  }
+    includeBuild("libs/zmq/plugin") {
+      name = "zmq_plugin"
+    }*/
 
   //includeBuild("libs/ssh2/ssh2_plugin")
 
@@ -60,9 +60,9 @@ if (pluginOnly == null) {
     //"jni",
     //"openssl",
     "openssl",
-    "sqlite",
+    /*"sqlite",
     "sodium",
-    "zmq",
+    "zmq",*/
   ).forEach {
     include(":$it")
     project(":$it").projectDir = file("libs/$it")

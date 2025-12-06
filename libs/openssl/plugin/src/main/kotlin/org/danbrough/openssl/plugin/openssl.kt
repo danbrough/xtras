@@ -2,6 +2,7 @@ package org.danbrough.openssl.plugin
 
 import org.danbrough.xtras.ScriptEnvironment
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.XtrasPlugin
 import org.danbrough.xtras.androidEnvironment
 import org.danbrough.xtras.git.git
 import org.danbrough.xtras.konanEnvironment
@@ -12,6 +13,7 @@ import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -23,6 +25,7 @@ class OpenSSLPlugin : Plugin<Project> {
 }
 
 private fun Project.registerOpensslLibrary() {
+  println("registerOPensslLibrary: rootProject: ${rootProject.name} - xtras: ${rootProject.extensions.findByType<XtrasPlugin>()}")
   xtrasRegisterLibrary<XtrasLibrary>("openssl") {
     cinterops {
       declaration {

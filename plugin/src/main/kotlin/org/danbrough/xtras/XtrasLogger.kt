@@ -4,7 +4,6 @@ package org.danbrough.xtras
 
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
-import org.gradle.kotlin.dsl.getByType
 import javax.inject.Inject
 
 
@@ -76,8 +75,26 @@ class XtrasLoggerImpl @Inject constructor(
   }
 }
 
+
+private val loggers = mutableMapOf<Project, Logger>()
+
+/*val logger: Logger by lazy {
+  XtrasLoggerImpl(
+    project,
+    project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.tag") { "XTRAS" },
+    logToStdout = project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.stdout") { true },
+    logToGradle = project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.gradle") { false }
+  )
+}*/
 val Project.xtrasLogger: Logger
-  get() = extensions.getByType<Xtras>().logger
+  get() = loggers.getOrPut(this) {
+    XtrasLoggerImpl(
+      this@xtrasLogger,
+      xtrasPropertyValue("$XTRAS_EXTN_NAME.log.tag") { "XTRAS" },
+      logToStdout = xtrasPropertyValue("$XTRAS_EXTN_NAME.log.stdout") { true },
+      logToGradle = xtrasPropertyValue("$XTRAS_EXTN_NAME.log.gradle") { false }
+    )
+  }
 
 
 fun Project.xTrace(msg: String, err: Throwable? = null) =

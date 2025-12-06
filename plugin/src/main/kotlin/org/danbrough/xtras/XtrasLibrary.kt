@@ -105,12 +105,13 @@ inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
 fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
   name: String, block: T.() -> Unit = {}, type: KClass<T>
 ): T {
-  extensions.findByName(XTRAS_EXTN_NAME) ?: run {
+  rootProject.extensions.findByName(XTRAS_EXTN_NAME) ?: run {
     pluginManager.apply(XtrasPlugin::class.java)
   }
 
   val xtras =
-    extensions.findByType<Xtras>() ?: error("Expecting Xtras extension to have been created")
+    rootProject.extensions.findByType<Xtras>()
+      ?: error("Expecting Xtras extension to have been created")
 
   return extensions.create(name, type, xtras, this, name).apply(block)/*.also {
   xtrasConfigureLibrary(xtras, it)

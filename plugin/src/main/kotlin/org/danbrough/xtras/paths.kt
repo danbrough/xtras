@@ -2,10 +2,9 @@ package org.danbrough.xtras
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.extra
+import org.gradle.internal.extensions.core.extra
 import java.io.File
 
-const val XTRAS_PATH = "xtras.dir"
 
 fun pathOf(paths: Collection<Any?>): String =
   paths.mapNotNull {
@@ -26,13 +25,18 @@ fun File.resolveAll(paths: List<String>): File =
   paths.fold(this) { file, path -> file.resolve(path) }
 
 
-fun Project.xtrasPath(path: String): File {
-  //println("Project.xtrasPath::getting ${path.propertyName} from extra")
-  val pathValue = if (extra.has(path)) extra[path]?.toString() else null
+fun Project.xtrasPath(name: String? = null): File {
+  val propertyName = if (name == null) PROPERTY_XTRAS_DIR else "$PROPERTY_XTRAS_DIR.$name"
+  xDebug("Project.xtrasPath::getting $propertyName from extra")
 
-  return if (pathValue == null) if (path == XTRAS_PATH) error("$XTRAS_PATH not set")
-  else xtrasPath(XTRAS_PATH).resolve(path)
-  else File(pathValue)
+  xDebug("project: $name hasProperty($propertyName) = ${hasProperty(propertyName)}")
+  xDebug("project: $name extra.has($propertyName) = ${extra.has(propertyName)}")
+
+
+  val pathValue = if (extra.has(propertyName)) extra[propertyName].toString() else null
+  if (name == null && pathValue == null) error("$PROPERTY_XTRAS_DIR not set")
+  if (pathValue != null) return File(pathValue)
+  return File(xtrasPath(), name!!)
 }
 
 
@@ -43,4 +47,4 @@ fun Project.xtrasPath(path: String): File {
  * Defaults to `project.xtrasDir.resolve("maven")`
  */
 val Project.xtrasMavenDir: File
-  get() = xtrasPath("$XTRAS_PATH.maven")
+  get() = xtrasPath("maven")

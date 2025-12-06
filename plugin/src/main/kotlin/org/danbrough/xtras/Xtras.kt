@@ -2,9 +2,11 @@ package org.danbrough.xtras
 
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.invoke
+import org.jetbrains.kotlin.konan.target.KonanTarget
 import javax.inject.Inject
 
 
@@ -12,23 +14,15 @@ import javax.inject.Inject
 annotation class XtrasDSL
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class Xtras @Inject constructor(val project: Project) {
+abstract class Xtras @Inject constructor(val project: Project) {
 
   val description: Property<String> =
     project.xtrasProperty<String>("$XTRAS_EXTN_NAME.description")
 
-  val logger: Logger by lazy {
-    XtrasLoggerImpl(
-      project,
-      project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.tag") { "XTRAS" },
-      logToStdout = project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.stdout") { true },
-      logToGradle = project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.gradle") { false }
-    )
-  }
 
-  fun logging(action: Action<Logger>) {
-    action.invoke(logger)
-  }
+//  fun logging(action: Action<Logger>) {
+//    action.invoke(logger)
+//  }
 
   val android = XtrasAndroid(project)
 
@@ -43,6 +37,9 @@ open class Xtras @Inject constructor(val project: Project) {
   val environment = XtrasEnvironment(project)
 
   fun environment(action: Action<XtrasEnvironment>) = action.invoke(environment)
+
+  @XtrasDSL
+  abstract val nativeTargets: ListProperty<KonanTarget>
 
   companion object {
     val Project.xtras: Xtras
