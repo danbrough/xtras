@@ -171,7 +171,7 @@ private fun Project.registerPublishRepo(repoName: String, url: Any) {
 }
 
 
-internal fun Project.xtrasPublishing() {
+fun Project.xtrasPublishing() {
   apply<MavenPublishPlugin>()
   apply<SigningPlugin>()
 

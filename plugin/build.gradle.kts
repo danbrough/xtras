@@ -16,7 +16,7 @@ dependencies {
 }
 
 group = "org.danbrough.xtras"
-version = "0.0.2"
+version = "0.0.2-alpha01"
 
 java {
   withSourcesJar()
@@ -52,6 +52,13 @@ gradlePlugin {
     }
   }
 }
+
+val xtrasDir: String = project.properties["xtras.dir"]?.toString()
+  ?: error("xtras.dir should be set to a directory for generated files")
+
+val xtrasMavenDir: String =
+  project.properties["xtras.dir.maven"]?.toString() ?: File(xtrasDir, "maven").absolutePath
+
 
 publishing {
   repositories {
