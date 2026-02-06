@@ -40,10 +40,10 @@ if (pluginOnly == null) {
   includeBuild("libs/openssl/plugin") {
     name = "openssl_plugin"
   }
-
-  /*  includeBuild("libs/sqlite/plugin") {
-      name = "sqlite_plugin"
-    }
+  includeBuild("libs/sqlite/plugin") {
+    name = "sqlite_plugin"
+  }
+  /*
 
     includeBuild("libs/sodium/plugin") {
       name = "sodium_plugin"
@@ -60,6 +60,7 @@ if (pluginOnly == null) {
     //"jni",
     //"openssl",
     "openssl",
+    "sqlite",
     /*"sqlite",
     "sodium",
     "zmq",*/
