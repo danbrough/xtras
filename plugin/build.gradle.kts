@@ -4,6 +4,7 @@ plugins {
   `kotlin-dsl`
   //`java-gradle-plugin`
   `maven-publish`
+  alias(libs.plugins.dokka)
   signing
   //id("org.danbrough.xtras") version "0.0.1-beta14"
 }
@@ -16,7 +17,7 @@ dependencies {
 }
 
 group = "org.danbrough.xtras"
-version = "0.0.2-alpha01"
+version = libs.versions.xtras.plugin.get()
 
 java {
   withSourcesJar()
@@ -59,11 +60,21 @@ val xtrasDir: String = project.properties["xtras.dir"]?.toString()
 val xtrasMavenDir: String =
   project.properties["xtras.dir.maven"]?.toString() ?: File(xtrasDir, "maven").absolutePath
 
+val javadocTask = tasks.register<Jar>("javadocJar") {
+
+  group = JavaBasePlugin.DOCUMENTATION_GROUP
+  archiveClassifier.set("javadoc")
+  //from(tasks.getByName("dokkaHtml"))
+
+  from(tasks.getByName("dokkaGenerateModuleHtml"))
+  //from(tasks.getByName("dokkaGeneratePublicationHtml"))
+
+}
 
 publishing {
   repositories {
 //    maven(rootProject.layout.buildDirectory.dir("maven")) {
-    maven(rootProject.layout.buildDirectory.file("m2").get().asFile) {
+    maven(xtrasMavenDir) {
       name = "xtras"
     }
   }
@@ -78,6 +89,11 @@ publishing {
     useInMemoryPgpKeys(signingKey, signingPassword)
 
     sign(publications)
+
+    val signingTasks = tasks.withType<Sign>()
+    tasks.withType<PublishToMavenRepository> {
+      mustRunAfter(signingTasks)
+    }
 
     /*
           val signingKey =
@@ -95,6 +111,10 @@ publishing {
      */
 
     publications.all {
+      if (this is MavenPublication) {
+        artifact(javadocTask)
+      }
+
       val projectName = project.name
       val projectDescription = "Xtras gradle plugin"
       val licenseApache2 = true
@@ -123,7 +143,7 @@ publishing {
             url.set(website)
           }
 
-          if (issuesSite != null) issueManagement {
+          issueManagement {
             system.set("GitHub")
             url.set(issuesSite)
           }

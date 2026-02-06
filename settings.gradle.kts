@@ -56,7 +56,7 @@ if (pluginOnly == null) {
   //includeBuild("libs/ssh2/ssh2_plugin")
 
   listOf(
-    //"support",
+    "support",
     //"jni",
     //"openssl",
     "openssl",

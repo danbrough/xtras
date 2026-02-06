@@ -1,5 +1,6 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
+//import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -7,7 +8,7 @@ import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.android.library)
+  //alias(libs.plugins.android.library)
 }
 
 
@@ -17,6 +18,13 @@ java {
   targetCompatibility = JavaConfig.javaVersion
 }*/
 
+val sdkVersion by xtras.android.sdkVersion
+
+tasks.register("thang") {
+  doFirst {
+    println("ANDROID SDK VERSION: $sdkVersion")
+  }
+}
 
 kotlin {
   withSourcesJar(publish = true)
@@ -29,7 +37,7 @@ kotlin {
 
   linuxX64()
   linuxArm64()
-  mingwX64()
+  //mingwX64()
 
   if (HostManager.hostIsMac) {
     macosX64()
@@ -39,12 +47,12 @@ kotlin {
     iosSimulatorArm64()
   }
 
-  androidNativeArm64()
-  androidNativeX64()
-  androidNativeArm32()
+  /*  androidNativeArm64()
+    androidNativeX64()*/
+  //androidNativeArm32()
 
   jvm()
-  androidTarget()
+  //androidTarget()
 
   sourceSets {
     all {
@@ -74,17 +82,18 @@ kotlin {
       }
     }
 
-    androidMain {
-      dependencies {
-        api(libs.slf4j.api)
-        api(libs.slf4j.android)
-      }
-    }
+    /*    androidMain {
+          dependencies {
+            api(libs.slf4j.api)
+            api(libs.slf4j.android)
+          }
+        }*/
   }
 }
 
+xtrasAndroidConfig()
 
-xtrasAndroidConfig { }
+//xtrasAndroidConfig { }
 
 xtrasTesting { }
 
