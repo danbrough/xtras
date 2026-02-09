@@ -70,6 +70,7 @@ git reset --soft `grep version-3.51.0 tags.txt  | awk '{print $1}'`
     group = TaskNames.XTRAS_TASK_GROUP
     workingDir(repoDir)
     commandLine("bash", "download.sh")
+    outputs.dir(repoDir)
   }
   return taskName
 }
