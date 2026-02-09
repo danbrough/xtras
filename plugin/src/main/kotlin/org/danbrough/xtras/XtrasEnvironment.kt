@@ -91,7 +91,7 @@ fun XtrasEnvironment.androidEnvironment(
 fun XtrasEnvironment.environmentApple(
   env: ScriptEnvironment = ScriptEnvironment(),
   target: KonanTarget
-) {
+): ScriptEnvironment {
 
   env["CFLAGS"] =
     "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
@@ -101,6 +101,7 @@ fun XtrasEnvironment.environmentApple(
   env["CLANG_ARGS"] = clangArgs
   env["CC"] = "clang $clangArgs"
   env["CXX"] = "clang++ $clangArgs"
+  return env
 }
 
 
