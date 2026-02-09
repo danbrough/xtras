@@ -98,7 +98,8 @@ fun XtrasEnvironment.konanEnvironment(
     ?: error("Failed to find kotlin-native-prebuilt")
 
   val depsDir = project.xtrasKonanDir.resolve("dependencies")
-  val llvmPrefix = if (HostManager.hostIsLinux || HostManager.hostIsMingw) "llvm-" else "apple-llvm"
+  //val llvmPrefix = if (HostManager.hostIsLinux || HostManager.hostIsMingw) "llvm-" else "apple-llvm"
+  val llvmPrefix = "llvm-"
   val llvmDir = depsDir.listFiles()?.firstOrNull {
     it.isDirectory && it.name.startsWith(llvmPrefix)
   } ?: error("No directory beginning with \"llvm-\" found in $depsDir")
