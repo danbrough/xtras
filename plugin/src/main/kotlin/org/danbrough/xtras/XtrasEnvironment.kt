@@ -88,6 +88,22 @@ fun XtrasEnvironment.androidEnvironment(
 }
 
 
+fun XtrasEnvironment.environmentApple(
+  env: ScriptEnvironment = ScriptEnvironment(),
+  target: KonanTarget
+) {
+
+  env["CFLAGS"] =
+    "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+
+  val clangArgs =
+    "--target=${target.hostTriplet}"
+  env["CLANG_ARGS"] = clangArgs
+  env["CC"] = "clang $clangArgs"
+  env["CXX"] = "clang++ $clangArgs"
+}
+
+
 fun XtrasEnvironment.konanEnvironment(
   env: ScriptEnvironment = ScriptEnvironment(),
   target: KonanTarget? = null,

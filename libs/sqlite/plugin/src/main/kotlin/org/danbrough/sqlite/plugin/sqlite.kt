@@ -3,6 +3,7 @@ package org.danbrough.sqlite.plugin
 import org.danbrough.xtras.ScriptEnvironment
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.androidEnvironment
+import org.danbrough.xtras.environmentApple
 import org.danbrough.xtras.git.git
 import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.tasks.buildScript
@@ -13,7 +14,6 @@ import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 class SQLiteSSLPlugin : Plugin<Project> {
@@ -79,7 +79,13 @@ private fun Project.registerOpensslLibrary() {
               append(it)
             }
           }
-        } else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+        } else if (konanTarget.family == Family.OSX) environment(
+          xtras.environment.environmentApple(
+            env,
+            target = konanTarget
+          )
+        )
+        else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
       }
 
       script {
@@ -88,8 +94,7 @@ private fun Project.registerOpensslLibrary() {
         println("if [ ! -f Makefile ]; then")
         println("./configure --prefix=\"${outputDirectory.get()}\" \\")
         //println("--disable-tcl --disable-static --disable-readline")
-        println("--disable-tcl --disable-static --disable-readline")
-        /*println("./Configure ${konanTarget.opensslPlatform} \\")
+        println("--disable-tcl --disable-static --disable-readline")/*println("./Configure ${konanTarget.opensslPlatform} \\")
         if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
         println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")*/
         println("fi || exit 1")
@@ -102,31 +107,4 @@ private fun Project.registerOpensslLibrary() {
     }
   }
 }
-
-val KonanTarget.opensslPlatform: String
-  get() = when (this) {
-    KonanTarget.LINUX_X64 -> "linux-x86_64"
-    KonanTarget.LINUX_ARM64 -> "linux-aarch64"
-    //  KonanTarget.LINUX_ARM32_HFP -> "linux-armv4"
-//    KonanTarget.LINUX_MIPS32 -> TODO()
-//    KonanTarget.LINUX_MIPSEL32 -> TODO()
-    KonanTarget.ANDROID_ARM32 -> "android-arm"
-    KonanTarget.ANDROID_ARM64 -> "android-arm64"
-    KonanTarget.ANDROID_X86 -> "android-x86"
-    KonanTarget.ANDROID_X64 -> "android-x86_64"
-    KonanTarget.MINGW_X64 -> "mingw64"
-    //KonanTarget.MINGW_X86 -> "mingw"
-
-
-    KonanTarget.MACOS_X64 -> "darwin64-x86_64"
-    KonanTarget.MACOS_ARM64 -> "darwin64-arm64-cc"
-    //KonanTarget.IOS_ARM32 -> "ios-cross" //ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun iphoneos-cross
-
-    KonanTarget.IOS_ARM64 -> "ios64-cross" //ios-cross ios-xcrun
-    //KonanTarget.IOS_SIMULATOR_ARM64 -> "iossimulator-xcrun"
-    KonanTarget.IOS_X64 -> "ios64-cross"
-
-    else -> throw Error("$this not supported for openssl")
-  }
-
 
