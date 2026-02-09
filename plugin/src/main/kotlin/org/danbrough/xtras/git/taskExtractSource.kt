@@ -20,7 +20,7 @@ internal fun XtrasLibrary.registerGitSourceExtractTask(target: KonanTarget): Str
   project.tasks.register<Exec>(taskName) {
     group = TaskNames.XTRAS_TASK_GROUP
 
-    outputs.file(outputFile)
+    outputs.dir(sourcesDir)
     dependsOn(taskNameSourceDownload())
 
     description = "Download required commits from remote repository to $sourcesDir"
