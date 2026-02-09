@@ -58,7 +58,7 @@ if ! grep $gitCommit tags.txt ; then
   git fetch origin --depth 1 $gitCommit || exit 1
   echo `cat FETCH_HEAD  | awk '{print $1}'`  $gitCommit >> tags.txt
 fi
-git reset --soft `grep version-3.51.0 tags.txt  | awk '{print $1}'`
+git reset --soft `grep $gitCommit tags.txt  | awk '{print $1}'`
             """.trim()
         )
       }
