@@ -30,48 +30,21 @@ includeBuild("plugin")
 
 val pluginOnly: String? by settings
 
+val libs = listOf("openssl", "curl", "sqlite")
 
 if (pluginOnly == null) {
-  //includeBuild("core")
-  /*includeBuild("libs/openssl/plugin") {
-    name = "openssl_plugin"
-  }*/
-
-  /*includeBuild("libs/openssl/plugin") {
-    name = "openssl_plugin"
-  }*/
-  includeBuild("libs/sqlite/plugin") {
-    name = "sqlite_plugin"
-  }
-  /*
-
-    includeBuild("libs/sodium/plugin") {
-      name = "sodium_plugin"
-    }
-
-    includeBuild("libs/zmq/plugin") {
-      name = "zmq_plugin"
-    }*/
-
-  //includeBuild("libs/ssh2/ssh2_plugin")
-
-  listOf(
-    "support",
-    //"jni",
-    //"openssl",
-    //"openssl",
-    "sqlite",
-    /*"sqlite",
-    "sodium",
-    "zmq",*/
-  ).forEach {
+  libs.forEach {
     include(":$it")
+    includeBuild("libs/$it/plugin") {
+      name = "${it}_plugin"
+    }
     project(":$it").projectDir = file("libs/$it")
   }
 
-  include(":test2")
+  //include(":test2")
+  include(":support")
+  project(":support").projectDir = file("libs/support")
 
-//  include(":test")
 
 }
 

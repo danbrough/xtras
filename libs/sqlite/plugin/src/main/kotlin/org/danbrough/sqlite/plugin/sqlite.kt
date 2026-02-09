@@ -16,13 +16,13 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
 
 
-class SQLiteSSLPlugin : Plugin<Project> {
+class SQLitePlugin : Plugin<Project> {
   override fun apply(project: Project) {
-    project.registerOpensslLibrary()
+    project.registerSqliteLibrary()
   }
 }
 
-private fun Project.registerOpensslLibrary() {
+private fun Project.registerSqliteLibrary() {
   xtrasRegisterLibrary<XtrasLibrary>("sqlite") {
     cinterops {
       declaration {

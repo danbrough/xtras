@@ -29,7 +29,6 @@ private fun Project.registerOpensslLibrary() {
   xtrasRegisterLibrary<XtrasLibrary>("openssl") {
     cinterops {
       declaration {
-
         println(
           """
         #staticLibraries =  libcrypto.a libssl.a
@@ -62,7 +61,7 @@ private fun Project.registerOpensslLibrary() {
     }
 
     git {
-      xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
+      xTrace("configuring git for $name url:$url commit:?")
     }
 
     buildScript {

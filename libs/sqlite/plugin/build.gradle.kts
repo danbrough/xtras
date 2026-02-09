@@ -34,7 +34,7 @@ gradlePlugin {
   plugins {
     create("sqlite") {
       id = "$group.sqlite"
-      implementationClass = "$group.sqlite.plugin.SQLiteSSLPlugin"
+      implementationClass = "$group.sqlite.plugin.SQLitePlugin"
       displayName = "Sqlite Plugin"
       description = "Kotlin multiplatform support plugin for sqlite"
     }
