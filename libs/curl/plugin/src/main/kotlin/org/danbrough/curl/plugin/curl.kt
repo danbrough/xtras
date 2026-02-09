@@ -1,0 +1,111 @@
+package org.danbrough.curl.plugin
+
+import org.danbrough.xtras.ScriptEnvironment
+import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.androidEnvironment
+import org.danbrough.xtras.environmentApple
+import org.danbrough.xtras.git.git
+import org.danbrough.xtras.konanEnvironment
+import org.danbrough.xtras.tasks.buildScript
+import org.danbrough.xtras.tasks.cinterops
+import org.danbrough.xtras.xInfo
+import org.danbrough.xtras.xTrace
+import org.danbrough.xtras.xtrasRegisterLibrary
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.jetbrains.kotlin.konan.target.Family
+
+
+class CurlPlugin : Plugin<Project> {
+  override fun apply(project: Project) {
+    project.registerCurlLibrary()
+  }
+}
+
+private fun Project.registerCurlLibrary() {
+  xtrasRegisterLibrary<XtrasLibrary>("curl") {
+    cinterops {
+      declaration {
+        println(
+          """
+        #staticLibraries =  libcrypto.a libssl.a
+        #headerFilter = openssl/**
+        headers = sqlite3.h
+        excludeDependentModules = true
+        linkerOpts.linux = -ldl -lc -lm -lsqlite3 
+        linkerOpts.android = -ldl -lc -lm -lsqlite3
+        linkerOpts.macos = -ldl -lc -lm -lsqlite3
+        linkerOpts.ios = -ldl -lc -lm -lsqlite3
+        linkerOpts.mingw = -ldl -lc -lm -lsqlite3
+        compilerOpts.android = -D__ANDROID_API__=${xtras.android.sdkVersion.get()}  
+        compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
+        #compilerOpts = -static
+       
+        """.trimIndent()
+        )
+      }
+
+      extraCode {
+        println(
+          """
+            #include<stdio.h>
+            void testFunction(){
+              printf("Curl Test Function Works!!!\n");
+            }
+          """.trimIndent()
+        )
+      }
+    }
+
+    git {
+      xTrace("configuring curl for $name url:$url commit:$commit")
+    }
+
+    buildScript {
+      //outputs.file(workingDir.resolve("Makefile"))
+      val konanTarget = target.get()
+      outputDirectory.convention(provider { installDirMap(konanTarget) })
+
+      doFirst {
+        clearEnvironment()
+        defaultEnvironment()
+        val env = ScriptEnvironment(environment)
+        if (konanTarget.family == Family.ANDROID) {
+          environment(xtras.environment.androidEnvironment(env, target = konanTarget))
+          env["CFLAGS"] = buildString {
+            //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
+            append("-Wno-macro-redefined ")
+            env["CFLAGS"]?.also {
+              append(it)
+            }
+          }
+        } else if (konanTarget.family == Family.OSX) environment(
+          xtras.environment.environmentApple(
+            env,
+            target = konanTarget
+          )
+        )
+        else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+      }
+
+      script {
+        xInfo("openssl: writing taskConfigureSource script..")
+        println("""echo running configure at `date` ..""")
+        println("if [ ! -f configure ]; then (autoreconf -fiv || exit 1); fi")
+        println("if [ ! -f Makefile ]; then")
+        println("./configure --prefix=\"${outputDirectory.get()}\" \\")
+        //println("--disable-tcl --disable-static --disable-readline")
+        println("--with-openssl")/*println("./Configure ${konanTarget.opensslPlatform} \\")
+        if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
+        println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")*/
+        println("fi || exit 1")
+
+        println("echo source configured .. building in 2")
+        println("sleep 2")
+        println("make || exit 1")
+        println("make install")
+      }
+    }
+  }
+}
+
