@@ -38,7 +38,7 @@ internal fun XtrasLibrary.registerGitSourceDownloadTask(): String {
   project.tasks.register(writeScriptTaskName) {
     inputs.property("url", gitUrl)
     inputs.property("commit", gitCommit)
-    outputs.file(scriptFile)
+    outputs.dir(repoDir)
     doFirst {
       if (!repoDir.exists())
         repoDir.mkdirs()
@@ -68,6 +68,8 @@ git reset --soft `grep $gitCommit tags.txt  | awk '{print $1}'`
   project.tasks.register<Exec>(taskName) {
     dependsOn(writeScriptTaskName)
     group = TaskNames.XTRAS_TASK_GROUP
+    inputs.property("url", gitUrl)
+    inputs.property("commit", gitCommit)
     workingDir(repoDir)
     commandLine("bash", "download.sh")
     outputs.dir(repoDir)
