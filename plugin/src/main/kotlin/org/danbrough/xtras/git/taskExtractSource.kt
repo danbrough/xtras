@@ -13,22 +13,17 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 internal fun XtrasLibrary.registerGitSourceExtractTask(target: KonanTarget): String {
   val taskName = taskNameSourceExtract(target)
-
+  //val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig
+  val sourcesDir = sourcesDirMap(target)
+  val outputFile = sourcesDir.resolve(".xtras_extracted")
 
   project.tasks.register<Exec>(taskName) {
     group = TaskNames.XTRAS_TASK_GROUP
-
-
-    //val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig
-    val sourcesDir = sourcesDirMap(target)
-    val outputFile = sourcesDir.resolve(".xtras_extracted")
 
     outputs.file(outputFile)
     dependsOn(taskNameSourceDownload())
 
     description = "Download required commits from remote repository to $sourcesDir"
-
-    packageFileMap.invoke(target)
 
     onlyIf {
       !outputFile.exists()
