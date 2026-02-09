@@ -43,40 +43,39 @@ abstract class Logger {
 
 @Suppress("MemberVisibilityCanBePrivate")
 class XtrasLoggerImpl @Inject constructor(
-  val project: Project?,
-  override val tag: String,
-  val logToStdout: Boolean,
-  val logToGradle: Boolean
+  override val tag: String
 ) : Logger() {
 
 
   //private val output: StyledTextOutput = project.gradle.serviceOf<StyledTextOutputFactory>().create("XtrasLogOutput")
 
   override fun log(msg: String, level: LogLevel, err: Throwable?) {
-    if (logToStdout) {
-      /*      val logName = when (level) {
-              LogLevel.DEBUG -> "TRACE"
-              LogLevel.INFO -> "DEBUG"
-              LogLevel.LIFECYCLE -> "DEBUG"
-              LogLevel.WARN -> " INFO"
-              LogLevel.QUIET -> " WARN"
-              LogLevel.ERROR -> "ERROR"
-            }*/
-      println(
-        "${if (tag.length == 4) " " else ""}${tag.colored(level)}: ${msg.colored(level)} ${
-          err?.message?.colored(
-            level
-          ) ?: ""
-        }"
-      )
-    }
 
-    if (logToGradle) project!!.logger.log(level, msg)
+    /*      val logName = when (level) {
+            LogLevel.DEBUG -> "TRACE"
+            LogLevel.INFO -> "DEBUG"
+            LogLevel.LIFECYCLE -> "DEBUG"
+            LogLevel.WARN -> " INFO"
+            LogLevel.QUIET -> " WARN"
+            LogLevel.ERROR -> "ERROR"
+          }*/
+    println(
+      "${if (tag.length == 4) " " else ""}${tag.colored(level)}: ${msg.colored(level)} ${
+        err?.message?.colored(
+          level
+        ) ?: ""
+      }"
+    )
+
+
+//    if (logToGradle) project!!.logger.log(level, msg)
   }
 }
 
 
-private val loggers = mutableMapOf<Project, Logger>()
+val taskLogger = XtrasLoggerImpl("XTRAS")
+
+//private val loggers = mutableMapOf<Project, Logger>()
 
 /*val logger: Logger by lazy {
   XtrasLoggerImpl(
@@ -86,29 +85,26 @@ private val loggers = mutableMapOf<Project, Logger>()
     logToGradle = project.xtrasPropertyValue("$XTRAS_EXTN_NAME.log.gradle") { false }
   )
 }*/
-val Project.xtrasLogger: Logger
-  get() = loggers.getOrPut(this) {
-    XtrasLoggerImpl(
-      this@xtrasLogger,
-      xtrasPropertyValue("$XTRAS_EXTN_NAME.log.tag") { "XTRAS" },
-      logToStdout = xtrasPropertyValue("$XTRAS_EXTN_NAME.log.stdout") { true },
-      logToGradle = xtrasPropertyValue("$XTRAS_EXTN_NAME.log.gradle") { false }
-    )
-  }
+
 
 
 fun Project.xTrace(msg: String, err: Throwable? = null) =
-  xtrasLogger.log(msg, LogLevel.DEBUG, err)
+  taskLogger.log(msg, LogLevel.DEBUG, err)
 
-inline fun Project.xDebug(msg: String, err: Throwable? = null) =
-  xtrasLogger.log(msg, LogLevel.INFO, err)
 
-inline fun Project.xInfo(msg: String, err: Throwable? = null) =
-  xtrasLogger.log(msg, LogLevel.WARN, err)
+inline fun xDebug(msg: String, err: Throwable? = null) =
+  taskLogger.log(msg, LogLevel.DEBUG, err)
 
-inline fun Project.xWarn(msg: String, err: Throwable? = null) =
-  xtrasLogger.log(msg, LogLevel.QUIET, err)
 
-inline fun Project.xError(msg: String, err: Throwable? = null) =
-  xtrasLogger.log(msg, LogLevel.ERROR, err)
+inline fun xInfo(msg: String, err: Throwable? = null) =
+  taskLogger.log(msg, LogLevel.INFO, err)
+
+
+inline fun xWarn(msg: String, err: Throwable? = null) =
+  taskLogger.log(msg, LogLevel.WARN, err)
+
+
+inline fun xError(msg: String, err: Throwable? = null) =
+  taskLogger.log(msg, LogLevel.ERROR, err)
+
 

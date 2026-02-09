@@ -25,7 +25,7 @@ class OpenSSLPlugin : Plugin<Project> {
 }
 
 private fun Project.registerOpensslLibrary() {
-  println("registerOPensslLibrary: rootProject: ${rootProject.name} - xtras: ${rootProject.extensions.findByType<XtrasPlugin>()}")
+  println("registerOpensslLibrary: rootProject: ${rootProject.name} - xtras: ${rootProject.extensions.findByType<XtrasPlugin>()}")
   xtrasRegisterLibrary<XtrasLibrary>("openssl") {
     cinterops {
       declaration {

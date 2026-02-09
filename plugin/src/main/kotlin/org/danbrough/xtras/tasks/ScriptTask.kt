@@ -4,6 +4,7 @@ import org.danbrough.xtras.TaskNames
 import org.danbrough.xtras.Xtras.Companion.xtras
 import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xtrasName
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -37,15 +38,16 @@ abstract class ScriptTask : Exec() {
   @Optional
   val outputFile = project.objects.property<File>()
 
+
   @OutputFile
-  val scriptFile = project.objects.fileProperty().convention {
+  val scriptFile: RegularFileProperty = project.objects.fileProperty().convention {
     workingDir.resolve("xtras_${name}_${target.get().xtrasName}.sh").also {
       if (!it.exists()) it.createNewFile()
     }
   }
 
   @OutputFile
-  val envFile = project.objects.fileProperty().convention {
+  val envFile: RegularFileProperty = project.objects.fileProperty().convention {
     scriptFile.get().asFile.let { script ->
       script.toPath().resolveSibling(script.absolutePath.replace(".sh", "_env.sh")).toFile().also {
         if (!it.exists()) it.createNewFile()
@@ -70,7 +72,7 @@ abstract class ScriptTask : Exec() {
   fun run() {
 
     val env = envFile.get().asFile
-    project.xDebug("$name: writing $env")
+    xDebug("$name: writing $env")
     env.printWriter().use { writer ->
       writer.println("# generated ${Date()} by $name ${target.get().xtrasName}")
       writer.println("#")
@@ -80,7 +82,7 @@ abstract class ScriptTask : Exec() {
     }
 
     val script = scriptFile.get().asFile
-    project.xDebug("$name: writing $script")
+    xDebug("$name: writing $script")
 
     script.printWriter().use { writer ->
       writer.println("#!${project.xtras.binaries.bash.get()}")
@@ -93,7 +95,7 @@ abstract class ScriptTask : Exec() {
     }
 
     commandLine(project.xtras.binaries.bash.get(), scriptFile.get().asFile)
-    project.xDebug("$name: running ${commandLine.joinToString(" ")}")
+    xDebug("$name: running ${commandLine.joinToString(" ")}")
   }
 
   fun clearEnvironment(): ScriptEnvironment = environment.apply { clear() }

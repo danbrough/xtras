@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
-import java.net.URI
+import java.net.URL
 import kotlin.reflect.KClass
 
 class ScriptEnvironment(env: MutableMap<String, Any> = mutableMapOf()) :
@@ -31,8 +31,8 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
   interface SourceConfig
 
   interface GitSourceConfig : SourceConfig {
-    val url: Property<URI>
-    val commit: Property<String>
+    val url: URL
+    val commit: String
   }
 
   val version: Property<String> = project.xtrasProperty<String>("$name.version")

@@ -58,7 +58,7 @@ private fun Project.registerOpensslLibrary() {
     }
 
     git {
-      xTrace("configuring git for $name url:${url.get()} commit:${commit.get()}")
+      xTrace("configuring git for $name url:$url commit:$commit")
     }
 
     buildScript {

@@ -37,9 +37,9 @@ if (pluginOnly == null) {
     name = "openssl_plugin"
   }*/
 
-  includeBuild("libs/openssl/plugin") {
+  /*includeBuild("libs/openssl/plugin") {
     name = "openssl_plugin"
-  }
+  }*/
   includeBuild("libs/sqlite/plugin") {
     name = "sqlite_plugin"
   }
@@ -59,7 +59,7 @@ if (pluginOnly == null) {
     "support",
     //"jni",
     //"openssl",
-    "openssl",
+    //"openssl",
     "sqlite",
     /*"sqlite",
     "sodium",

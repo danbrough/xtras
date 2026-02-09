@@ -74,7 +74,7 @@ fun XtrasEnvironment.androidEnvironment(
   val ndkPath = pathOf(
     ndkDir.resolve("bin"), ndkDir.resolve("toolchains/llvm/prebuilt/$archFolder/bin"), env["PATH"]
   )
-  project.xInfo("environmentNDK: NDK_PATH: $ndkPath")
+  xInfo("environmentNDK: NDK_PATH: $ndkPath")
   env["PATH"] = ndkPath
 
 

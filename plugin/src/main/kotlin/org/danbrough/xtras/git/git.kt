@@ -3,16 +3,17 @@ package org.danbrough.xtras.git
 import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.xtrasProperty
-import org.gradle.api.provider.Property
 import java.net.URI
+import java.net.URL
 
 internal class GitSourceConfigImpl(private val library: XtrasLibrary) :
   XtrasLibrary.GitSourceConfig {
 
-  override val url: Property<URI> = library.project.xtrasProperty("${library.name}.git.url")
+  override val url: URL =
+    library.project.xtrasProperty<URI>("${library.name}.git.url").get().toURL()
 
-  override val commit: Property<String> =
-    library.project.xtrasProperty("${library.name}.git.commit")
+  override val commit: String =
+    library.project.xtrasProperty<String>("${library.name}.git.commit").get()
 
 }
 

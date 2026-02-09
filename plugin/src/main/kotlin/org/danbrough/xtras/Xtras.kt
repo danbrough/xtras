@@ -14,7 +14,7 @@ import javax.inject.Inject
 annotation class XtrasDSL
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class Xtras @Inject constructor(val project: Project) {
+abstract class Xtras @Inject constructor(project: Project) {
 
   val description: Property<String> =
     project.xtrasProperty<String>("$XTRAS_EXTN_NAME.description")
