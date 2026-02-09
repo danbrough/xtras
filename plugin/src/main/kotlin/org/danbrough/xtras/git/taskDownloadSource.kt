@@ -55,7 +55,7 @@ if [ ! -f HEAD ]; then
 fi
 if ! grep $gitCommit tags.txt ; then
   echo fetching $gitCommit from $gitUrl .. 
-  git fetch origin --depth 1 $gitCommit
+  git fetch origin --depth 1 $gitCommit || exit 1
   echo `cat FETCH_HEAD  | awk '{print $1}'`  $gitCommit >> tags.txt
 fi
 git reset --soft `grep version-3.51.0 tags.txt  | awk '{print $1}'`
