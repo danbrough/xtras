@@ -18,6 +18,10 @@ kotlin {
   //androidNativeArm64()
   //androidNativeX64()
 //  macosX64()
+  if (HostManager.hostIsMac) {
+    macosX64()
+    macosArm64()
+  }
 }
 
 xtras {
