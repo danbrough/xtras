@@ -30,7 +30,7 @@ private fun Project.registerCurlLibrary() {
       declaration {
         println(
           """
-        #staticLibraries =  libcrypto.a libssl.a
+  
         #headerFilter = curl/**
         headers = curl/curl.h
         excludeDependentModules = true
@@ -52,7 +52,7 @@ private fun Project.registerCurlLibrary() {
           """
             #include<stdio.h>
             void testFunction(){
-              printf("Curl Test Function Works!!!\n");
+              printf("Curl Test Function Works!!! Yay!!!\n");
             }
           """.trimIndent()
         )

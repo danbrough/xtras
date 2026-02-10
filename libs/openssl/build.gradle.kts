@@ -64,3 +64,7 @@ kotlin {
   }
 }
 
+afterEvaluate {
+  tasks.getByName("xtrasOpensslGenerateCinterops").inputs.file("plugin/src/main/kotlin/org/danbrough/openssl/plugin/openssl.kt")
+}
+

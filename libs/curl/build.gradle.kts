@@ -64,3 +64,8 @@ kotlin {
   }
 }
 
+
+afterEvaluate {
+  tasks.getByName("xtrasCurlGenerateCinterops").inputs.file("plugin/src/main/kotlin/org/danbrough/curl/plugin/curl.kt")
+}
+

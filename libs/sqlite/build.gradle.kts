@@ -63,3 +63,6 @@ kotlin {
   }
 }
 
+afterEvaluate {
+  tasks.getByName("xtrasSqliteGenerateCinterops").inputs.file("plugin/src/main/kotlin/org/danbrough/sqlite/plugin/sqlite.kt")
+}

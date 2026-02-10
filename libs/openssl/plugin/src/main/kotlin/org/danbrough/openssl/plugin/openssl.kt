@@ -4,6 +4,7 @@ import org.danbrough.xtras.ScriptEnvironment
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.XtrasPlugin
 import org.danbrough.xtras.androidEnvironment
+import org.danbrough.xtras.environmentApple
 import org.danbrough.xtras.git.git
 import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.tasks.buildScript
@@ -16,7 +17,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import org.danbrough.xtras.environmentApple
 
 
 class OpenSSLPlugin : Plugin<Project> {
@@ -54,7 +54,7 @@ private fun Project.registerOpensslLibrary() {
           """
             #include<stdio.h>
             void testFunction(){
-              printf("Test Function Works!!!\n");
+              printf("Test Openssl Function Works!!!\n");
             }
           """.trimIndent()
         )
