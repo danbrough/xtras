@@ -16,6 +16,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import org.danbrough.xtras.environmentApple
 
 
 class OpenSSLPlugin : Plugin<Project> {
@@ -82,7 +83,14 @@ private fun Project.registerOpensslLibrary() {
               append(it)
             }
           }
-        } else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+        } else if (konanTarget.family == Family.OSX) environment(
+
+          xtras.environment.environmentApple(
+            env,
+            target = konanTarget
+          )
+        )
+        else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
       }
 
       script {
