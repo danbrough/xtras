@@ -5,6 +5,7 @@ import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.androidEnvironment
 import org.danbrough.xtras.environmentApple
 import org.danbrough.xtras.git.git
+import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.tasks.buildScript
 import org.danbrough.xtras.tasks.cinterops
@@ -14,6 +15,7 @@ import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 
 class CurlPlugin : Plugin<Project> {
@@ -29,14 +31,14 @@ private fun Project.registerCurlLibrary() {
         println(
           """
         #staticLibraries =  libcrypto.a libssl.a
-        #headerFilter = openssl/**
-        headers = sqlite3.h
+        #headerFilter = curl/**
+        headers = curl/curl.h
         excludeDependentModules = true
-        linkerOpts.linux = -ldl -lc -lm -lsqlite3 
-        linkerOpts.android = -ldl -lc -lm -lsqlite3
-        linkerOpts.macos = -ldl -lc -lm -lsqlite3
-        linkerOpts.ios = -ldl -lc -lm -lsqlite3
-        linkerOpts.mingw = -ldl -lc -lm -lsqlite3
+        linkerOpts.linux = -ldl -lc -lm -lcurl 
+        linkerOpts.android = -ldl -lc -lm -lcurl
+        linkerOpts.macos = -ldl -lc -lm -lcurl
+        linkerOpts.ios = -ldl -lc -lm -lcurl
+        linkerOpts.mingw = -ldl -lc -lm -lcurl
         compilerOpts.android = -D__ANDROID_API__=${xtras.android.sdkVersion.get()}  
         compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
         #compilerOpts = -static
@@ -89,15 +91,20 @@ private fun Project.registerCurlLibrary() {
       }
 
       script {
-        xInfo("openssl: writing taskConfigureSource script..")
+
+        xInfo("curl: writing taskConfigureSource script..")
         println("""echo running configure at `date` ..""")
         println("if [ ! -f configure ]; then (autoreconf -fiv || exit 1); fi")
         println("if [ ! -f Makefile ]; then")
-        println("./configure --prefix=\"${outputDirectory.get()}\" \\")
+        println("./configure --prefix=\"${outputDirectory.get()}\" --host=${konanTarget.hostTriplet} \\")
         //println("--disable-tcl --disable-static --disable-readline")
-        println("--with-openssl")/*println("./Configure ${konanTarget.opensslPlatform} \\")
-        if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
-        println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")*/
+        if (konanTarget == KonanTarget.LINUX_X64)
+          println("--with-openssl=/files/cache/xtras/lib/openssl_linuxX64_3.6.1 \\")
+        else if (konanTarget == KonanTarget.LINUX_ARM64)
+          println("--with-openssl=/files/cache/xtras/lib/openssl_linuxArm64_3.6.1 \\")
+        println("--without-libpsl ")
+        //if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
+        //println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")
         println("fi || exit 1")
 
         println("echo source configured .. building in 2")

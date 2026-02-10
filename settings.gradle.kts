@@ -32,7 +32,7 @@ val pluginOnly: String? by settings
 
 val libs = listOf(
   "openssl",
-  //"curl",
+  "curl",
   "sqlite",
 )
 

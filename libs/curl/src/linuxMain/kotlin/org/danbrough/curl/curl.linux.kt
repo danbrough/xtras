@@ -1,4 +1,4 @@
-package org.danbrough.sodium
+package org.danbrough.curl
 
 fun testLinux() {
 

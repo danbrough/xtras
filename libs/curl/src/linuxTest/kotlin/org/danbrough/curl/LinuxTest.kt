@@ -1,6 +1,6 @@
-package org.danbrough.sqlite
+package org.danbrough.curl
 
-import org.danbrough.sqlite.cinterops.testFunction
+import org.danbrough.curl.cinterops.testFunction
 import kotlin.test.Test
 
 class LinuxTest {

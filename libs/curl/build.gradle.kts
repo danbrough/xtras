@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
+  //id("org.danbrough.openssl")
   id("org.danbrough.curl")
 }
 
@@ -20,6 +21,7 @@ kotlin {
   // androidNativeX64()
   if (HostManager.hostIsMac) {
     macosX64()
+    macosArm64()
   }
 }
 
