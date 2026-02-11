@@ -21,7 +21,7 @@ kotlin = "2.3.10"
 ##  ⬆ = "2.3.20-Beta2"
 
 
-xtras-support = "0.0.1-beta01"
+xtras-support = "0.0.1-beta03"
 xtras-plugin = "0.0.2-alpha05"
 
 dokka = "2.1.0"
@@ -55,5 +55,5 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple"
 slf4j-android = { module = "org.slf4j:slf4j-android", version = "1.7.36" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
 klog-core = { module = "org.danbrough.klog:core", version.ref = "klog" }
-xtras-support = { module = "org.danbrough.xtras:support" }
-xtras-support-versioned = { module = "org.danbrough.xtras:support",version.ref = "xtras-support" }
+
+xtras-support = { module = "org.danbrough:support",version.ref = "xtras-support" }

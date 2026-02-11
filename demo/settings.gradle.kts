@@ -9,17 +9,18 @@ pluginManagement {
 
 
 dependencyResolutionManagement {
+  @Suppress("UnstableApiUsage")
   repositories {
     maven("https://maven.danbrough.org")
     //maven("https://s01.oss.sonatype.org/content/groups/staging")
     google()
     mavenCentral()
   }
-/*  versionCatalogs {
-    create("libs") {
-      from(files("../gradle/libs.versions.toml"))
-    }
-  }*/
+  /*  versionCatalogs {
+      create("libs") {
+        from(files("../gradle/libs.versions.toml"))
+      }
+    }*/
 }
 
 

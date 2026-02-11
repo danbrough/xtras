@@ -1,6 +1,5 @@
-
-
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 
 
 plugins {
@@ -9,29 +8,27 @@ plugins {
   alias(libs.plugins.xtras)
 }
 
+
 repositories {
-  //maven("https://maven.danbrough.org")
-  maven("https://s01.oss.sonatype.org/content/groups/staging")
+  maven("https://maven.danbrough.org")
+  //maven("https://s01.oss.sonatype.org/content/groups/staging")
+  google()
   mavenCentral()
-  //maven(xtrasMavenDir)
 }
-
-
-
 
 kotlin {
 
-
   linuxX64()
-
-  macosX64()
-  macosArm64()
-
+  linuxArm64()
+  if (HostManager.hostIsMac) {
+    macosX64()
+    macosArm64()
+  }
 
   sourceSets {
     commonMain {
       dependencies {
-
+        implementation(libs.xtras.support)
       }
     }
 
