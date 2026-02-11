@@ -10,3 +10,6 @@ rsync -avHSx /files/cache/xtras/maven/org/danbrough/xtras/  maven:~/m2/org/danbr
 
 #rsync -avHSx /files/cache/xtras/maven/ maven:~/.m2/
 
+# old publish plugin
+#./gradlew  -PpluginOnly=1 -Psonatype.closeRepository=1 -Ppublish.docs=1 -Ppublish.sign=1 -Psonatype.description="xtras:plugin" \
+#  :plugin:publishAllPublicationsToSonatype || exit 1

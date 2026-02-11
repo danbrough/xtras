@@ -2,6 +2,7 @@
 
 //import org.danbrough.xtras.xtrasAndroidConfig
 import org.danbrough.xtras.xtrasAndroidConfig
+import org.danbrough.xtras.xtrasPublishing
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -9,6 +10,7 @@ import org.jetbrains.kotlin.konan.target.HostManager
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   //alias(libs.plugins.android.library)
+
 }
 
 
@@ -90,6 +92,8 @@ kotlin {
         }*/
   }
 }
+
+xtrasPublishing()
 
 xtrasAndroidConfig()
 

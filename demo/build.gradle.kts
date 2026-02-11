@@ -1,7 +1,5 @@
-import org.danbrough.xtras.XTRAS_PACKAGE
-import org.danbrough.xtras.declareHostTarget
-import org.danbrough.xtras.xtrasDocsDir
-import org.danbrough.xtras.xtrasMavenDir
+
+
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 
@@ -18,10 +16,14 @@ repositories {
   //maven(xtrasMavenDir)
 }
 
+
+
+
 kotlin {
-  applyDefaultHierarchyTemplate()
+
 
   linuxX64()
+
   macosX64()
   macosArm64()
 
@@ -29,8 +31,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        //implementation("org.danbrough.xtras.openssl:openssl:0.0.1-alpha02")
-        implementation("org.danbrough.xtras:support:0.0.1-beta01")
+
       }
     }
 
