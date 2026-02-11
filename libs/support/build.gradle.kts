@@ -20,17 +20,11 @@ java {
   targetCompatibility = JavaConfig.javaVersion
 }*/
 
-val sdkVersion by xtras.android.sdkVersion
 
-tasks.register("thang") {
-  doFirst {
-    println("ANDROID SDK VERSION: $sdkVersion")
-  }
-}
 
 kotlin {
   withSourcesJar(publish = true)
-  applyDefaultHierarchyTemplate()
+
 
   /*  compilerOptions {
       languageVersion = JavaConfig.kotlinLanguageVersion
@@ -39,6 +33,8 @@ kotlin {
 
   linuxX64()
   linuxArm64()
+  androidNativeX64()
+
   //mingwX64()
 
   if (HostManager.hostIsMac) {

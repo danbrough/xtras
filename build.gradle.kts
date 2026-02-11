@@ -1,5 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.danbrough.xtras.xWarn
 import org.danbrough.xtras.xtrasMavenDir
 
 
@@ -16,35 +17,23 @@ plugins {
 }
 
 afterEvaluate {
-  val libName = project.properties["libName"]
-  val mavenDir = project.xtrasMavenDir
+  val libName = project.properties["lib"]
+  
+  if (libName != null) {
+    val mavenDir = project.xtrasMavenDir
 
-
-  val deleteMavenTask = tasks.register("deleteMavenTask") {
-    doFirst {
-      println("DELETEING MAVEN!!!!!!!!!!!!!!!!!")
-      mavenDir.deleteRecursively()
-    }
-  }
-
-  val rsyncMavenTask = tasks.register<Exec>("rsyncMavenTask") {
-    doFirst {
-      println("SYNCING MAVEN!!!!!!!!!!!!!!!!!")
-    }
-    dependsOn(deleteMavenTask)
-    dependsOn(":$libName:publishAllPublicationsToXtrasRepository")
-    workingDir(mavenDir)
-    commandLine("rsync", "-avHSx", "./", "maven:~/m2/")
-  }
-
-
-  tasks.register("publishLib") {
-    doFirst {
-      println("PUBLISHING libName: $libName!!!!!!!!!!!!!!!!!!!!!!!!!")
-      if (libName == null) error("property libName must be provided")
+    val deleteMavenTask = tasks.register("deleteMavenTask") {
+      doFirst {
+        xWarn("deleting $mavenDir!")
+        mavenDir.deleteRecursively()
+      }
     }
 
-    if (libName != null)
-      dependsOn(rsyncMavenTask)
+    tasks.register<Exec>("publishLib") {
+      dependsOn(deleteMavenTask)
+      dependsOn(":$libName:publishAllPublicationsToXtrasRepository")
+      workingDir(mavenDir)
+      commandLine("rsync", "-avHSx", "./", "maven:~/m2/")
+    }
   }
 }
