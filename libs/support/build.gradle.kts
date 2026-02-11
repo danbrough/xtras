@@ -34,8 +34,8 @@ kotlin {
   linuxX64()
   linuxArm64()
   androidNativeX64()
-
-  //mingwX64()
+  androidNativeArm64()
+  mingwX64()
 
   if (HostManager.hostIsMac) {
     macosX64()
