@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import org.danbrough.xtras.xWarn
+import org.danbrough.xtras.xtrasPublishing
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
@@ -68,3 +69,4 @@ afterEvaluate {
   tasks.getByName("xtrasOpensslGenerateCinterops").inputs.file("plugin/src/main/kotlin/org/danbrough/openssl/plugin/openssl.kt")
 }
 
+xtrasPublishing()
