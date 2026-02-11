@@ -58,13 +58,11 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
         onlyIf { toBeBuilt }
 
         doLast {
-          sourceDir.takeIf { it.exists() }?.also {
-            val success = it.deleteRecursively()
-            xInfo("deleted $it success:$success ")
+          sourceDir.takeIf { it.exists() }?.deleteRecursively()?.also {
+            xInfo("deleted $sourceDir success:$it ")
           }
-          installDir.takeIf { it.exists() }?.also {
-            val success = it.deleteRecursively()
-            xInfo("deleted $it success:$success ")
+          installDir.takeIf { it.exists() }?.deleteRecursively()?.also {
+            xInfo("deleted $installDir success:$it ")
           }
         }
       }
@@ -74,10 +72,11 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
           dependsOn(taskNamePackage)
 
         doFirst {
-          if (!libDir.exists()) libDir.mkdirs()
+          if (libDir.exists()) libDir.deleteRecursively()
+          libDir.mkdirs()
           workingDir(libDir)
         }
-        onlyIf { packageFile.exists() }
+
 
         outputs.dir(libDir)
         commandLine("tar", "xvpfz", packageFile)

@@ -74,7 +74,7 @@ abstract class ScriptTask : Exec() {
 
     val env = envFile.get().asFile
     xDebug("$name: writing $env")
-    println("WRRRRRRRRRRRRRRRRRRITING ENV FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
     env.printWriter().use { writer ->
       writer.println("# generated ${Date()} by $name ${target.get().xtrasName}")
       writer.println("#")
@@ -85,7 +85,6 @@ abstract class ScriptTask : Exec() {
 
     val script = scriptFile.get().asFile
     xDebug("$name: writing $script")
-    println("WRRRRRRRRRRRRRRRRRRITING scRIPT FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
     script.printWriter().use { writer ->
       writer.println("#!$bash")

@@ -66,7 +66,7 @@ private fun Project.registerCurlLibrary() {
     buildScript {
       //outputs.file(workingDir.resolve("Makefile"))
       val konanTarget = target.get()
-      outputDirectory.convention(provider { installDirMap(konanTarget) })
+      
 
       doFirst {
         clearEnvironment()
