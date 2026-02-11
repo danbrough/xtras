@@ -61,16 +61,17 @@ private fun Project.registerSqliteLibrary() {
       xTrace("configuring git for $name url:$url commit:$commit")
     }
 
+
     buildScript {
       //outputs.file(workingDir.resolve("Makefile"))
       val konanTarget = target.get()
-      outputDirectory.convention(provider { installDirMap(konanTarget) })
 
-      doFirst {
-        clearEnvironment()
-        defaultEnvironment()
-        val env = ScriptEnvironment(environment)
-        if (konanTarget.family == Family.ANDROID) {
+      //doFirst {
+      clearEnvironment()
+      defaultEnvironment()
+      val env = ScriptEnvironment(environment)
+      when (konanTarget.family) {
+        Family.ANDROID -> {
           environment(xtras.environment.androidEnvironment(env, target = konanTarget))
           env["CFLAGS"] = buildString {
             //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
@@ -79,14 +80,18 @@ private fun Project.registerSqliteLibrary() {
               append(it)
             }
           }
-        } else if (konanTarget.family == Family.OSX) environment(
+        }
+
+        Family.OSX -> environment(
           xtras.environment.environmentApple(
             env,
             target = konanTarget
           )
         )
-        else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+
+        else -> environment(xtras.environment.konanEnvironment(env, target = konanTarget))
       }
+      //}
 
       script {
         xInfo("openssl: writing taskConfigureSource script..")

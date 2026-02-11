@@ -5,6 +5,7 @@ import org.danbrough.xtras.Xtras.Companion.xtras
 import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xtrasName
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -28,11 +29,13 @@ abstract class ScriptTask : Exec() {
   }
 
   @Input
-  val target = project.objects.property<KonanTarget>()
+  val target: Property<KonanTarget> =
+    project.objects.property<KonanTarget>()
 
   @OutputDirectory
   @Optional
-  val outputDirectory = project.objects.property<File>()
+  val outputDirectory: Property<File> =
+    project.objects.property<File>()
 
   @OutputFile
   @Optional
@@ -41,17 +44,13 @@ abstract class ScriptTask : Exec() {
 
   @OutputFile
   val scriptFile: RegularFileProperty = project.objects.fileProperty().convention {
-    workingDir.resolve("xtras_${name}_${target.get().xtrasName}.sh").also {
-      if (!it.exists()) it.createNewFile()
-    }
+    File(workingDir, ("xtras_${name}_${target.get().xtrasName}.sh"))
   }
 
   @OutputFile
   val envFile: RegularFileProperty = project.objects.fileProperty().convention {
     scriptFile.get().asFile.let { script ->
-      script.toPath().resolveSibling(script.absolutePath.replace(".sh", "_env.sh")).toFile().also {
-        if (!it.exists()) it.createNewFile()
-      }
+      script.toPath().resolveSibling(script.absolutePath.replace(".sh", "_env.sh")).toFile()
     }
   }
 
@@ -68,11 +67,14 @@ abstract class ScriptTask : Exec() {
       envBlock = block
     }*/
 
+  private val bash = project.xtras.binaries.bash.get()
+
   @TaskAction
   fun run() {
 
     val env = envFile.get().asFile
     xDebug("$name: writing $env")
+    println("WRRRRRRRRRRRRRRRRRRITING ENV FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     env.printWriter().use { writer ->
       writer.println("# generated ${Date()} by $name ${target.get().xtrasName}")
       writer.println("#")
@@ -83,26 +85,29 @@ abstract class ScriptTask : Exec() {
 
     val script = scriptFile.get().asFile
     xDebug("$name: writing $script")
+    println("WRRRRRRRRRRRRRRRRRRITING scRIPT FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
     script.printWriter().use { writer ->
-      writer.println("#!${project.xtras.binaries.bash.get()}")
+      writer.println("#!$bash")
       writer.println("# generated ${Date()} by $name ${target.get().xtrasName}")
       writer.println("#")
-      writer.println("""cd "${'$'}(dirname "${'$'}0")"""")
+      writer.println($$"""cd "$(dirname "$0")"""")
       writer.println(". $env")
       writer.println()
       scriptBlock?.invoke(writer)
     }
 
-    commandLine(project.xtras.binaries.bash.get(), scriptFile.get().asFile)
+    commandLine(bash, scriptFile.asFile.get())
     xDebug("$name: running ${commandLine.joinToString(" ")}")
   }
 
   fun clearEnvironment(): ScriptEnvironment = environment.apply { clear() }
 
+  private val pathDefault = project.xtras.environment.pathDefault.get()
+
   @Suppress("SpellCheckingInspection")
   fun defaultEnvironment(): ScriptEnvironment = environment.apply {
-    put("PATH", project.xtras.environment.pathDefault.get())
+    put("PATH", pathDefault)
     put("MAKEFLAGS", "-j${Runtime.getRuntime().availableProcessors()}")
     put("MAKEOPTS", "-j${Runtime.getRuntime().availableProcessors()}")
   }

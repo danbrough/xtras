@@ -24,36 +24,45 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
     buildTargets.get().forEach { target ->
       val taskNameBuild = taskNameBuild(target)
       val taskNamePackage = taskNamePackage(target)
+      val sourceDir = sourcesDirMap(target)
+      val toBeBuilt = buildEnabled.get().invoke(target)
+      val packageFile = packageFileMap.invoke(target)
+      val installDir = installDirMap(target)
+      val libDir = libDirMap(target)
+
+      tasks.register<ScriptTask>(taskNameBuild) {
+        dependsOn(taskNameSourceExtract(target))
 
 
-      val scriptTaskProvider = tasks.register<ScriptTask>(taskNameBuild) {
-        dependsOn(this@buildScript.taskNameSourceExtract(target))
-        this.target.set(target)
-        workingDir = sourcesDirMap(target)
-        onlyIf { buildEnabled.get().invoke(target) }
+        this@register.target.set(target)
+        outputDirectory.set(installDir)
+        workingDir = sourceDir
 
-        //onlyIf { !packageFile.exists() }
+
+        onlyIf { toBeBuilt }
+
         description = "Builds ${this@buildScript.name} for ${target.xtrasName}"
         config()
       }
 
-
       tasks.register<Exec>(taskNamePackage) {
         dependsOn(taskNameBuild)
-
-        val packageFile = packageFileMap.invoke(target)
         outputs.file(packageFile)
-        onlyIf { !packageFile.exists() }
+        workingDir = installDir
 
         doFirst {
-          workingDir = scriptTaskProvider.get().outputDirectory.get()
-          commandLine(
-            "tar", "cvpfz", packageFile, "--exclude=**share", "--exclude=**pkgconfig", "./"
-          )
+          xInfo("packaging $name installDir: $workingDir")
         }
 
+        commandLine("tar", "cvpfz", packageFile, "--exclude=**share", "--exclude=**pkgconfig", "./")
+        onlyIf { toBeBuilt }
+
         doLast {
-          sourcesDirMap(target).also {
+          sourceDir.takeIf { it.exists() }?.also {
+            val success = it.deleteRecursively()
+            xInfo("deleted $it success:$success ")
+          }
+          installDir.takeIf { it.exists() }?.also {
             val success = it.deleteRecursively()
             xInfo("deleted $it success:$success ")
           }
@@ -61,11 +70,15 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
       }
 
       tasks.register<Exec>(taskNamePackageExtract(target)) {
-        dependsOn(taskNamePackage)
-        val packageFile = packageFileMap.invoke(target)
+        if (!packageFile.exists())
+          dependsOn(taskNamePackage)
+
+        doFirst {
+          if (!libDir.exists()) libDir.mkdirs()
+          workingDir(libDir)
+        }
         onlyIf { packageFile.exists() }
-        val libDir = libDirMap(target)
-        workingDir(libDir)
+
         outputs.dir(libDir)
         commandLine("tar", "xvpfz", packageFile)
       }
