@@ -32,6 +32,7 @@ logback-classic = "1.5.29"
 
 kotlinx-coroutines = "1.10.1"
 klog = "0.0.4"
+
 kotlinx-datetime = "0.6.2"
 
 [libraries]
@@ -56,4 +57,4 @@ slf4j-android = { module = "org.slf4j:slf4j-android", version = "1.7.36" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
 klog-core = { module = "org.danbrough.klog:core", version.ref = "klog" }
 
-xtras-support = { module = "org.danbrough:support",version.ref = "xtras-support" }
+xtras-support = { module = "org.danbrough.xtras:support",version.ref = "xtras-support" }
