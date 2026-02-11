@@ -34,7 +34,7 @@ xtras-publish = "0.0.1-beta02"
 xtras-openssl = "0.0.1-alpha01"
 xtras-mqtt = "0.0.1-alpha01"
 xtras-support = "0.0.1-beta01"
-xtras-plugin = "0.0.2-alpha04"
+xtras-plugin = "0.0.2-alpha05"
 #xtras-core = "0.0.1-beta01"
 
 dokka = "2.1.0"
