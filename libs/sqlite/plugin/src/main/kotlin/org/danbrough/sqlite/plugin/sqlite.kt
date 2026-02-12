@@ -23,6 +23,9 @@ class SQLitePlugin : Plugin<Project> {
 }
 
 private fun Project.registerSqliteLibrary() {
+  val androidSdkVersion = xtras.android.sdkVersion.get()
+  val xtrasEnv = xtras.environment
+
   xtrasRegisterLibrary<XtrasLibrary>("sqlite") {
     cinterops {
       declaration {
@@ -37,7 +40,7 @@ private fun Project.registerSqliteLibrary() {
         linkerOpts.macos = -ldl -lc -lm -lsqlite3
         linkerOpts.ios = -ldl -lc -lm -lsqlite3
         linkerOpts.mingw = -ldl -lc -lm -lsqlite3
-        compilerOpts.android = -D__ANDROID_API__=${xtras.android.sdkVersion.get()}  
+        compilerOpts.android = -D__ANDROID_API__=$androidSdkVersion  
         compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
         #compilerOpts = -static
        
@@ -72,7 +75,7 @@ private fun Project.registerSqliteLibrary() {
       val env = ScriptEnvironment(environment)
       when (konanTarget.family) {
         Family.ANDROID -> {
-          environment(xtras.environment.androidEnvironment(env, target = konanTarget))
+          environment(xtrasEnv.androidEnvironment(env, target = konanTarget))
           env["CFLAGS"] = buildString {
             //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
             append("-Wno-macro-redefined ")
@@ -83,13 +86,13 @@ private fun Project.registerSqliteLibrary() {
         }
 
         Family.OSX -> environment(
-          xtras.environment.environmentApple(
+          xtrasEnv.environmentApple(
             env,
             target = konanTarget
           )
         )
 
-        else -> environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+        else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
       }
       //}
 

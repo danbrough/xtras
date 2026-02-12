@@ -17,6 +17,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import org.danbrough.xtras.Xtras.Companion.xtras
 
 
 class OpenSSLPlugin : Plugin<Project> {
@@ -27,6 +28,9 @@ class OpenSSLPlugin : Plugin<Project> {
 
 private fun Project.registerOpensslLibrary() {
   println("registerOpensslLibrary: rootProject: ${rootProject.name} - xtras: ${rootProject.extensions.findByType<XtrasPlugin>()}")
+  val xtrasEnv = xtras.environment
+  val androidSdkVersion = xtras.android.sdkVersion.get()
+
   xtrasRegisterLibrary<XtrasLibrary>("openssl") {
     cinterops {
       declaration {
@@ -41,7 +45,7 @@ private fun Project.registerOpensslLibrary() {
         linkerOpts.macos = -ldl -lc -lm -lssl -lcrypto
         linkerOpts.ios = -ldl -lc -lm -lssl -lcrypto
         linkerOpts.mingw = -lm -lssl -lcrypto
-        compilerOpts.android = -D__ANDROID_API__=${xtras.android.sdkVersion.get()}  
+        compilerOpts.android = -D__ANDROID_API__=$androidSdkVersion
         compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
         #compilerOpts = -static
        
@@ -70,35 +74,34 @@ private fun Project.registerOpensslLibrary() {
       val konanTarget = target.get()
       outputDirectory.convention(provider { installDirMap(konanTarget) })
 
-      doFirst {
-        clearEnvironment()
-        defaultEnvironment()
-        val env = ScriptEnvironment(environment)
-        if (konanTarget.family == Family.ANDROID) {
-          environment(xtras.environment.androidEnvironment(env, target = konanTarget))
-          env["CFLAGS"] = buildString {
-            //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
-            append("-Wno-macro-redefined ")
-            env["CFLAGS"]?.also {
-              append(it)
-            }
-          }
-        } else if (konanTarget.family == Family.OSX) environment(
 
-          xtras.environment.environmentApple(
-            env,
-            target = konanTarget
-          )
+      clearEnvironment()
+      defaultEnvironment()
+      val env = ScriptEnvironment(environment)
+      if (konanTarget.family == Family.ANDROID) {
+        environment(xtrasEnv.androidEnvironment(env, target = konanTarget))
+        env["CFLAGS"] = buildString {
+          //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
+          append("-Wno-macro-redefined ")
+          env["CFLAGS"]?.also {
+            append(it)
+          }
+        }
+      } else if (konanTarget.family == Family.OSX) environment(
+
+        xtrasEnv.environmentApple(
+          env, target = konanTarget
         )
-        else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
-      }
+      )
+      else environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
+
 
       script {
         xInfo("openssl: writing taskConfigureSource script..")
         println("echo running configure at `date` ..")
         println("if [ ! -f Makefile ]; then")
         println("./Configure ${konanTarget.opensslPlatform} \\")
-        if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
+        if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=$androidSdkVersion \\")
         println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")
         println("fi || exit 1")
 
