@@ -24,6 +24,7 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
     buildTargets.get().forEach { target ->
       val taskNameBuild = taskNameBuild(target)
       val taskNamePackage = taskNamePackage(target)
+      val taskNameSourceExtract = taskNameSourceExtract(target)
       val sourceDir = sourcesDirMap(target)
       val toBeBuilt = buildEnabled.get().invoke(target)
       val packageFile = packageFileMap.invoke(target)
@@ -31,7 +32,7 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
       val libDir = libDirMap(target)
 
       tasks.register<ScriptTask>(taskNameBuild) {
-        dependsOn(taskNameSourceExtract(target))
+        dependsOn(taskNameSourceExtract)
 
 
         this@register.target.set(target)
@@ -39,7 +40,7 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
         workingDir = sourceDir
 
 
-        onlyIf { toBeBuilt }
+        //onlyIf { toBeBuilt }
 
         description = "Builds ${this@buildScript.name} for ${target.xtrasName}"
         config()

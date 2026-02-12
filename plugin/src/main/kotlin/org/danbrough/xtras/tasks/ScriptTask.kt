@@ -29,30 +29,37 @@ abstract class ScriptTask : Exec() {
   }
 
   @Input
-  val target: Property<KonanTarget> =
-    project.objects.property<KonanTarget>()
+  val target: Property<KonanTarget> = project.objects.property<KonanTarget>()
 
   @OutputDirectory
   @Optional
-  val outputDirectory: Property<File> =
-    project.objects.property<File>()
+  val outputDirectory: Property<File> = project.objects.property<File>()
 
-  @OutputFile
-  @Optional
-  val outputFile = project.objects.property<File>()
+  /*
+    @OutputFile
+    @Optional
+    val outputFile = project.objects.property<File>()
 
+  */
 
   @OutputFile
   val scriptFile: RegularFileProperty = project.objects.fileProperty().convention {
-    File(workingDir, ("xtras_${name}_${target.get().xtrasName}.sh"))
+    File(workingDir, ("xtras_${name}.sh"))
   }
+
+
+  /*  @OutputFile
+    val envFile: RegularFileProperty = project.objects.fileProperty().convention {
+      scriptFile.get().asFile.let { script ->
+        script.toPath().resolveSibling(script.absolutePath.replace(".sh", "_env.sh")).toFile()
+      }
+    }*/
 
   @OutputFile
   val envFile: RegularFileProperty = project.objects.fileProperty().convention {
-    scriptFile.get().asFile.let { script ->
-      script.toPath().resolveSibling(script.absolutePath.replace(".sh", "_env.sh")).toFile()
-    }
+    File(workingDir, ("xtras_${name}_env.sh"))
   }
+
 
   private var scriptBlock: (PrintWriter.() -> Unit)? = null
 
@@ -72,10 +79,9 @@ abstract class ScriptTask : Exec() {
   @TaskAction
   fun run() {
 
-    val env = envFile.get().asFile
-    xDebug("$name: writing $env")
+    xDebug("$name: writing $envFile")
 
-    env.printWriter().use { writer ->
+    envFile.get().asFile.printWriter().use { writer ->
       writer.println("# generated ${Date()} by $name ${target.get().xtrasName}")
       writer.println("#")
       environment.forEach { (key, value) ->
@@ -83,20 +89,20 @@ abstract class ScriptTask : Exec() {
       }
     }
 
-    val script = scriptFile.get().asFile
-    xDebug("$name: writing $script")
 
-    script.printWriter().use { writer ->
+    xDebug("$name: writing $scriptFile")
+
+    scriptFile.get().asFile.printWriter().use { writer ->
       writer.println("#!$bash")
       writer.println("# generated ${Date()} by $name ${target.get().xtrasName}")
       writer.println("#")
       writer.println($$"""cd "$(dirname "$0")"""")
-      writer.println(". $env")
+      writer.println(". ${envFile.get().asFile.absolutePath}")
       writer.println()
       scriptBlock?.invoke(writer)
     }
 
-    commandLine(bash, scriptFile.asFile.get())
+    commandLine(bash, scriptFile.get().asFile)
     xDebug("$name: running ${commandLine.joinToString(" ")}")
   }
 

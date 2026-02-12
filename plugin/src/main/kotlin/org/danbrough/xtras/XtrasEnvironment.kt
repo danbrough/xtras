@@ -1,11 +1,12 @@
 package org.danbrough.xtras
 
-import org.danbrough.xtras.Xtras.Companion.xtras
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
-class XtrasEnvironment(val project: Project) {
+class XtrasEnvironment(val xtras: Xtras, project: Project) {
+
+
   companion object {
     private const val XTRAS_ENV = "$XTRAS_EXTN_NAME.env"
   }
@@ -57,7 +58,6 @@ fun XtrasEnvironment.androidEnvironment(
   env: ScriptEnvironment = ScriptEnvironment(),
   target: KonanTarget,
 ): ScriptEnvironment {
-  val xtras = project.xtras
   val ndkDir = xtras.android.ndkDir.get()
 
   env["ANDROID_NDK_ROOT"] = ndkDir
@@ -106,6 +106,7 @@ fun XtrasEnvironment.environmentApple(
 
 
 fun XtrasEnvironment.konanEnvironment(
+  project: Project,
   env: ScriptEnvironment = ScriptEnvironment(),
   target: KonanTarget? = null,
 ): ScriptEnvironment {

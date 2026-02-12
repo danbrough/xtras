@@ -1,6 +1,7 @@
 package org.danbrough.curl.plugin
 
 import org.danbrough.xtras.ScriptEnvironment
+import org.danbrough.xtras.Xtras.Companion.xtras
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.androidEnvironment
 import org.danbrough.xtras.environmentApple
@@ -25,6 +26,9 @@ class CurlPlugin : Plugin<Project> {
 }
 
 private fun Project.registerCurlLibrary() {
+  val sdkVersion = xtras.android.sdkVersion.get()
+  val xtrasEnv = xtras.environment
+
   xtrasRegisterLibrary<XtrasLibrary>("curl") {
     cinterops {
       declaration {
@@ -39,7 +43,7 @@ private fun Project.registerCurlLibrary() {
         linkerOpts.macos = -ldl -lc -lm -lcurl
         linkerOpts.ios = -ldl -lc -lm -lcurl
         linkerOpts.mingw = -ldl -lc -lm -lcurl
-        compilerOpts.android = -D__ANDROID_API__=${xtras.android.sdkVersion.get()}  
+        compilerOpts.android = -D__ANDROID_API__=$sdkVersion  
         compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
         #compilerOpts = -static
        
@@ -64,16 +68,15 @@ private fun Project.registerCurlLibrary() {
     }
 
     buildScript {
-      //outputs.file(workingDir.resolve("Makefile"))
       val konanTarget = target.get()
-      
 
-      doFirst {
-        clearEnvironment()
-        defaultEnvironment()
-        val env = ScriptEnvironment(environment)
-        if (konanTarget.family == Family.ANDROID) {
-          environment(xtras.environment.androidEnvironment(env, target = konanTarget))
+      //doFirst {
+      clearEnvironment()
+      defaultEnvironment()
+      val env = ScriptEnvironment(environment)
+      when (konanTarget.family) {
+        Family.ANDROID -> {
+          environment(xtrasEnv.androidEnvironment(env, target = konanTarget))
           env["CFLAGS"] = buildString {
             //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
             append("-Wno-macro-redefined ")
@@ -81,14 +84,18 @@ private fun Project.registerCurlLibrary() {
               append(it)
             }
           }
-        } else if (konanTarget.family == Family.OSX) environment(
-          xtras.environment.environmentApple(
+        }
+
+        Family.OSX -> environment(
+          xtrasEnv.environmentApple(
             env,
             target = konanTarget
           )
         )
-        else environment(xtras.environment.konanEnvironment(env, target = konanTarget))
+
+        else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
       }
+      //}
 
       script {
 

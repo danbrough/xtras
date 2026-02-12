@@ -31,9 +31,9 @@ includeBuild("plugin")
 val pluginOnly: String? by settings
 
 val libs = listOf(
-  "openssl",
+  //"openssl",
   "curl",
-  "sqlite",
+  //"sqlite",
 )
 
 if (pluginOnly == null) {

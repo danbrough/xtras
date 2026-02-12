@@ -34,7 +34,7 @@ abstract class Xtras @Inject constructor(project: Project) {
 
   fun binaries(action: Action<XtrasBinaries>) = action.invoke(binaries)
 
-  val environment = XtrasEnvironment(project)
+  val environment = XtrasEnvironment(this, project)
 
   fun environment(action: Action<XtrasEnvironment>) = action.invoke(environment)
 

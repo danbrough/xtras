@@ -2,8 +2,10 @@ package org.danbrough.xtras
 
 import org.danbrough.xtras.tasks.CInteropsConfig
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Optional
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
@@ -53,12 +55,12 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
     project.xtrasBuildDir.subPathMap(it)
   }
 
-  val interopsFile = project.objects.fileProperty().convention {
+  val interopsFile: RegularFileProperty = project.objects.fileProperty().convention {
     project.xtrasBuildDir.resolve("interops")
       .resolve("${this@XtrasLibrary.name}_${version.get()}.def")
   }
 
-  val buildEnabled =
+  val buildEnabled: Provider<((KonanTarget) -> Boolean)> =
     project.objects.property<(KonanTarget) -> Boolean>().convention(project.provider {
       { !packageFileMap.invoke(it).exists() }
     })
