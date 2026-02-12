@@ -247,7 +247,6 @@ fun XtrasEnvironment.konanEnvironment(
       }
     }
 
-    HostManager.hostIsMac ->
 
     else -> TODO("Support: ${HostManager.host}")
 
