@@ -6,7 +6,6 @@ cd "$(dirname "$0")"
 
 docker run --rm --privileged -h xtras -u xtras  \
   --mount type=bind,src=$(realpath ../),dst=/home/xtras/src \
-  --mount type=bind,src=$(realpath ../../duckdb/kmp),dst=/home/xtras/kmp \
   --mount type=bind,src=${CACHE},dst=/home/xtras/cache \
   -w /home/xtras/src \
   -it danbrough/xtras  bash

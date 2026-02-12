@@ -2,11 +2,12 @@
 
 cd "$(dirname "$0")"
 
-
-docker run -h xtras --rm -it danbrough/xtras $@
-
-
 exit 0
+
+#docker run -h xtras --rm -it danbrough/xtras $@
+
+
+
 
 export SRCDIR=$(realpath ..)
 #source env.sh
