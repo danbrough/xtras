@@ -2,16 +2,18 @@
 
 pluginManagement {
   repositories {
+    maven("https://maven.danbrough.org")
     mavenCentral()
     google()
     gradlePluginPortal()
-    maven("https://s01.oss.sonatype.org/content/groups/staging/")
+    //maven("https://s01.oss.sonatype.org/content/groups/staging/")
   }
 }
 
 dependencyResolutionManagement {
   repositories {
-    maven("https://s01.oss.sonatype.org/content/groups/staging")
+    maven("https://maven.danbrough.org")
+    //maven("https://s01.oss.sonatype.org/content/groups/staging")
     google()
     mavenCentral()
   }
