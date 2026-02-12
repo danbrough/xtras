@@ -40,7 +40,7 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
         workingDir = sourceDir
 
 
-        //onlyIf { toBeBuilt }
+        onlyIf { toBeBuilt }
 
         description = "Builds ${this@buildScript.name} for ${target.xtrasName}"
         config()

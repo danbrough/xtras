@@ -16,6 +16,7 @@ internal fun XtrasLibrary.registerGitSourceExtractTask(target: KonanTarget): Str
   //val gitConfig = sourceConfig as XtrasLibrary.GitSourceConfig
   val sourcesDir = sourcesDirMap(target)
   val outputFile = sourcesDir.resolve(".xtras_extracted")
+  val toBeBuilt = buildEnabled.get().invoke(target)
 
   project.tasks.register<Exec>(taskName) {
     group = TaskNames.XTRAS_TASK_GROUP
@@ -26,7 +27,7 @@ internal fun XtrasLibrary.registerGitSourceExtractTask(target: KonanTarget): Str
     description = "Download required commits from remote repository to $sourcesDir"
 
     onlyIf {
-      !outputFile.exists()
+      !outputFile.exists() && toBeBuilt
     }
 
     commandLine("git", "clone", cacheDir, sourcesDir)
