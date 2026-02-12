@@ -14,6 +14,7 @@ import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.Family
+import org.danbrough.xtras.Xtras.Companion.xtras
 
 
 class SQLitePlugin : Plugin<Project> {
