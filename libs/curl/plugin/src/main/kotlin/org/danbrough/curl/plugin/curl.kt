@@ -113,7 +113,7 @@ private fun Project.registerCurlLibrary() {
           println("--with-openssl=/Users/dan/workspace/xtras/xtras/lib/openssl_macosX64_3.6.1 \\")
         else if (konanTarget == KonanTarget.MACOS_ARM64)
           println("--with-openssl=/Users/dan/workspace/xtras/xtras/lib/openssl_macosArm64_3.6.1 \\")
-        println("--without-libpsl --without-ldap --without-libidn2")
+        println("--without-libpsl --without-ldap --disable-ldap --without-libidn2")
         //if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
         //println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")
         println("fi || exit 1")
