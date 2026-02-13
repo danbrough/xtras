@@ -5,6 +5,7 @@ import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.taskNameBuild
 import org.danbrough.xtras.taskNamePackage
 import org.danbrough.xtras.taskNamePackageExtract
+import org.danbrough.xtras.taskNamePackageResolve
 import org.danbrough.xtras.taskNameSourceExtract
 import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xtrasName
@@ -69,8 +70,8 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
       }
 
       tasks.register<Exec>(taskNamePackageExtract(target)) {
-        if (!packageFile.exists())
-          dependsOn(taskNamePackage)
+        
+        dependsOn(taskNamePackageResolve(target))
 
         doFirst {
           if (libDir.exists()) libDir.deleteRecursively()

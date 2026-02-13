@@ -23,6 +23,9 @@ private fun XtrasLibrary.registerPackageDownloadTask(target: KonanTarget) {
   val packageFile = packageFileMap(target)
   project.tasks.register(taskNamePackageDownload(target)) {
     group = XTRAS_TASK_GROUP
+    doFirst {
+      xInfo("XtrasLibrary[$name]::registerPackageDownloadTask($target) packageFile: $packageFile exists: ${packageFile.exists()}")
+    }
     onlyIf { !packageFile.exists() }
     actions.add {
       resolveBinariesFromMaven(target)?.also {

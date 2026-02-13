@@ -24,11 +24,13 @@ kotlin {
     iosX64()
     iosSimulatorArm64()
   } else {
+
     linuxX64()
     linuxArm64()
     androidNativeArm64()
     androidNativeX64()
   }
+
 }
 
 xtras {
@@ -37,8 +39,7 @@ xtras {
   }
 }
 
-xtrasTesting {
-}
+xtrasTesting {}
 
 openssl {
   publishBinaries = false

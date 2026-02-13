@@ -166,7 +166,7 @@ private fun XtrasLibrary.registerBinaryPublication(target: KonanTarget) {
 
 
 fun XtrasLibrary.resolveBinariesFromMaven(target: KonanTarget): File? {
-  val mavenID = "$group:${binaryPackageArtifactID(target)}:$version"
+  val mavenID = "${group.get()}:${binaryPackageArtifactID(target)}:${version.get()}"
   xDebug("XtrasLibrary[$name]::resolveBinariesFromMaven():$target $mavenID")
 
   val binariesConfiguration =
@@ -180,6 +180,7 @@ fun XtrasLibrary.resolveBinariesFromMaven(target: KonanTarget): File? {
   project.dependencies {
     binariesConfiguration(mavenID)
   }
+
 
   runCatching {
     return binariesConfiguration.resolve().first().also {
