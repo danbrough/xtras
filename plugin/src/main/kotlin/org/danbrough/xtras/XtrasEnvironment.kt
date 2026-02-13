@@ -93,9 +93,13 @@ fun XtrasEnvironment.environmentApple(
   target: KonanTarget
 ): ScriptEnvironment {
 
+
   if (target != KonanTarget.IOS_X64)
     env["CFLAGS"] =
       "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  else
+    env["CFLAGS"] =
+      "-isysroot Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
 
   val clangArgs =
     "--target=${target.hostTriplet}"
