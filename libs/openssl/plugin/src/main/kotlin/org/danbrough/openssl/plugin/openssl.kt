@@ -104,9 +104,6 @@ private fun Project.registerOpensslLibrary() {
         xInfo("openssl: writing taskConfigureSource script..")
         println("echo running configure at `date` ..")
         println("if [ ! -f Makefile ]; then")
-        when (target.get()){
-          KonanTarget.IOS_SIMULATOR_ARM64
-        }
         println("./Configure ${konanTarget.opensslPlatform} \\")
         if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=$androidSdkVersion \\")
         println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")
