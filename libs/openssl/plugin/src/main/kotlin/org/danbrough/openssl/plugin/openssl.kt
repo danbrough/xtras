@@ -1,6 +1,7 @@
 package org.danbrough.openssl.plugin
 
 import org.danbrough.xtras.ScriptEnvironment
+import org.danbrough.xtras.Xtras.Companion.xtras
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.XtrasPlugin
 import org.danbrough.xtras.androidEnvironment
@@ -17,7 +18,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import org.danbrough.xtras.Xtras.Companion.xtras
 
 
 class OpenSSLPlugin : Plugin<Project> {
@@ -78,22 +78,27 @@ private fun Project.registerOpensslLibrary() {
       clearEnvironment()
       defaultEnvironment()
       val env = ScriptEnvironment(environment)
-      if (konanTarget.family == Family.ANDROID) {
-        environment(xtrasEnv.androidEnvironment(env, target = konanTarget))
-        env["CFLAGS"] = buildString {
-          //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
-          append("-Wno-macro-redefined ")
-          env["CFLAGS"]?.also {
-            append(it)
+      when (konanTarget.family) {
+        Family.ANDROID -> {
+          environment(xtrasEnv.androidEnvironment(env, target = konanTarget))
+          env["CFLAGS"] = buildString {
+            //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
+            append("-Wno-macro-redefined ")
+            env["CFLAGS"]?.also {
+              append(it)
+            }
           }
         }
-      } else if (konanTarget.family == Family.OSX) environment(
 
-        xtrasEnv.environmentApple(
-          env, target = konanTarget
+        Family.OSX -> environment(
+
+          xtrasEnv.environmentApple(
+            env, target = konanTarget
+          )
         )
-      )
-      else environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
+
+        else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
+      }
 
 
       script {
