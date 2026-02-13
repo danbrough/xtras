@@ -138,7 +138,7 @@ val KonanTarget.opensslPlatform: String
     //KonanTarget.IOS_ARM32 -> "ios-cross" //ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun iphoneos-cross
 
     KonanTarget.IOS_ARM64 -> "ios64-cross" //ios-cross ios-xcrun
-    //KonanTarget.IOS_SIMULATOR_ARM64 -> "iossimulator-xcrun"
+    KonanTarget.IOS_SIMULATOR_ARM64 -> "iossimulator-xcrun"
     KonanTarget.IOS_X64 -> "ios64-cross"
 
     else -> throw Error("$this not supported for openssl")
