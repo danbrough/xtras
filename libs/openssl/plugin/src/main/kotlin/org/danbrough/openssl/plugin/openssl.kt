@@ -5,7 +5,6 @@ import org.danbrough.xtras.Xtras.Companion.xtras
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.XtrasPlugin
 import org.danbrough.xtras.androidEnvironment
-import org.danbrough.xtras.environmentApple
 import org.danbrough.xtras.git.git
 import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.tasks.buildScript
@@ -91,11 +90,11 @@ private fun Project.registerOpensslLibrary() {
           }
         }
 
-        Family.OSX, Family.IOS -> environment(
+        Family.OSX, Family.IOS -> {} /*environment(
           xtrasEnv.environmentApple(
             env, target = konanTarget
           )
-        )
+        )*/
 
         else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
       }
