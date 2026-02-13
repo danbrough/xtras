@@ -138,7 +138,7 @@ val KonanTarget.opensslPlatform: String
     KonanTarget.MACOS_ARM64 -> "darwin64-arm64-cc"
     //KonanTarget.IOS_ARM32 -> "ios-cross" //ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun iphoneos-cross
 
-    KonanTarget.IOS_ARM64 -> "ios64-cross" //ios-cross ios-xcrun
+    KonanTarget.IOS_ARM64 -> "ios64-xcrun" //ios64-cross ios-xcrun
     KonanTarget.IOS_SIMULATOR_ARM64 -> "iossimulator-xcrun"
     KonanTarget.IOS_X64 -> "ios64-cross"
 
