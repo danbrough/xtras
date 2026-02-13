@@ -90,8 +90,7 @@ private fun Project.registerOpensslLibrary() {
           }
         }
 
-        Family.OSX -> environment(
-
+        Family.OSX, Family.IOS -> environment(
           xtrasEnv.environmentApple(
             env, target = konanTarget
           )
