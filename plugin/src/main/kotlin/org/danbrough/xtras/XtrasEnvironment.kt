@@ -1,7 +1,6 @@
 package org.danbrough.xtras
 
 import org.gradle.api.Project
-import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -95,12 +94,15 @@ fun XtrasEnvironment.environmentApple(
 ): ScriptEnvironment {
 
 
-  if (target.family != Family.IOS)
-    env["CFLAGS"] =
-      "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
-  else
-    env["CFLAGS"] =
-      "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+  val sdk = when (target) {
+    KonanTarget.IOS_ARM64 -> "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+    KonanTarget.IOS_SIMULATOR_ARM64, KonanTarget.IOS_X64 -> "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk"
+    KonanTarget.MACOS_X64, KonanTarget.MACOS_ARM64 -> "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+    else -> error("Unhandled apple target: $target")
+  }
+
+  env["CFLAGS"] = "-isysroot $sdk"
+
 
   val clangArgs =
     "--target=${target.hostTriplet}"
