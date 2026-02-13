@@ -100,7 +100,7 @@ fun XtrasEnvironment.environmentApple(
       "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
   else
     env["CFLAGS"] =
-      "-isysroot Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+      "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
 
   val clangArgs =
     "--target=${target.hostTriplet}"
