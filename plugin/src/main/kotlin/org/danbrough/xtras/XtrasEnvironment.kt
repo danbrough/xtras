@@ -1,6 +1,7 @@
 package org.danbrough.xtras
 
 import org.gradle.api.Project
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -94,7 +95,7 @@ fun XtrasEnvironment.environmentApple(
 ): ScriptEnvironment {
 
 
-  if (target != KonanTarget.IOS_X64)
+  if (target.family != Family.IOS)
     env["CFLAGS"] =
       "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
   else
