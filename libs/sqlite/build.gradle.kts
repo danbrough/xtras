@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import org.danbrough.xtras.xWarn
+import org.danbrough.xtras.xtrasPublishing
 import org.danbrough.xtras.xtrasTesting
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
@@ -66,3 +67,5 @@ kotlin {
 afterEvaluate {
   tasks.getByName("xtrasSqliteGenerateCinterops").inputs.file("plugin/src/main/kotlin/org/danbrough/sqlite/plugin/sqlite.kt")
 }
+
+xtrasPublishing()
