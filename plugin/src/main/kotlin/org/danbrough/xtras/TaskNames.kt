@@ -12,6 +12,7 @@ object TaskNames {
 
   const val ACTION_DOWNLOAD = "download"
   const val ACTION_EXTRACT = "extract"
+  const val ACTION_RESOLVE = "resolve"
 
   //const val ACTION_PREPARE = "prepare"
   //const val ACTION_CONFIGURE = "configure"
@@ -47,3 +48,10 @@ internal fun XtrasLibrary.taskNamePackage(konanTarget: KonanTarget) =
 
 internal fun XtrasLibrary.taskNamePackageExtract(konanTarget: KonanTarget) =
   create(TaskNames.GROUP_PACKAGE, TaskNames.ACTION_EXTRACT, name, konanTarget)
+
+
+internal fun XtrasLibrary.taskNamePackageResolve(konanTarget: KonanTarget) =
+  create(TaskNames.GROUP_PACKAGE, TaskNames.ACTION_RESOLVE, name, konanTarget)
+
+internal fun XtrasLibrary.taskNamePackageDownload(konanTarget: KonanTarget) =
+  create(TaskNames.GROUP_PACKAGE, TaskNames.ACTION_DOWNLOAD, name, konanTarget)

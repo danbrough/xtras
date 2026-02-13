@@ -12,6 +12,7 @@ import org.danbrough.xtras.tasks.buildScript
 import org.danbrough.xtras.tasks.cinterops
 import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xTrace
+import org.danbrough.xtras.xtrasKonanDir
 import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -41,11 +42,11 @@ private fun Project.registerOpensslLibrary() {
         headers = openssl/ssl.h openssl/err.h openssl/bio.h openssl/evp.h
         excludeDependentModules = true
         linkerOpts.linux = -ldl -lc -lm -lssl -lcrypto 
-        linkerOpts.android = -ldl -lc -lm -lssl -lcrypto
+        linkerOpts.android = -ldl -lc -lm -lssl -lcrypto 
         linkerOpts.macos = -ldl -lc -lm -lssl -lcrypto
         linkerOpts.ios = -ldl -lc -lm -lssl -lcrypto
         linkerOpts.mingw = -lm -lssl -lcrypto
-        compilerOpts.android = -D__ANDROID_API__=$androidSdkVersion
+        compilerOpts.android = -D__ANDROID_API__=$androidSdkVersion -I${xtrasKonanDir.resolve("dependencies/target-toolchain-2-linux-android_ndk/sysroot/usr/include").absolutePath}
         compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
         #compilerOpts = -static
        

@@ -9,11 +9,11 @@ import javax.inject.Inject
 
 private val LogLevel.color: Int
   get() = when (this) {
+    LogLevel.QUIET -> 35
     LogLevel.DEBUG -> 35
     LogLevel.INFO -> 36
     LogLevel.LIFECYCLE -> 36
-    LogLevel.WARN -> 32
-    LogLevel.QUIET -> 33
+    LogLevel.WARN -> 33
     LogLevel.ERROR -> 31
   }
 

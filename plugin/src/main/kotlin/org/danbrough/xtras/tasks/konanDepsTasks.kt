@@ -1,20 +1,12 @@
 package org.danbrough.xtras.tasks
 
 
-import org.danbrough.xtras.TaskNames
-import org.danbrough.xtras.xtrasName
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.tasks.GradleBuild
-import org.gradle.internal.extensions.stdlib.capitalized
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
-import org.jetbrains.kotlin.konan.target.KonanTarget
-import org.jetbrains.kotlin.konan.target.presetName
-import java.io.File
 
+/*
 
 private val KonanTarget.konanDepsTaskName: String
   get() = "xtrasKonanDeps${xtrasName.capitalized()}"
@@ -25,7 +17,7 @@ fun Task.xtrasKonanDeps(target: KonanTarget) {
     project.registerKonanDepsTask(target)
 
   dependsOn(":$depsTaskName")
-}
+}*/
 
 internal fun Project.registerKonanDepsTasks() {
   val kotlinDownloadTaskName = "downloadKotlinNativeDistribution"
@@ -44,6 +36,7 @@ internal fun Project.registerKonanDepsTasks() {
   }
 }
 
+/*
 private fun Project.registerKonanDepsTask(target: KonanTarget) {
 
   val generateDepsProjectTaskName =
@@ -125,3 +118,4 @@ private fun Project.registerKonanDepsTask(target: KonanTarget) {
   }
 }
 
+*/

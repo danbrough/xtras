@@ -3,6 +3,7 @@ package org.danbrough.xtras.tasks
 import org.danbrough.xtras.TaskNames
 import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.taskNamePackageExtract
 import org.danbrough.xtras.xDebug
 import org.danbrough.xtras.xInfo
 import org.gradle.api.Action
@@ -122,12 +123,13 @@ private fun XtrasLibrary.configureCinterops(config: CInteropsConfig) {
       group = TaskNames.XTRAS_TASK_GROUP
       description = "Extract all the dependent binary packages"
       dependsOn(targets.map {
-        TaskNames.create(
+        taskNamePackageExtract(it)
+        /*TaskNames.create(
           TaskNames.GROUP_PACKAGE,
           TaskNames.ACTION_EXTRACT,
           libraryName = this@configureCinterops.name,
           it
-        )
+        )*/
       })
     }
 

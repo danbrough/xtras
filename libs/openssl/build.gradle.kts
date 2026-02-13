@@ -15,16 +15,18 @@ plugins {
 group = "org.danbrough.openssl"
 
 kotlin {
-  linuxX64()
-  linuxArm64()
-  //androidNativeArm64()
-  //androidNativeX64()
+
 
   if (HostManager.hostIsMac) {
     macosX64()
     macosArm64()
     iosArm64()
-    iosSimulatorArm64()
+    //iosSimulatorArm64()
+  } else {
+    linuxX64()
+    linuxArm64()
+    androidNativeArm64()
+    androidNativeX64()
   }
 }
 
@@ -38,6 +40,7 @@ xtrasTesting {
 }
 
 openssl {
+  publishBinaries = false
 }
 
 tasks.register("test") {

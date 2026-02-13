@@ -1,13 +1,17 @@
 package org.danbrough.xtras
 
 import org.danbrough.xtras.tasks.CInteropsConfig
+import org.danbrough.xtras.tasks.registerPackageResolveTask
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Optional
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
@@ -92,10 +96,20 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
       } else emptyList()
     })
 
+
+  @XtrasDSL
+  var binaryPackageArtifactID: (KonanTarget) -> String = {
+    "binaries-${name}-${it.kotlinTargetName.lowercase()}"
+  }
+
   @Optional
   internal val cinterops: Property<CInteropsConfig> = project.objects.property()
 
+
+  val publishBinaries: Property<Boolean> = project.xtrasProperty("$name.publishBinaries", true)
+
   override fun toString(): String = "$name:${version.get()}"
+
 }
 
 
@@ -107,22 +121,85 @@ inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
 fun <T : XtrasLibrary> Project.xtrasRegisterLibrary(
   name: String, block: T.() -> Unit = {}, type: KClass<T>
 ): T {
-  rootProject.extensions.findByName(XTRAS_EXTN_NAME) ?: run {
-    pluginManager.apply(XtrasPlugin::class.java)
+  rootProject.extensions.findByName(XTRAS_EXTN_NAME) ?: pluginManager.apply(XtrasPlugin::class.java)
+
+  val xtras = rootProject.extensions.findByType<Xtras>()
+    ?: error("Expecting Xtras extension to have been created")
+
+  return extensions.create(name, type, xtras, this, name).apply(block).also {
+    it.xtrasConfigureLibrary(xtras)
   }
 
-  val xtras =
-    rootProject.extensions.findByType<Xtras>()
-      ?: error("Expecting Xtras extension to have been created")
+}
 
-  return extensions.create(name, type, xtras, this, name).apply(block)/*.also {
-  xtrasConfigureLibrary(xtras, it)
-}*/
+
+internal fun XtrasLibrary.xtrasConfigureLibrary(xtras: Xtras) {
+
+  xInfo("xtrasConfigureLibrary(): $name xtras:$xtras publishBinaries: ${publishBinaries.get()}")
+  if (publishBinaries.get()) {
+    publishBinaries()
+  }
 
 }
 
-/*
-internal fun Project.xtrasConfigureLibrary(xtras: Xtras, library: XtrasLibrary) {
-  xInfo("xtrasConfigureLibrary(): $library xtras:$xtras")
+
+private fun XtrasLibrary.registerBinaryPublication(target: KonanTarget) {
+  val publishing = project.extensions.findByType<PublishingExtension>() ?: return
+
+  val resolvePackageTaskName = TaskNames.create(TaskNames.GROUP_PACKAGE, "resolve", name, target)
+  val artifactTask = project.tasks.getByName(resolvePackageTaskName)
+  val publicationName = "${name}Binaries${target.kotlinTargetName.capitalized()}"
+
+  publishing.publications.create<MavenPublication>(publicationName) {
+    artifactId = binaryPackageArtifactID(target)
+    version = this@registerBinaryPublication.version.get()
+    groupId = this@registerBinaryPublication.group.get()
+
+    val file = artifactTask.outputs.files.first()
+    //project.logError("registerBinaryPublication for file: ${file.absolutePath}")
+    artifact(file).builtBy(artifactTask)
+    pom {
+      packaging = "tgz"
+    }
+  }
 }
-*/
+
+
+fun XtrasLibrary.resolveBinariesFromMaven(target: KonanTarget): File? {
+  val mavenID = "$group:${binaryPackageArtifactID(target)}:$version"
+  xDebug("XtrasLibrary[$name]::resolveBinariesFromMaven():$target $mavenID")
+
+  val binariesConfiguration =
+    project.configurations.create("configuration${this@resolveBinariesFromMaven.name.capitalized()}Binaries${target.kotlinTargetName.capitalized()}") {
+/*      isVisible = false
+      isTransitive = false
+      isCanBeConsumed = true
+      isCanBeResolved = true*/
+    }
+
+  project.dependencies {
+    binariesConfiguration(mavenID)
+  }
+
+  runCatching {
+    return binariesConfiguration.resolve().first().also {
+      xDebug("XtrasLibrary[$name]::resolveBinariesFromMaven(): $target found ${it.absolutePath}")
+    }
+  }.exceptionOrNull()?.let {
+    xError("XtrasLibrary[$name]::resolveBinariesFromMaven():$target Failed for $mavenID: ${it.message}")
+  }
+  return null
+}
+
+internal fun XtrasLibrary.publishBinaries() {
+  xInfo("XtrasLibrary::$name.publishBinaries()")
+  project.afterEvaluate {
+    withPublishing {
+      buildTargets.get().forEach { target ->
+        registerPackageResolveTask(target)
+        registerBinaryPublication(target)
+      }
+    }
+  }
+}
+

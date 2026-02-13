@@ -34,8 +34,8 @@ val pluginOnly: String? by settings
 
 val libs = listOf(
   "openssl",
-  "curl",
-  "sqlite",
+  //"curl",
+  //"sqlite",
 )
 
 if (pluginOnly == null) {

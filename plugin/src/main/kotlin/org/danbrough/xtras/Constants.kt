@@ -8,7 +8,6 @@ object Constants {
   const val XTRAS_REPO_NAME = "Xtras"
 
   const val XTRAS_SONATYPE_REPO_NAME = "Sonatype"
-  const val XTRAS_TASK_GROUP = "xtras"
 
   const val SONATYPE_REPO_NAME = "Sonatype"
   const val RSYNC_REPO_NAME = "RSync"
