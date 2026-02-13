@@ -93,8 +93,8 @@ fun XtrasEnvironment.environmentApple(
   target: KonanTarget
 ): ScriptEnvironment {
 
-  env["CFLAGS"] =
-    "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  /*  env["CFLAGS"] =
+      "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"*/
 
   val clangArgs =
     "--target=${target.hostTriplet}"
