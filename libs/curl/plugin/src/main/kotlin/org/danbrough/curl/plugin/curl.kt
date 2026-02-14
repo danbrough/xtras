@@ -89,15 +89,12 @@ private fun Project.registerCurlLibrary() {
           }
         }
 
-        Family.OSX -> environment(
+        Family.OSX, Family.IOS -> environment(
           xtrasEnv.environmentApple(
-            env,
-            target = konanTarget
-          ).also {
-            it["DYLD_LIBRARY_PATH"] =
-              "/Users/dan/workspace/xtras/xtras/lib/openssl_macosX64_3.6.1/lib"
-          }
+            env, target = konanTarget
+          )
         )
+
 
         else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
       }
