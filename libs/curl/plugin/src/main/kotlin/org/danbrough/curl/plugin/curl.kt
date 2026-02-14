@@ -93,7 +93,10 @@ private fun Project.registerCurlLibrary() {
           xtrasEnv.environmentApple(
             env,
             target = konanTarget
-          )
+          ).also {
+            it["DYLD_LIBRARY_PATH"] =
+              "/Users/dan/workspace/xtras/xtras/lib/openssl_macosX64_3.6.1/lib"
+          }
         )
 
         else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
