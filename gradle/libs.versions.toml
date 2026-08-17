@@ -76,7 +76,7 @@ slf4j-simple = "2.0.12"
 logback-classic = "1.6.3"
 
 kotlinx-coroutines = "1.10.1"
-klog = "0.1.1"
+klog = "0.1.1-beta02"
 kotlinx-datetime = "0.6.2"
 
 [libraries]

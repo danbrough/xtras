@@ -2,7 +2,7 @@
 
 pluginManagement {
   repositories {
-    //maven("https://maven.danbrough.org")
+    maven("https://maven.danbrough.org")
     maven("file:///files/cache/xtras/maven")
     mavenCentral()
     google()
@@ -13,7 +13,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
   repositories {
-    //maven("https://maven.danbrough.org")
+    maven("https://maven.danbrough.org")
     maven("file:///files/cache/xtras/maven")
     //maven("https://s01.oss.sonatype.org/content/groups/staging")
     google()
