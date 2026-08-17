@@ -1,11 +1,11 @@
 package org.danbrough.openssl
 
-import klog.klogging
+
 import org.danbrough.openssl.cinterops.testFunction
 import kotlin.test.Test
 
 class LinuxTest {
-  val log = klogging.logger("DEMO")
+  val log = org.danbrough.klog.logger("DEMO")
 
 
   @Test
@@ -20,6 +20,6 @@ class LinuxTest {
 
     testFunction()
 
-    
+
   }
 }

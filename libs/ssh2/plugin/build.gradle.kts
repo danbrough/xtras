@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
   `kotlin-dsl`
   `java-gradle-plugin`
@@ -15,7 +13,7 @@ repositories {
   google()
 }
 
-group = "org.danbrough.openssl"
+group = "org.danbrough"
 
 java {
   withSourcesJar()
@@ -40,8 +38,8 @@ dependencies {
 gradlePlugin {
   plugins {
     create("ssh2") {
-      id = group.toString()
-      implementationClass = "$group.SSH2Plugin"
+      id = "$group.ssh2"
+      implementationClass = "$group.ssh2.plugin.SSH2Plugin"
       displayName = "SSH2 Plugin"
       description = "Kotlin multiplatform support plugin for libssh2"
     }

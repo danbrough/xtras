@@ -4,7 +4,7 @@ import org.danbrough.sqlite.cinterops.testFunction
 import kotlin.test.Test
 
 class LinuxTest {
-  val log = klog.logger("DEMO")
+  val log = org.danbrough.klog.logger("DEMO")
 
 
   @Test
