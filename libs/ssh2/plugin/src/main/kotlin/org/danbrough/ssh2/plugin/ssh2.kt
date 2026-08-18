@@ -101,7 +101,7 @@ private fun Project.registerSsh2Library() {
         println("if [ ! -f configure ]; then (autoreconf -fiv || exit 1); fi")
         println("if [ ! -f Makefile ]; then")
         println("./configure --prefix=\"${outputDirectory.get()}\" --host=${konanTarget.hostTriplet} \\")
-        println("--with-libssl-prefix=${xtrasLibDir.resolveAll("openssl_${konanTarget.xtrasName}_3.6.3/lib").absolutePath} --with-crypto=openssl  \\")
+        println("--with-crypto=openssl --with-libssl-prefix=${xtrasLibDir.resolveAll("openssl_${konanTarget.xtrasName}_3.6.3/").absolutePath}   \\")
         println("--enable-static=no")
         println("fi || exit 1")
         println("echo source configured .. building in 2")
