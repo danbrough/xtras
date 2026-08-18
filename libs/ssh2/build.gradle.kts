@@ -22,7 +22,7 @@ kotlin {
     macosArm64()
     iosArm64()
     iosX64()
-    iosSimulatorArm64()
+    //iosSimulatorArm64()
   } else {
 
     linuxX64()
