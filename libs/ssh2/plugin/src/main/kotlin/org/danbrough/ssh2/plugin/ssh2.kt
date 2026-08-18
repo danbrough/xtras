@@ -1,51 +1,47 @@
-package org.danbrough.sqlite.plugin
+package org.danbrough.ssh2.plugin
 
 import org.danbrough.xtras.ScriptEnvironment
 import org.danbrough.xtras.Xtras.Companion.xtras
 import org.danbrough.xtras.XtrasLibrary
+import org.danbrough.xtras.XtrasPlugin
 import org.danbrough.xtras.androidEnvironment
 import org.danbrough.xtras.environmentApple
 import org.danbrough.xtras.git.git
+import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.konanEnvironment
+import org.danbrough.xtras.resolveAll
 import org.danbrough.xtras.tasks.buildScript
 import org.danbrough.xtras.tasks.cinterops
 import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xTrace
+import org.danbrough.xtras.xtrasLibDir
+import org.danbrough.xtras.xtrasName
 import org.danbrough.xtras.xtrasRegisterLibrary
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.konan.target.Family
 
 
-class SQLitePlugin : Plugin<Project> {
+class SSH2Plugin : Plugin<Project> {
   override fun apply(project: Project) {
-    project.registerSqliteLibrary()
+    project.registerSsh2Library()
   }
 }
 
-private fun Project.registerSqliteLibrary() {
-  val androidSdkVersion = xtras.android.sdkVersion.get()
+private fun Project.registerSsh2Library() {
+  println("registerSsh2Library: rootProject: ${rootProject.name} - xtras: ${rootProject.extensions.findByType<XtrasPlugin>()}")
   val xtrasEnv = xtras.environment
+  val androidSdkVersion = xtras.android.sdkVersion.get()
+  val xtrasLibDir = project.xtrasLibDir
 
-  xtrasRegisterLibrary<XtrasLibrary>("sqlite") {
+  xtrasRegisterLibrary<XtrasLibrary>("ssh2") {
     cinterops {
       declaration {
         println(
           """
-        #headers = libssh2.h  libssh2_publickey.h  libssh2_sftp.h
-        headers = libssh2.h  libssh2_publickey.h  libssh2_sftp.h
-        linkerOpts = -lssh2
         #staticLibraries =  libcrypto.a libssl.a
         #headerFilter = openssl/**
-        #headers = sqlite3.h
-        #excludeDependentModules = true
-        #linkerOpts.linux = -ldl -lc -lm -lsqlite3 
-        #linkerOpts.android = -ldl -lc -lm -lsqlite3
-        #linkerOpts.macos = -ldl -lc -lm -lsqlite3
-        #linkerOpts.ios = -ldl -lc -lm -lsqlite3
-        #linkerOpts.mingw = -ldl -lc -lm -lsqlite3
-        #compilerOpts.android = -D__ANDROID_API__=$androidSdkVersion  
-        #compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
         #compilerOpts = -static
        
         """.trimIndent()
@@ -57,7 +53,7 @@ private fun Project.registerSqliteLibrary() {
           """
             #include<stdio.h>
             void testFunction(){
-              printf("Sqlite Test Function Works!!!\n");
+              printf("Test SSH2 Function Works!!!\n");
             }
           """.trimIndent()
         )
@@ -65,15 +61,15 @@ private fun Project.registerSqliteLibrary() {
     }
 
     git {
-      xTrace("configuring git for $name url:$url commit:$commit")
+      xTrace("configuring git for $name url:$url commit:?")
     }
-
 
     buildScript {
       //outputs.file(workingDir.resolve("Makefile"))
       val konanTarget = target.get()
+      outputDirectory.convention(provider { installDirMap(konanTarget) })
 
-      //doFirst {
+
       clearEnvironment()
       defaultEnvironment()
       val env = ScriptEnvironment(environment)
@@ -89,34 +85,44 @@ private fun Project.registerSqliteLibrary() {
           }
         }
 
-        Family.OSX -> environment(
+        Family.OSX, Family.IOS -> environment(
           xtrasEnv.environmentApple(
-            env,
-            target = konanTarget
+            env, target = konanTarget
           )
         )
 
         else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
       }
-      //}
+
 
       script {
-        xInfo("ssh2: writing taskConfigureSource script..")
-        println("echo running configure at `date` ..")
+        xInfo("ssh2: writing build script..")
+        println("""echo running configure at `date` ..""")
+        println("if [ ! -f configure ]; then (autoreconf -fiv || exit 1); fi")
         println("if [ ! -f Makefile ]; then")
-        println("./configure --prefix=\"${outputDirectory.get()}\"")
-        //println("--disable-tcl --disable-static --disable-readline")
-        //println("--disable-tcl --disable-static --disable-readline")/*println("./Configure ${konanTarget.opensslPlatform} \\")
-        //if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=${xtras.android.sdkVersion.get()} \\")
-        //println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")
+        println("./configure --prefix=\"${outputDirectory.get()}\" --host=${konanTarget.hostTriplet} \\")
+        println("--with-libssl-prefix=${xtrasLibDir.resolveAll("openssl_${konanTarget.xtrasName}_3.6.3/lib").absolutePath} --with-crypto=openssl  \\")
+        println("--enable-static=no")
+        println("fi || exit 1")
+        println("echo source configured .. building in 2")
+        println("sleep 2")
+        println("make || exit 1")
+        println("make install")
+        //println("--with-openssl=${xtrasLibDir.resolveAll("openssl_${konanTarget.xtrasName}_3.6.1").absolutePath} \\")
+        /*println("echo running configure at `date` ..")
+        println("if [ ! -f Makefile ]; then")
+        println("./Configure ${konanTarget.opensslPlatform} \\")
+        if (konanTarget.family == Family.ANDROID) println("-D__ANDROID_API__=$androidSdkVersion \\")
+        println("no-engine no-asm no-tests threads zlib --prefix=\"${outputDirectory.get()}\" --libdir=lib")
         println("fi || exit 1")
 
         println("echo source configured .. building in 2")
         println("sleep 2")
         println("make || exit 1")
-        println("make install")
+        println("make install_sw")*/
       }
     }
   }
 }
+
 
