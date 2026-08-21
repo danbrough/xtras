@@ -36,6 +36,7 @@ kotlin {
 xtras {
   android {
     sdkVersion = 24
+    ndkVersion = 21
   }
 }
 

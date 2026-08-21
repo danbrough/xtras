@@ -11,7 +11,7 @@ import org.danbrough.xtras.hostTriplet
 import org.danbrough.xtras.konanEnvironment
 import org.danbrough.xtras.resolveAll
 import org.danbrough.xtras.tasks.buildScript
-import org.danbrough.xtras.tasks.cinterops
+import org.danbrough.xtras.xError
 import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xTrace
 import org.danbrough.xtras.xtrasLibDir
@@ -36,29 +36,30 @@ private fun Project.registerSsh2Library() {
   val xtrasLibDir = project.xtrasLibDir
 
   xtrasRegisterLibrary<XtrasLibrary>("ssh2") {
-    cinterops {
-      declaration {
-        println(
-          """
-        #staticLibraries =  libcrypto.a libssl.a
-        #headerFilter = openssl/**
-        #compilerOpts = -static
-       
-        """.trimIndent()
-        )
-      }
-
-      extraCode {
-        println(
-          """
-            #include<stdio.h>
-            void testFunction(){
-              printf("Test SSH2 Function Works!!!\n");
-            }
-          """.trimIndent()
-        )
-      }
-    }
+//    cinterops {
+//      declaration {
+//        println(
+//          """
+//        #staticLibraries =  libcrypto.a libssl.a
+//        #headerFilter = openssl/**
+//        #compilerOpts = -static
+//
+//
+//        """.trimIndent()
+//        )
+//      }
+//
+//      extraCode {
+//        println(
+//          """
+//            #include<stdio.h>
+//            void testFunction(){
+//              printf("Test SSH2 Function Works!!!\n");
+//            }
+//          """.trimIndent()
+//        )
+//      }
+//    }
 
     git {
       xTrace("configuring git for $name url:$url commit:?")
@@ -75,6 +76,8 @@ private fun Project.registerSsh2Library() {
       val env = ScriptEnvironment(environment)
       when (konanTarget.family) {
         Family.ANDROID -> {
+          xError("SETTING DEFAULT KONAN ENVIRONMENT")
+
           environment(xtrasEnv.androidEnvironment(env, target = konanTarget))
           env["CFLAGS"] = buildString {
             //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
@@ -91,7 +94,10 @@ private fun Project.registerSsh2Library() {
           )
         )
 
-        else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
+        else -> {
+          xError("SETTING DEFAULT KONAN ENVIRONMENT")
+          environment(xtrasEnv.konanEnvironment(env, target = konanTarget))
+        }
       }
 
 

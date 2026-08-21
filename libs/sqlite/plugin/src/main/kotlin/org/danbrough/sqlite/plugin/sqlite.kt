@@ -96,7 +96,7 @@ private fun Project.registerSqliteLibrary() {
           )
         )
 
-        else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
+        else -> environment(xtrasEnv.konanEnvironment(env, target = konanTarget))
       }
       //}
 

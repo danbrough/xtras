@@ -24,9 +24,11 @@ class XtrasPlugin : Plugin<Project> {
       if (parent != null) error("Xtras plugin should be applied to the root project only. Not $name")
       logger.info("XtrasPlugin APPLY: $path")
 
+
       afterEvaluate {
         allprojects {
           xtrasExtension.also { xtras ->
+            xError("KONAN DIR: $xtrasKonanDir")
             xInfo("$name: created xtras extension: $xtras")
             //xWarn("not registering konan deps tasks")
 

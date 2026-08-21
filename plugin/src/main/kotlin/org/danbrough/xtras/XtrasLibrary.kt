@@ -113,7 +113,6 @@ open class XtrasLibrary(val xtras: Xtras, val project: Project, val name: String
 }
 
 
-@XtrasDSL
 inline fun <reified T : XtrasLibrary> Project.xtrasRegisterLibrary(
   name: String, noinline block: T.() -> Unit = {}
 ): T = xtrasRegisterLibrary(name, block, T::class)

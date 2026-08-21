@@ -4,7 +4,7 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
-class XtrasEnvironment(val xtras: Xtras, project: Project) {
+class XtrasEnvironment(val xtras: Xtras, val project: Project) {
 
 
   companion object {
@@ -77,7 +77,7 @@ fun XtrasEnvironment.androidEnvironment(
   xInfo("environmentNDK: NDK_PATH: $ndkPath")
   env["PATH"] = ndkPath
 
-
+  env["SYSROOT"] = ndkDir.resolve("toolchains/llvm/prebuilt/linux-x86_64/sysroot")
   env["PREFIX"] = "${target.hostTriplet}${xtras.android.ndkVersion.get()}-"
   env["CC"] = "clang"
   env["CXX"] = "clang++"
@@ -89,8 +89,7 @@ fun XtrasEnvironment.androidEnvironment(
 
 
 fun XtrasEnvironment.environmentApple(
-  env: ScriptEnvironment = ScriptEnvironment(),
-  target: KonanTarget
+  env: ScriptEnvironment = ScriptEnvironment(), target: KonanTarget
 ): ScriptEnvironment {
 
 
@@ -104,8 +103,7 @@ fun XtrasEnvironment.environmentApple(
   env["CFLAGS"] = "-isysroot $sdk"
 
 
-  val clangArgs =
-    "--target=${target.hostTriplet}"
+  val clangArgs = "--target=${target.hostTriplet}"
   env["CLANG_ARGS"] = clangArgs
   env["CC"] = "clang $clangArgs"
   env["CXX"] = "clang++ $clangArgs"
@@ -114,10 +112,11 @@ fun XtrasEnvironment.environmentApple(
 
 
 fun XtrasEnvironment.konanEnvironment(
-  project: Project,
   env: ScriptEnvironment = ScriptEnvironment(),
   target: KonanTarget? = null,
 ): ScriptEnvironment {
+
+  env["CFLAGS"] = "-fPIC"
 
   val konanPrebuiltDir = project.xtrasKonanDir.listFiles()
     ?.filter { it.isDirectory && it.name.startsWith("kotlin-native-prebuilt") }?.maxOrNull()
@@ -196,6 +195,7 @@ fun XtrasEnvironment.konanEnvironment(
     }
 
     HostManager.hostIsLinux -> {
+      xError("CONFIGURING CLANG for LINUX")
       when (target) {
         KonanTarget.LINUX_X64 -> "--target=${target.hostTriplet} --gcc-toolchain=${
           depsDir.resolve(
@@ -239,6 +239,19 @@ fun XtrasEnvironment.konanEnvironment(
             "aarch64-linux-android",
           )
         }"
+
+        KonanTarget.ANDROID_X64 -> "--target=${target.hostTriplet} --gcc-toolchain=${
+          depsDir.resolve(
+            "target-toolchain-2-linux-android_ndk"
+          )
+        }" + " --sysroot=${
+          depsDir.resolveAll(
+            "target-toolchain-2-linux-android_ndk",
+            "x86_64-linux-android",
+          )
+        }".also {
+          xError("SETTING ANDROID X64 options $it")
+        }
 
         /*        KonanTarget.ANDROID_ARM64 -> "--target=${target.hostTriplet} --gcc-toolchain=${
                   depsDir.resolve(

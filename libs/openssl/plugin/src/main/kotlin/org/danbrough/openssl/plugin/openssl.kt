@@ -30,26 +30,28 @@ class OpenSSLPlugin : Plugin<Project> {
 private fun Project.registerOpensslLibrary() {
   println("registerOpensslLibrary: rootProject: ${rootProject.name} - xtras: ${rootProject.extensions.findByType<XtrasPlugin>()}")
   val xtrasEnv = xtras.environment
-  val androidSdkVersion = xtras.android.sdkVersion.get()
+  val androidSdkVersion = 21 //xtras.android.sdkVersion.get()
 
   xtrasRegisterLibrary<XtrasLibrary>("openssl") {
+
     cinterops {
       declaration {
         println(
           """
-        #staticLibraries =  libcrypto.a libssl.a
-        #headerFilter = openssl/**
-        headers = openssl/ssl.h openssl/err.h openssl/bio.h openssl/evp.h
-        excludeDependentModules = true
-        linkerOpts.linux = -ldl -lc -lm -lssl -lcrypto 
-        linkerOpts.android = -ldl -lc -lm -lssl -lcrypto 
-        linkerOpts.macos = -ldl -lc -lm -lssl -lcrypto
-        linkerOpts.ios = -ldl -lc -lm -lssl -lcrypto
-        linkerOpts.mingw = -lm -lssl -lcrypto
-        compilerOpts.android = -D__ANDROID_API__=$androidSdkVersion -I${xtrasKonanDir.resolve("dependencies/target-toolchain-2-linux-android_ndk/sysroot/usr/include").absolutePath}
-        compilerOpts =  -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
-        #compilerOpts = -static
-       
+        ##staticLibraries =  libcrypto.a libssl.a
+        ##headerFilter = openssl/**
+        #headers = openssl/ssl.h openssl/err.h openssl/bio.h openssl/evp.h
+        #excludeDependentModules = true
+        #linkerOpts.linux = -lssl -lcrypto
+        #linkerOpts.android = -lssl -lcrypto
+        #linkerOpts.macos = -lssl -lcrypto
+        #linkerOpts.ios =  -lssl -lcrypto
+        ##linkerOpts.ios = -ldl -lc -lm -lssl -lcrypto
+        #linkerOpts.mingw = -lm -lssl -lcrypto
+        #compilerOpts.android = -D__ANDROID_API__=$androidSdkVersion -I${xtrasKonanDir.resolve("dependencies/target-toolchain-2-linux-android_ndk/sysroot/usr/include").absolutePath}
+        #compilerOpts = -fPIC -Wno-macro-redefined -Wno-deprecated-declarations  -Wno-incompatible-pointer-types-discards-qualifiers
+        ##compilerOpts = -static
+
         """.trimIndent()
         )
       }
@@ -97,7 +99,7 @@ private fun Project.registerOpensslLibrary() {
           )
         )
 
-        else -> environment(xtrasEnv.konanEnvironment(project, env, target = konanTarget))
+        else -> environment(xtrasEnv.konanEnvironment(env, target = konanTarget))
       }
 
 

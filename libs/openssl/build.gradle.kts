@@ -36,6 +36,8 @@ kotlin {
 xtras {
   android {
     sdkVersion = 24
+    ndkVersion = 21
+
   }
 }
 
@@ -73,7 +75,7 @@ kotlin {
 }
 
 afterEvaluate {
-  tasks.getByName("xtrasOpensslGenerateCinterops").inputs.file("plugin/src/main/kotlin/org/danbrough/openssl/plugin/openssl.kt")
+  tasks.findByName("xtrasOpensslGenerateCinterops")?.inputs?.file("plugin/src/main/kotlin/org/danbrough/openssl/plugin/openssl.kt")
 }
 
 xtrasPublishing()

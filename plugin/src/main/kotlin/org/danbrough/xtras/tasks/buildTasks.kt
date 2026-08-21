@@ -1,22 +1,22 @@
 package org.danbrough.xtras.tasks
 
-import org.danbrough.xtras.XtrasDSL
 import org.danbrough.xtras.XtrasLibrary
 import org.danbrough.xtras.taskNameBuild
 import org.danbrough.xtras.taskNamePackage
 import org.danbrough.xtras.taskNamePackageExtract
 import org.danbrough.xtras.taskNamePackageResolve
 import org.danbrough.xtras.taskNameSourceExtract
+import org.danbrough.xtras.xError
 import org.danbrough.xtras.xInfo
 import org.danbrough.xtras.xtrasName
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 
-@XtrasDSL
+
 fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
   project.afterEvaluate {
 
-    xInfo(
+    xError(
       "${this@buildScript.name}:buildScript(): targets: ${
         buildTargets.get().joinToString()
       }"
@@ -70,7 +70,7 @@ fun XtrasLibrary.buildScript(config: ScriptTask.() -> Unit) {
       }
 
       tasks.register<Exec>(taskNamePackageExtract(target)) {
-        
+
         dependsOn(taskNamePackageResolve(target))
 
         doFirst {

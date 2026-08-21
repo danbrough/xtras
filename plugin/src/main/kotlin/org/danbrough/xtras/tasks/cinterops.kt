@@ -31,6 +31,7 @@ val defaultCInteropsTargetWriter: CInteropsTargetWriter = { library, target, out
   )
 }
 
+@XtrasDSL
 class CInteropsConfig(val library: XtrasLibrary) {
   val project = library.project
 
@@ -45,14 +46,14 @@ class CInteropsConfig(val library: XtrasLibrary) {
 
   internal var declaration: (PrintWriter.() -> Unit)? = null
 
-  @XtrasDSL
+
   fun declaration(block: PrintWriter.() -> Unit) {
     declaration = block
   }
 
   internal var extraCode: (PrintWriter.() -> Unit)? = null
 
-  @XtrasDSL
+
   fun extraCode(block: PrintWriter.() -> Unit) {
     extraCode = block
   }
@@ -60,13 +61,12 @@ class CInteropsConfig(val library: XtrasLibrary) {
   internal val targetWriter =
     project.objects.property<CInteropsTargetWriter>().convention(defaultCInteropsTargetWriter)
 
-  @XtrasDSL
+
   fun targetWriter(block: CInteropsTargetWriter) {
     targetWriter.set(block)
   }
 }
 
-@XtrasDSL
 fun XtrasLibrary.cinterops(action: Action<CInteropsConfig>) {
   if (cinterops.isPresent) action.invoke(cinterops.get()) else CInteropsConfig(this).also {
     cinterops.set(it)
