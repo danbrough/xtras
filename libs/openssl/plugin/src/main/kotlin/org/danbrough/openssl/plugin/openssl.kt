@@ -87,6 +87,7 @@ private fun Project.registerOpensslLibrary() {
           env["CFLAGS"] = buildString {
             //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
             append("-Wno-macro-redefined ")
+            append("-fPIC ")
             env["CFLAGS"]?.also {
               append(it)
             }

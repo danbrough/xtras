@@ -40,7 +40,7 @@ private fun Project.registerSsh2Library() {
 //      declaration {
 //        println(
 //          """
-//        #staticLibraries =  libcrypto.a libssl.a
+//        staticLibraries =  libcrypto.a libssl.a
 //        #headerFilter = openssl/**
 //        #compilerOpts = -static
 //
@@ -82,6 +82,7 @@ private fun Project.registerSsh2Library() {
           env["CFLAGS"] = buildString {
             //        var cflags = "-Wno-unused-command-line-argument -Wno-macro-redefined -Os"
             append("-Wno-macro-redefined ")
+            append("-fPIC ")
             env["CFLAGS"]?.also {
               append(it)
             }
@@ -107,8 +108,9 @@ private fun Project.registerSsh2Library() {
         println("if [ ! -f configure ]; then (autoreconf -fiv || exit 1); fi")
         println("if [ ! -f Makefile ]; then")
         println("./configure --prefix=\"${outputDirectory.get()}\" --host=${konanTarget.hostTriplet} \\")
-        println("--with-crypto=openssl --with-libssl-prefix=${xtrasLibDir.resolveAll("openssl_${konanTarget.xtrasName}_3.6.3/").absolutePath}   \\")
-        println("--enable-static=no --disable-examples-build")
+        println("--with-crypto=openssl --with-libssl-prefix=${xtrasLibDir.resolveAll("openssl_${konanTarget.xtrasName}_3.6.3/lib").absolutePath}   \\")
+        //println("--enable-static=yes --disable-examples-build")
+        println("--enable-static=yes")
         println("fi || exit 1")
         println("echo source configured .. building in 2")
         println("sleep 2")

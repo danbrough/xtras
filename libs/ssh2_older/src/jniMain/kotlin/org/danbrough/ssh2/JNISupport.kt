@@ -1,6 +1,6 @@
 package org.danbrough.ssh2
 
-abstract class JNISupport {
+open class JNISupport {
 
   companion object {
     init {
